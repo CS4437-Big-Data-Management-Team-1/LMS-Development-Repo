@@ -10,7 +10,7 @@
 
     <modules>
         <module>LMS</module>
-        <module>user-service</module>               <!-- This is the LMS module -->
+        <module>user-service</module>
     </modules>
 
     <properties>
