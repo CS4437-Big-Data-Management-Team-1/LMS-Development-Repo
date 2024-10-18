@@ -6,11 +6,11 @@ import java.time.LocalDateTime;
 
 
 /**
- * Represents a user entity mapped to the "users" table in the TODO database
+ * Represents a user entity mapped to the "users" table in the database (could be changed and only done locally AOK.
  * Contains fields for user ID, username, email, password hash, creation timestamp, last login, and balance.
  * The {@code createdAt} field is automatically set on creation.
- * TODO Store Passwords as hash
- * Includes basic getters and setters for managing user data.
+ * Passwords are TODO be a hash,
+ * basic getters and setters are provided for managing user data.
  *
  * @author Olan Healy
  */
@@ -68,6 +68,7 @@ public class User {
         return passwordHash;
     }
 
+    // TODO PASSWORD HASH
     public void setPasswordHash(String passwordHash) {
         this.passwordHash = passwordHash;
     }
