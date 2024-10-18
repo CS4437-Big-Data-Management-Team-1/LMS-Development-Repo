@@ -20,9 +20,8 @@
 name: Build and deploy JAR app to Azure Web App
 
 env:
-  AZURE_WEBAPP_NAME: your-app-name    # set this to the name of your Azure Web App
-  JAVA_VERSION: '11'                  # set this to the Java version to use
-  DISTRIBUTION: zulu                  # set this to the Java distribution
+  AZURE_WEBAPP_NAME: lastman-standing-app   # set this to the name of your Azure Web App
+  JAVA_VERSION: '17'                  # set this to the Java version to use            
 
 on:
   push:
@@ -42,8 +41,7 @@ jobs:
       - name: Set up Java version
         uses: actions/setup-java@v4
         with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.DISTRIBUTION }}
+          java-version: ${{ JAVA_VERSION }}
           cache: 'maven'
 
       - name: Build with Maven
@@ -52,7 +50,7 @@ jobs:
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v3
         with:
-          name: java-app
+          name: LMS-app
           path: '${{ github.workspace }}/target/*.jar'
 
   deploy:
@@ -62,18 +60,18 @@ jobs:
     needs: build
     environment:
       name: 'Development'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+      url: ${{ lastman-standing-app.azurewebsites.net }}
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v3
         with:
-          name: java-app
+          name: LMS-app
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
-          app-name: ${{ env.AZURE_WEBAPP_NAME }}
-          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE }}
+          app-name: ${{ AZURE_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.LMS_WEBAPP_PUBLISH_PROFILE }}
           package: '*.jar'
