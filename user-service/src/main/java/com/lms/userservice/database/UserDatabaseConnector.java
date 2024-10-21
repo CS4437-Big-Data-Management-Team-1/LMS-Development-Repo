@@ -13,12 +13,22 @@ public class UserDatabaseConnector{
 
     private static final Logger log;
     private static Connection connection;
+
     static {
         System.setProperty("java.util.logging.SimpleFormatter.format", "[%4$-7s] %5$s %n");
         log =Logger.getLogger(UserDatabaseConnector.class.getName());
     }
 
+    /**
+     * Connects to the database
+     * Pulls data from the database.properties file.
+     * driver manager handles connection
+     *
+     * @return          The boolean value of if the connection succeeded
+     *
+     */
     public static boolean connectToDB(){
+
         log.info("Loading application properties");
         Properties properties = new Properties();
         try {
@@ -39,8 +49,14 @@ public class UserDatabaseConnector{
             return false;
         }
     }
-
+/**
+ * PreparedStatement.executeUpdate() handles adding rows to the database users
+ *
+ * @return          returns the boolean status of the function
+ */
     public static boolean addUserToDB(){
+
+        //Sample data for now, replace with actual data pulled from user input later
         String sql = "INSERT INTO users (username,email,password,created_at,last_login,balance) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
             statement.setString(1, "John" );
@@ -59,7 +75,11 @@ public class UserDatabaseConnector{
 
     }
 
-
+    /**
+     * Disconnects from database
+     *
+     * @return  boolean value of the operation
+     */
     public static boolean disconnectFromDB() {
         if(connection != null) {
             try {
