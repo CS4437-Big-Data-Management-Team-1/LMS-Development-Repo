@@ -51,6 +51,7 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
@@ -61,6 +62,20 @@
             <artifactId>azure-identity-extensions</artifactId>
             <version>1.0.0</version>
         </dependency>
+
+
+        <!-- JPA dependency for @Entity and other persistence annotations -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <!-- For rest api annotations @GETMapping etc-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
