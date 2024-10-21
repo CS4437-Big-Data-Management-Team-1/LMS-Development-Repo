@@ -29,7 +29,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/target/*.jar'
+          path: '${{ github.workspace }}/src/main/java/com/example/LMS/*.jar'
 
   deploy:
     runs-on: ubuntu-latest
