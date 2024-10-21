@@ -1,7 +1,7 @@
 package com.example.LMS;
 
 import org.springframework.boot.SpringApplication;
-import org.springfrmework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
