@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for managing user-related operations.
@@ -45,6 +46,20 @@ public class UserService {
      *
      * @return a list of all users.
      */
+
+    public Optional<User> loginUser(String email, String password) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Validate the password ( no hashing at moment google auth later)
+            if (user.getPasswordHash().equals(password)) {
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
