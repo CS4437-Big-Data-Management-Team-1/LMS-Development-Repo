@@ -18,7 +18,7 @@ import java.util.regex.Pattern;
 public class UserValidator {
 
     private static final String PATTERN_PASSWORD = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@#$%^&+=]).{8,}$"; // https://www.baeldung.com/java-regex-password-validation
-
+    private static final String PATTERN_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"; //https://stackoverflow.com/questions/8204680/java-regex-email
     /**
      * Validates the user registration details.
      *
@@ -40,7 +40,10 @@ public class UserValidator {
             throw new IllegalArgumentException("Email is required");
         }
 
-        // TODO Regex for email nd tha
+        // check email matches regex
+        if (!isValidEmail(userDTO.getEmail())) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
 
         // Validate password
         if (userDTO.getPassword() == null || userDTO.getPassword().isEmpty()) {
@@ -62,5 +65,17 @@ public class UserValidator {
     private boolean isValidPassword(String password) {
         Pattern pattern = Pattern.compile(PATTERN_PASSWORD);
         return pattern.matcher(password).matches();
+    }
+
+    /**
+     * Checks if email matches the regex pattern
+     *
+     *
+     * @param email
+     * @return  true if the mathces the complexity requirements, false otherwise.
+     */
+    private boolean isValidEmail(String email) {
+        Pattern pattern = Pattern.compile(PATTERN_EMAIL);
+        return pattern.matcher(email).matches();
     }
 }
