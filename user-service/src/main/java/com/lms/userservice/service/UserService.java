@@ -5,6 +5,7 @@ import com.lms.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +70,10 @@ public class UserService {
 
             // Validate the password ( no hashing at moment google auth later)
             if (user.getPasswordHash().equals(password)) {
+
+                user.setLastLogin(LocalDateTime.now());
+                userRepository.save(user);
+
                 return Optional.of(user);
             }
         }
