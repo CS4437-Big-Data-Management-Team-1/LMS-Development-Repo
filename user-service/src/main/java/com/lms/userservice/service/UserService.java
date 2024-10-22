@@ -33,11 +33,25 @@ public class UserService {
 
     /**
      * Registers a new user by saving it to the database.
+     * Also Checks for if the username already exists in database, or if email exists in database
      *
      * @param user the user entity to be registered.
      * @return the saved user entity.
      */
     public User registerUser(User user) {
+
+        //check if email already in use in database
+        Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
+        if (existingUserByEmail.isPresent()) {
+            throw new IllegalArgumentException("Email is already in use");
+        }
+
+        //check if username already in use in database
+        Optional<User> existingUserByUsername = userRepository.findByUsername(user.getUsername());
+        if (existingUserByUsername.isPresent()) {
+            throw new IllegalArgumentException("Username is already in use");
+        }
+
         return userRepository.save(user);
     }
 
