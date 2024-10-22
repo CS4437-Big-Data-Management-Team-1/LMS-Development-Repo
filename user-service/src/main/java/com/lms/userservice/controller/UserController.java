@@ -42,17 +42,24 @@ public class UserController {
      * Registers a new user.
      *
      * @param userDTO Data Transfer Object containing the user's registration information (basic for now)
-     * @return the saved User entity in the response body
+     * @return the saved User entity in the response body or error message if invalid registration
      */
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody UserRegistrationDTO userDTO) {
-        userValidator.validate(userDTO);
-        User user = new User();
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        user.setPasswordHash(userDTO.getPassword()); //TODO Password Hashing
-        User savedUser = userService.registerUser(user);
-        return ResponseEntity.ok(savedUser);
+    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO userDTO) {
+        try {
+            userValidator.validate(userDTO); // Validate user input
+
+            User user = new User();
+            user.setUsername(userDTO.getUsername());
+            user.setEmail(userDTO.getEmail());
+            user.setPasswordHash(userDTO.getPassword());
+
+            User savedUser = userService.registerUser(user); // Register the user
+            return ResponseEntity.ok(savedUser);
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
     }
     /**
      * Handles request for a user logging in.
@@ -71,9 +78,9 @@ public class UserController {
         Optional<User> userOptional = userService.loginUser(loginDTO.getEmail(), loginDTO.getPassword());
 
         if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.get()); // Login success
+            return ResponseEntity.ok(userOptional.get());
         } else {
-            return ResponseEntity.status(401).build(); // Unauthorized if login fails
+            return ResponseEntity.status(401).build();
         }
     }
 
