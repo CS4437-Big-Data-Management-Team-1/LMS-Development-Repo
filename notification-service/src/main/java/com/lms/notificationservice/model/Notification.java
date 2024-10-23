@@ -1,22 +1,22 @@
 package com.lms.notificationservice.model;
 
 public class Notification {
-    private String recipientEmail;
+    private String recipient;
     private String subject;
-    private String body;
+    private String message;
 
-    public Notification(String recipientEmail, String subject, String body) {
-        this.recipientEmail = recipientEmail;
+    public Notification(String recipient, String subject, String message) {
+        this.recipient = recipient;
         this.subject = subject;
-        this.body = body;
+        this.message = message;
     }
 
-    public String getRecipientEmail() {
-        return recipientEmail;
+    public String getRecipient() {
+        return recipient;
     }
 
-    public void setRecipientEmail(String recipientEmail) {
-        this.recipientEmail = recipientEmail;
+    public void setRecipient(String recipient) {
+        this.recipient = recipient;
     }
 
     public String getSubject() {
@@ -27,11 +27,11 @@ public class Notification {
         this.subject = subject;
     }
 
-    public String getBody() {
-        return body;
+    public String getMessage() {
+        return message;
     }
 
-    public void setBody(String body) {
-        this.body = body;
+    public void setMessage(String message) {
+        this.message = message;
     }
 }
