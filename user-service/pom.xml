@@ -63,6 +63,12 @@
             <version>1.0.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>20.114.0</version>
+        </dependency>
+
 
         <!-- JPA dependency for @Entity and other persistence annotations -->
         <dependency>
