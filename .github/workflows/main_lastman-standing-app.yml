@@ -7,6 +7,9 @@ on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -22,13 +25,40 @@ jobs:
           java-version: '17'
           distribution: 'microsoft'
 
+      - name: unit tests
+        run: mvn -B test --file pom.xml
+
       - name: Build with Maven
-        run: mvn clean install
+        run: |
+          mvn clean
+          mvn -B package --file pom.xml
+      - name: build docker image
+        uses: docker/buil-push-activation@v4
+        with:   
+          context: . 
+          dockerfile: Dockerfile
+          push: false
+          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest  
+
+      - name: login to docker hub
+        uses: docker/login-action@v1
+        with:  
+          username: ${{secrets.DOCKER_HUB_USERNAME }}
+          password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: push image to docker hub  
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          dockerfile: Dockerfile
+          push: true
+          tags: ${{secrets.DOCKER_HUB_USERNAE }}/rest-api:latest
         
-      - name: Deploy to Azure Web App
+      - name: Deploy Docker Container to Azure Web App
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'lastman-standing-app'
           slot-name: 'Production'
           package: '${{github.workspace}}/LMS/target/*.jar'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CBFA3E9A469E40B19DD28372F9B622D0 }}
+          images: '${{secrets.DOCKER_HUB_USERNAE }}/rest-api:latest'
