@@ -8,8 +8,8 @@
         <version>3.3.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.lms.userservice</groupId>
-    <artifactId>user-service</artifactId>
+    <groupId>com.lms.informationservice</groupId>
+    <artifactId>information-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>Information Service</name>
     <description>Information Service Microservice - Manages teams and matches</description>
