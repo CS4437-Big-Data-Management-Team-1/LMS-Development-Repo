@@ -31,10 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-
-
-
-### User Service env ###
-user-service/.env
-/src/main/resources/database.properties
-

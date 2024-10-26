@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import com.lms.userservice.database.UserDatabaseConnector;
 import java.util.List;
 import java.util.Optional;
 
@@ -89,7 +90,18 @@ public class UserService {
      * @param id the ID of the user to retrieve.
      * @return the user if found, or null if not found.
      */
+
     public User getUserById(Long id) {
         return userRepository.findById(id).orElse(null);
     }
+
+    public static void main(String[] args) {
+
+        //just sample test to check if userservice can add values to DB
+        UserDatabaseConnector database = new UserDatabaseConnector();
+        database.connectToDB();
+        database.addUserToDB();
+        database.disconnectFromDB();
+    }
+
 }
