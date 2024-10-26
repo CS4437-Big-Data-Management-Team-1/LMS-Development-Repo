@@ -11,6 +11,7 @@
     <modules>
         <module>LMS</module>
         <module>user-service</module>
+        <module>information-service</module>
     </modules>
 
     <properties>
