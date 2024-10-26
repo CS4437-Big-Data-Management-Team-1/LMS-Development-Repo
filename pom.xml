@@ -11,6 +11,7 @@
     <modules>
         <module>LMS</module>
         <module>user-service</module>
+        <module>notification-service</module>
     </modules>
 
     <properties>
