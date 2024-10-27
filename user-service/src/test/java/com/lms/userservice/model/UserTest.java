@@ -9,7 +9,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Unit tests for the User (model) class
- * @author Olan Healu
+ * @author Olan Healy
  */
 
 class UserTest {
