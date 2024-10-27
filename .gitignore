@@ -38,3 +38,5 @@ build/
 user-service/.env
 /src/main/resources/database.properties
 
+### Notification Service env ###
+notification-service/.env
