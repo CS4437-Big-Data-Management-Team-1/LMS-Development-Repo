@@ -2,6 +2,15 @@ package com.lms.informationservice.team;
 
 import jakarta.persistence.*;
 
+/**
+ * Entity class representing a team in the database.
+ * This class maps to a database table that stores information about individual teams.
+ * Contains fields for team ID, team name and their three letter acronym.
+ *
+ * Basic getters and setters are provided for managing team data.
+ *
+ * @author Caoimhe Cahill
+ */
 @Entity
 public class Team {
 

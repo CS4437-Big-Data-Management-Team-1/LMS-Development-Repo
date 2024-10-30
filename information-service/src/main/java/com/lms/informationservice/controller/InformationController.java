@@ -9,6 +9,17 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+/**
+ * REST controller for managing information retrieval and storage.
+ * This class provides endpoints to manually trigger the fetching and saving of team and match data
+ * from an external API.
+ *
+ * Each endpoint interacts with the {@link InformationService} to perform the actual data retrieval
+ * and saving operations.
+ *
+ * @author  Caoimhe Cahill
+ */
+
 @RestController
 @RequestMapping("/api/information")
 public class InformationController {
@@ -16,20 +27,38 @@ public class InformationController {
     @Autowired
     private final InformationService informationService;
 
+    /**
+     * Constructor for InformationController.
+     * Initialises the InformationService for handling data retrieval.
+     *
+     * @param informationService Service for handling team and match data operations.
+     */
     public InformationController(InformationService informationService) {
         this.informationService = informationService;
     }
 
-    // 1. Fetch and store all teams from external API (GET)
+    /**
+     * Endpoint to fetch and store all teams from the external API.
+     *
+     * Retrieve teams from the API, storing the retrieved teams in the database, and returning a list of all teams.
+     *
+     * @return ResponseEntity<List<Team>> Response entity containing a list of all teams in the database.
+     */
     @GetMapping("/teams/fetch")
     public ResponseEntity<List<Team>> fetchTeams() {
         List<Team> teams = informationService.apiCallGetTeams();
         return ResponseEntity.ok(teams);
     }
 
-    // 2. Fetch and store all fixtures from external API (GET)
+    /**
+     * Endpoint to fetch and store all match fixtures from the external API.
+     *
+     * Retrieve matches from the API, storing the retrieved matches in the database, and returning a list of all matches.
+     *
+     * @return ResponseEntity<List<Matches>> Response entity containing a list of all matches in the database.
+     */
     @GetMapping("/matches/fetch")
-    public ResponseEntity<List<Matches>> fetchFixtures() {
+    public ResponseEntity<List<Matches>> fetchMatches() {
         List<Matches> matches = informationService.apiCallGetMatches();
         return ResponseEntity.ok(matches);
     }
