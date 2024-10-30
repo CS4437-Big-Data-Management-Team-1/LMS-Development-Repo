@@ -1,5 +1,6 @@
 package com.lms.informationservice.service;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.repository.MatchesRepository;
 import com.lms.informationservice.repository.TeamRepository;
@@ -10,13 +11,20 @@ import org.springframework.http.*;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+/**
+ * Service class for managing external-api operations and calls.
+ * This class provides methods for retrieving teams and matches from an external api
+ * (https://www.football-data.org/)
+ * All methods in this class delegate database operations to the {@link TeamRepository} and the {@link MatchesRepository}.
+ *
+ * @author Caoimhe Cahill
+ */
 
 @Service
 public class InformationService {
@@ -25,25 +33,41 @@ public class InformationService {
     private final TeamRepository teamRepository;
 
     @Autowired
-    private MatchesRepository matchesRepository;
+    private final MatchesRepository matchesRepository;
 
+    // WebClient instance for making HTTP calls to the external API
+    private final WebClient webClient;
 
-    private final String BASE_URL = "https://api.football-data.org/v4/competitions/PL";
-    private final String API_TOKEN = "8e72a89f030d4e7782991ae42fdb8192";
-
-    private WebClient webClient;
-
-    public InformationService(TeamRepository teamRepository) {
+    /**
+     * Constructor for InformationService.
+     * Initialises the TeamRepository & MatchesRepository, sets up WebClient with environment variables for
+     * the API base URL and authentication token.
+     *
+     * @param teamRepository Repository for handling team data in the database.
+     */
+    public InformationService(TeamRepository teamRepository, MatchesRepository matchesRepository) {
         this.teamRepository = teamRepository;
+        this.matchesRepository = matchesRepository;
+        Dotenv dotenv = Dotenv.load();
         this.webClient = WebClient.builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(dotenv.get("FOOTBALL_API_BASE_URL"))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader("X-Auth-Token", API_TOKEN)
+                .defaultHeader("X-Auth-Token", dotenv.get("FOOTBALL_API_TOKEN"))
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(512 * 1024))
                 .build();
     }
 
-    // 1. Fetches teams from an external API and saves them in the database
+    /**
+     * Scheduled method to retrieve and save teams from the external API.
+     * Runs every Saturday at midnight.
+     *
+     * TODO: Improve Schedule Call
+     *
+     * This method fetches data from the "/teams" endpoint, maps the response to Team objects,
+     * and saves them in the database. The method returns a list of all teams after updating.
+     *
+     * @return List<Team> List of all teams in the database.
+     */
     @Scheduled(cron = "0 0 0 * * SAT")
     public List<Team> apiCallGetTeams() {
         String url = "/teams";
@@ -72,7 +96,6 @@ public class InformationService {
                 })
                 .block();
 
-        //Save the extracted teams to the database
         if (teamList != null && !teamList.isEmpty()) {
             teamRepository.saveAll(teamList);
         }
@@ -81,7 +104,17 @@ public class InformationService {
 
 
 
-    // 2. Fetches matches for the season and saves them in the database
+    /**
+     * Scheduled method to retrieve and save matches from the external API.
+     * Runs every Saturday at midnight.
+     *
+     * TODO: Improve Schedule Call
+     *
+     * This method fetches data from the "/matches" endpoint, maps the response to Matches objects,
+     * and saves them in the database. The method returns a list of all matches after updating.
+     *
+     * @return List<Matches> List of all matches in the database.
+     */
     @Scheduled(cron = "0 0 0 * * SAT")
     public List<Matches> apiCallGetMatches(){
         String url = "/matches";
@@ -93,13 +126,9 @@ public class InformationService {
                 .map(responseBody -> {
                     if (responseBody != null && responseBody.containsKey("matches")) {
 
-                        // Extract the Matches array from the response
                         List<Map<String, Object>> matches = (List<Map<String, Object>>) responseBody.get("matches");
-
-                        // Create a list to hold the Matches entities
                         List<Matches> matchesData = new ArrayList<>();
 
-                        // Iterate over the Matches array
                         for (Map<String, Object> matchData : matches) {
 
                             Integer matchId = (Integer) matchData.get("id");
@@ -112,11 +141,9 @@ public class InformationService {
                             Integer awayTeamId = (Integer) awayTeam.get("id");
                             String awayTeamName = (String) awayTeam.get("name");
 
-                            // Extract the game date and convert it to Date format
                             String utcDateStr = (String) matchData.get("utcDate");
                             Date gameDate = Date.from(Instant.parse(utcDateStr));
 
-                            // Determine the winner from the score object
                             Map<String, Object> score = (Map<String, Object>) matchData.get("score");
                             String winner = (String) score.get("winner");
 
@@ -128,7 +155,6 @@ public class InformationService {
                             } else {
                                 result = "Draw";
                             }
-
 
                             Matches match = new Matches();
                             match.setGameID(matchId);
@@ -145,7 +171,6 @@ public class InformationService {
                 })
                 .block();
 
-        // Save all the fixtures to the database
         if (matchesList != null && !matchesList.isEmpty()) {
             matchesRepository.saveAll(matchesList);
         }

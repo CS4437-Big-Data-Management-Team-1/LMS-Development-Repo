@@ -4,6 +4,15 @@ import jakarta.persistence.*;
 
 import java.util.Date;
 
+/**
+ * Entity class representing a match in the database.
+ * This class maps to a database table that stores information about individual matches.
+ * Contains fields for game ID, home team ID, away team ID, date and time of match and the match result.
+ *
+ * Basic getters and setters are provided for managing match data.
+ *
+ * @author Caoimhe Cahill
+ */
 @Entity
 public class Matches {
 
