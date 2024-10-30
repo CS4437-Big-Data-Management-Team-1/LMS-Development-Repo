@@ -1,9 +1,9 @@
-package com.lms.informationservice.fixture;
+package com.lms.informationservice.matches;
 
 import jakarta.persistence.*;
 
 @Entity
-public class Fixture {
+public class Matches {
 
     @Id
     private int id;

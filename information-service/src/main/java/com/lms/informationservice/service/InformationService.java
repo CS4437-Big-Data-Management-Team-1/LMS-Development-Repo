@@ -1,21 +1,16 @@
 package com.lms.informationservice.service;
 
-import com.lms.informationservice.fixture.Fixture;
-import com.lms.informationservice.model.Information;
-import com.lms.informationservice.repository.FixtureRepository;
-import com.lms.informationservice.repository.InformationRepository;
-import com.lms.informationservice.repository.StandingRepository;
+import com.lms.informationservice.matches.Matches;
+import com.lms.informationservice.repository.MatchesRepository;
 import com.lms.informationservice.repository.TeamRepository;
-import com.lms.informationservice.standing.Standing;
 import com.lms.informationservice.team.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.client.WebClient;
+
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,100 +20,113 @@ import java.util.Map;
 public class InformationService {
 
     @Autowired
-    private TeamRepository teamRepository;
+    private final TeamRepository teamRepository;
 
     @Autowired
-    private FixtureRepository fixtureRepository;
+    private MatchesRepository matchesRepository;
 
-    @Autowired
-    private StandingRepository standingRepository;
-
-    @Autowired
-    private InformationRepository informationRepository;
 
     private final String BASE_URL = "https://api.football-data.org/v4/competitions/PL";
     private final String API_TOKEN = "8e72a89f030d4e7782991ae42fdb8192";
-    private RestTemplate restTemplate = new RestTemplate();
+
+    private WebClient webClient;
+
+    public InformationService(TeamRepository teamRepository) {
+        this.teamRepository = teamRepository;
+        this.webClient = WebClient.builder()
+                .baseUrl(BASE_URL)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .defaultHeader("X-Auth-Token", API_TOKEN)
+                .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(512 * 1024))
+                .build();
+    }
 
     // 1. Fetches teams from an external API and saves them in the database
     public List<Team> apiCallGetTeams() {
-        String url = BASE_URL + "/teams";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Auth-Token", API_TOKEN);
+        String url = "/teams";
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
+        List<Team> teamList = this.webClient.get()
+                .uri(url)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {
+                })
+                .map(responseBody -> {
+                    if (responseBody != null && responseBody.containsKey("teams")) {
+                        List<Map<String, Object>> teams = (List<Map<String, Object>>) responseBody.get("teams");
 
-        Map<String, Object> responseBody = response.getBody();
-        if (responseBody != null && responseBody.containsKey("teams")) {
-            List<Map<String, Object>> teams = (List<Map<String, Object>>) responseBody.get("teams");
+                        List<Team> teamsData = new ArrayList<>();
+                        for (Map<String, Object> teamData : teams) {
+                            Team team = new Team();
+                            team.setTeamID((Integer) teamData.get("id"));
+                            team.setTeamName((String) teamData.get("name"));
+                            team.setTla((String) teamData.get("tla"));
+                            team.setTeamColour((String) teamData.get("clubColors"));
+                            team.setTeamLogo((String) teamData.get("crest"));
 
-            List<Team> teamList = new ArrayList<>();
-            for (Map<String, Object> teamData : teams) {
-                Team team = new Team();
-                team.setTeamID((Integer) teamData.get("id"));
-                team.setTeamName((String) teamData.get("name"));
-                team.setTla((String) teamData.get("tla"));
-                team.setTeamColour((String) teamData.get("clubColors"));
-                team.setTeamLogo((String) teamData.get("crest"));
+                            teamsData.add(team);
+                        }
+                        return teamsData;
+                    }
+                    return new ArrayList<Team>();
+                })
+                .block();
 
-                teamList.add(team);
-            }
-
-            // Save the extracted teams to the database
+        //Save the extracted teams to the database
+        if (teamList != null && !teamList.isEmpty()) {
             teamRepository.saveAll(teamList);
         }
         return teamRepository.findAll();
     }
 
 
+
     // 2. Fetches fixtures for the season and saves them in the database
-    public List<Fixture> apiCallGetFixtures() {
-        String url = BASE_URL + "/matches";
-        HttpHeaders headers = new HttpHeaders();
-        headers.set("X-Auth-Token", API_TOKEN);
+    public List<Matches> apiCallGetFixtures(){
+        String url = "/Matches";
 
-        HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<Map<String, Object>> response = restTemplate.exchange(url, HttpMethod.GET, entity, new ParameterizedTypeReference<Map<String, Object>>() {});
+        List<Matches> matchesList = this.webClient.get()
+                .uri("/Matches")
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                .map(responseBody -> {
+                    if (responseBody != null && responseBody.containsKey("Matches")) {
 
-        Map<String, Object> responseBody = response.getBody();
-        if (responseBody != null && responseBody.containsKey("matches")) {
-            // Extract the matches array from the response
-            List<Map<String, Object>> matches = (List<Map<String, Object>>) responseBody.get("matches");
+                        // Extract the Matches array from the response
+                        List<Map<String, Object>> matches = (List<Map<String, Object>>) responseBody.get("Matches");
 
-            // Create a list to hold the Fixture entities
-            List<Fixture> fixtureList = new ArrayList<>();
+                        // Create a list to hold the Matches entities
+                        List<Matches> fixturesData = new ArrayList<>();
 
-            // Iterate over the matches array
-            for (Map<String, Object> matchData : matches) {
-                // Extract match id
-                Integer matchId = (Integer) matchData.get("id");
+                        // Iterate over the Matches array
+                        for (Map<String, Object> matchData : matches) {
 
-                // Extract home team id
-                Map<String, Object> homeTeam = (Map<String, Object>) matchData.get("homeTeam");
-                Integer homeTeamId = (Integer) homeTeam.get("id");
+                            Integer matchId = (Integer) matchData.get("id");
 
-                // Extract away team id
-                Map<String, Object> awayTeam = (Map<String, Object>) matchData.get("awayTeam");
-                Integer awayTeamId = (Integer) awayTeam.get("id");
+                            Map<String, Object> homeTeam = (Map<String, Object>) matchData.get("homeTeam");
+                            Integer homeTeamId = (Integer) homeTeam.get("id");
 
-                // Create a new Fixture entity and set its properties
-                Fixture fixture = new Fixture();
-                fixture.setId(matchId);
-                fixture.setHomeTeamID(homeTeamId);
-                fixture.setAwayTeamID(awayTeamId);
+                            Map<String, Object> awayTeam = (Map<String, Object>) matchData.get("awayTeam");
+                            Integer awayTeamId = (Integer) awayTeam.get("id");
 
-                // Add the fixture to the list
-                fixtureList.add(fixture);
-            }
+                            Matches fixture = new Matches();
+                            fixture.setId(matchId);
+                            fixture.setHomeTeamID(homeTeamId);
+                            fixture.setAwayTeamID(awayTeamId);
 
-            // Save all the fixtures to the database
-            fixtureRepository.saveAll(fixtureList);
+                            fixturesData.add(fixture);
+                        }
+                        return fixturesData;
+                    }
+                    return new ArrayList<Matches>();
+                })
+                .block();
+
+        // Save all the fixtures to the database
+        if (matchesList != null && !matchesList.isEmpty()) {
+            matchesRepository.saveAll(matchesList);
         }
-
-        return fixtureRepository.findAll();
+        return matchesRepository.findAll();
     }
-
 
 }
 
