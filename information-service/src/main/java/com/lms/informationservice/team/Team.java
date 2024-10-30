@@ -9,8 +9,6 @@ public class Team {
     private int teamID;
     private String teamName;
     private String tla;
-    private String teamColour;
-    private String teamLogo;
 
     // Getters and Setters
     public int getTeamID() {
@@ -37,20 +35,5 @@ public class Team {
         this.tla = tla;
     }
 
-    public String getTeamColour() {
-        return teamColour;
-    }
-
-    public void setTeamColour(String teamColour) {
-        this.teamColour = teamColour;
-    }
-
-    public String getTeamLogo() {
-        return teamLogo;
-    }
-
-    public void setTeamLogo(String teamLogo) {
-        this.teamLogo = teamLogo;
-    }
 }
 

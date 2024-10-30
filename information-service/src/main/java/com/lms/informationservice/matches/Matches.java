@@ -2,21 +2,25 @@ package com.lms.informationservice.matches;
 
 import jakarta.persistence.*;
 
+import java.util.Date;
+
 @Entity
 public class Matches {
 
     @Id
-    private int id;
+    private int gameID;
     private int homeTeamID;
     private int awayTeamID;
+    private Date gameDate;
+    private String result;
 
     // Getters and Setters
     public int getId() {
-        return id;
+        return gameID;
     }
 
-    public void setId(int id) {
-        this.id = id;
+    public void setGameID(int gameID) {
+        this.gameID = gameID;
     }
 
     public int getHomeTeamID() {
@@ -33,5 +37,21 @@ public class Matches {
 
     public void setAwayTeamID(int awayTeamID) {
         this.awayTeamID = awayTeamID;
+    }
+
+    public Date getGameDate(){
+        return gameDate;
+    }
+
+    public void setGameDate(Date gameDate) {
+        this.gameDate = gameDate;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }
