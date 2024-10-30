@@ -28,9 +28,9 @@ public class InformationController {
     }
 
     // 2. Fetch and store all fixtures from external API (GET)
-    @GetMapping("/fixtures/fetch")
+    @GetMapping("/matches/fetch")
     public ResponseEntity<List<Matches>> fetchFixtures() {
-        List<Matches> matches = informationService.apiCallGetFixtures();
+        List<Matches> matches = informationService.apiCallGetMatches();
         return ResponseEntity.ok(matches);
     }
 }

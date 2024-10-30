@@ -11,8 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 
 
-
+import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -60,8 +61,6 @@ public class InformationService {
                             team.setTeamID((Integer) teamData.get("id"));
                             team.setTeamName((String) teamData.get("name"));
                             team.setTla((String) teamData.get("tla"));
-                            team.setTeamColour((String) teamData.get("clubColors"));
-                            team.setTeamLogo((String) teamData.get("crest"));
 
                             teamsData.add(team);
                         }
@@ -80,22 +79,22 @@ public class InformationService {
 
 
 
-    // 2. Fetches fixtures for the season and saves them in the database
-    public List<Matches> apiCallGetFixtures(){
-        String url = "/Matches";
+    // 2. Fetches matches for the season and saves them in the database
+    public List<Matches> apiCallGetMatches(){
+        String url = "/matches";
 
         List<Matches> matchesList = this.webClient.get()
-                .uri("/Matches")
+                .uri("/matches")
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
                 .map(responseBody -> {
-                    if (responseBody != null && responseBody.containsKey("Matches")) {
+                    if (responseBody != null && responseBody.containsKey("matches")) {
 
                         // Extract the Matches array from the response
-                        List<Map<String, Object>> matches = (List<Map<String, Object>>) responseBody.get("Matches");
+                        List<Map<String, Object>> matches = (List<Map<String, Object>>) responseBody.get("matches");
 
                         // Create a list to hold the Matches entities
-                        List<Matches> fixturesData = new ArrayList<>();
+                        List<Matches> matchesData = new ArrayList<>();
 
                         // Iterate over the Matches array
                         for (Map<String, Object> matchData : matches) {
@@ -104,18 +103,40 @@ public class InformationService {
 
                             Map<String, Object> homeTeam = (Map<String, Object>) matchData.get("homeTeam");
                             Integer homeTeamId = (Integer) homeTeam.get("id");
+                            String homeTeamName = (String) homeTeam.get("name");
 
                             Map<String, Object> awayTeam = (Map<String, Object>) matchData.get("awayTeam");
                             Integer awayTeamId = (Integer) awayTeam.get("id");
+                            String awayTeamName = (String) awayTeam.get("name");
 
-                            Matches fixture = new Matches();
-                            fixture.setId(matchId);
-                            fixture.setHomeTeamID(homeTeamId);
-                            fixture.setAwayTeamID(awayTeamId);
+                            // Extract the game date and convert it to Date format
+                            String utcDateStr = (String) matchData.get("utcDate");
+                            Date gameDate = Date.from(Instant.parse(utcDateStr));
 
-                            fixturesData.add(fixture);
+                            // Determine the winner from the score object
+                            Map<String, Object> score = (Map<String, Object>) matchData.get("score");
+                            String winner = (String) score.get("winner");
+
+                            String result;
+                            if ("HOME_TEAM".equals(winner)) {
+                                result = homeTeamName;
+                            } else if ("AWAY_TEAM".equals(winner)) {
+                                result = awayTeamName;
+                            } else {
+                                result = "Draw";
+                            }
+
+
+                            Matches match = new Matches();
+                            match.setGameID(matchId);
+                            match.setHomeTeamID(homeTeamId);
+                            match.setAwayTeamID(awayTeamId);
+                            match.setGameDate(gameDate);
+                            match.setResult(result);
+
+                            matchesData.add(match);
                         }
-                        return fixturesData;
+                        return matchesData;
                     }
                     return new ArrayList<Matches>();
                 })
