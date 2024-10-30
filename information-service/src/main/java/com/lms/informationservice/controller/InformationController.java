@@ -1,13 +1,12 @@
 package com.lms.informationservice.controller;
 
-import com.lms.informationservice.fixture.Fixture;
+import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.service.InformationService;
 import com.lms.informationservice.team.Team;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -30,10 +29,9 @@ public class InformationController {
 
     // 2. Fetch and store all fixtures from external API (GET)
     @GetMapping("/fixtures/fetch")
-    public ResponseEntity<List<Fixture>> fetchFixtures() {
-        List<Fixture> fixtures = informationService.apiCallGetFixtures();
-        return ResponseEntity.ok(fixtures);
+    public ResponseEntity<List<Matches>> fetchFixtures() {
+        List<Matches> matches = informationService.apiCallGetFixtures();
+        return ResponseEntity.ok(matches);
     }
-
 }
 
