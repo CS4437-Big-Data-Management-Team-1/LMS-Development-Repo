@@ -1,14 +1,29 @@
 services:
-  lms-app:
+  user-service:
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    depends_on:
+      - mysqldb
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
+      - jdbc:mysql://database-users.mysql.database.azure.com:3306/users?useSSL=true
     networks:
-      - app-network 
+      - app-network
+
+  mysqldb:
+    image: "mysql:8.0"
+    ports:
+      - 3306:3306
+    networks:
+      - springapimysql-net
+    environment:
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
+      MYSQL_ROOT_PASSWORD:
+
 
 networks:
   app-network:
