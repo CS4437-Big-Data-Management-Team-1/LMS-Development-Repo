@@ -33,7 +33,7 @@ jobs:
           mvn clean
           mvn -B package --file pom.xml
       - name: build docker image
-        uses: docker/buil-push-activation@v4
+        uses: docker/build-push-activation@v4
         with:   
           context: . 
           dockerfile: Dockerfile
@@ -52,13 +52,5 @@ jobs:
           context: .
           dockerfile: Dockerfile
           push: true
-          tags: ${{secrets.DOCKER_HUB_USERNAE }}/rest-api:latest
-        
-      - name: Deploy Docker Container to Azure Web App
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'lastman-standing-app'
-          slot-name: 'Production'
-          package: '${{github.workspace}}/LMS/target/*.jar'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_CBFA3E9A469E40B19DD28372F9B622D0 }}
-          images: '${{secrets.DOCKER_HUB_USERNAE }}/rest-api:latest'
+          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest
+
