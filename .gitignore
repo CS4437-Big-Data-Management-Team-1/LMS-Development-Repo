@@ -40,3 +40,6 @@ user-service/.env
 
 ### Notification Service env ###
 notification-service/.env
+
+### Information Service env ###
+information-service/.env
