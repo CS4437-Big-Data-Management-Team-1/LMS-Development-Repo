@@ -12,13 +12,18 @@ import org.springframework.web.bind.annotation.*;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
+import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * REST Controller for managing user operations.
  * Handles user registration, fetching all users, and fetching user details by ID.
  * Handles user login,
+ *
+ * @see <a href="https://www.baeldung.com/spring-security-firebase-authentication"> Setting up Firebase authentication and authorisation</a>
  * @author olanhealy
  */
 @RestController
@@ -28,6 +33,10 @@ public class UserController {
     // Yse necessacary classes
     private final UserService userService;
     private final UserValidator userValidator;
+
+    //Used for login method
+    private final String apiKey = System.getProperty("FIREBASE_API_KEY");
+    private final String apiUrl = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
 
     /**
      * Constructs a UserController with injected dependencies for user service and validation.
@@ -71,24 +80,38 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
     /**
      * Handles request for a user logging in.
      *
-     * accepts email and password via a POST request.
-     * If the user is found and the password matches, the user details are returned with a 200 OK status. TODO login to app when up
-     * If the credentials are invalid, a 401 Unauthorized status is returned.
+     * Authenticates the user using Firebase by sending a POST request with the user's email and password.
+     * If the email and password are correct, Firebase returns an ID token, and the method responds with a 200 OK status.
+     * If the authentication fails, a 401 Unauthorized status is returned.
      *
-     * @param loginDTO (contains user details)
-     * @return A Response Entity containing the User object if login is successful (placeholder)
-     *         401 Unauthorized status if login fails.
+     * @param loginDTO contains the user's email and password for authentication
+     * @return A Response Entity containing a success message and the ID token if login is successful,
+     *         or a 401 Unauthorized status if the login fails.
      */
-
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDTO loginDTO) {
         try {
-            String idToken = FirebaseAuth.getInstance().getUserByEmail(loginDTO.getEmail()).getUid();
-            return ResponseEntity.ok("Login successful. Token: " + idToken);
-        } catch (FirebaseAuthException e) {
+            Map<String, String> body = new HashMap<>();
+            body.put("email", loginDTO.getEmail());
+            body.put("password", loginDTO.getPassword());
+            body.put("returnSecureToken", "true");
+
+
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> responseBody = response.getBody();
+                String idToken = (String) responseBody.get("idToken");
+                return ResponseEntity.ok("Login successful. Token: " + idToken);
+            } else {
+                return ResponseEntity.status(401).body("Invalid email or password");
+            }
+        } catch (Exception e) {
             return ResponseEntity.status(401).body("Invalid email or password");
         }
     }
