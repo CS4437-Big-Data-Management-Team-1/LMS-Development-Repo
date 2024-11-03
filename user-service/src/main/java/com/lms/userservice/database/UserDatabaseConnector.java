@@ -1,5 +1,6 @@
 package com.lms.userservice.database;
 
+import com.lms.userservice.model.User;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 
 import java.io.IOException;
@@ -54,14 +55,14 @@ public class UserDatabaseConnector{
  *
  * @return          returns the boolean status of the function
  */
-    public static boolean addUserToDB(){
+    public static boolean addUserToDB(User user){
 
         //Sample data for now, replace with actual data pulled from user input later
         String sql = "INSERT INTO users (username,email,password,created_at,last_login,balance) VALUES (?, ?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setString(1, "John" );
-            statement.setString(2, "abcde@gmail.com");
-            statement.setString(3, "abcde");
+            statement.setString(1, user.getUsername() );
+            statement.setString(2, user.getEmail());
+            statement.setString(3, user.getPasswordHash());
             statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
             statement.setBigDecimal(6, BigDecimal.TEN);

@@ -1,5 +1,6 @@
 package com.lms.userservice.controller;
 
+import com.lms.userservice.database.UserDatabaseConnector;
 import com.lms.userservice.login.UserLoginDTO;
 import com.lms.userservice.model.User;
 import com.lms.userservice.registration.UserRegistrationDTO;
@@ -21,6 +22,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    UserDatabaseConnector db = new UserDatabaseConnector();
 
     // Yse necessacary classes
     private final UserService userService;
@@ -34,6 +36,7 @@ public class UserController {
      */
     @Autowired
     public UserController(UserService userService, UserValidator userValidator) {
+        db.connectToDB();
         this.userService = userService;
         this.userValidator = userValidator;
     }
