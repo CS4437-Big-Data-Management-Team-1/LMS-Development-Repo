@@ -9,8 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.UserRecord;
+
 import java.util.List;
-import java.util.Optional;
 
 /**
  * REST Controller for managing user operations.
@@ -47,17 +50,24 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO userDTO) {
         try {
-            userValidator.validate(userDTO); // Validate user input
+            userValidator.validate(userDTO);
+            UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                    .setEmail(userDTO.getEmail())
+                    .setPassword(userDTO.getPassword())
+                    .setDisplayName(userDTO.getUsername());
+
+            UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+
 
             User user = new User();
-            user.setUsername(userDTO.getUsername());
-            user.setEmail(userDTO.getEmail());
-            user.setPasswordHash(userDTO.getPassword());
+            user.setEmail(userRecord.getEmail());
+            user.setUsername(userRecord.getDisplayName());
+            user.setPasswordHash(""); // TODO can probs get rid of this as firebase deal with password
 
-            User savedUser = userService.registerUser(user); // Register the user
+            User savedUser = userService.registerUser(user);
             return ResponseEntity.ok(savedUser);
 
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | FirebaseAuthException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -74,13 +84,12 @@ public class UserController {
      */
 
     @PostMapping("/login")
-    public ResponseEntity<User> loginUser(@RequestBody UserLoginDTO loginDTO) {
-        Optional<User> userOptional = userService.loginUser(loginDTO.getEmail(), loginDTO.getPassword());
-
-        if (userOptional.isPresent()) {
-            return ResponseEntity.ok(userOptional.get());
-        } else {
-            return ResponseEntity.status(401).build();
+    public ResponseEntity<?> loginUser(@RequestBody UserLoginDTO loginDTO) {
+        try {
+            String idToken = FirebaseAuth.getInstance().getUserByEmail(loginDTO.getEmail()).getUid();
+            return ResponseEntity.ok("Login successful. Token: " + idToken);
+        } catch (FirebaseAuthException e) {
+            return ResponseEntity.status(401).body("Invalid email or password");
         }
     }
 
