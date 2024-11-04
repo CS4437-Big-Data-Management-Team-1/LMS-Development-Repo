@@ -43,7 +43,6 @@ public class UserService {
      * @return the saved user entity.
      */
     public User registerUser(User user) {
-        System.out.println("HERE");
         //check if email already in use in database
         Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
         if (existingUserByEmail.isPresent()) {
@@ -56,7 +55,6 @@ public class UserService {
             throw new IllegalArgumentException("Username is already in use");
         }
         db.addUserToDB(user);
-        System.out.println("user:"+user);
         return userRepository.save(user);
     }
 
