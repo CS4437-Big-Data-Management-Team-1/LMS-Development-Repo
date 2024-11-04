@@ -1,9 +1,10 @@
 package com.lms.userservice.controller;
 
+import com.google.firebase.auth.FirebaseToken;
 import com.lms.userservice.login.UserLoginDTO;
 import com.lms.userservice.model.User;
 import com.lms.userservice.registration.UserRegistrationDTO;
-import com.lms.userservice.service.UserService;;
+import com.lms.userservice.service.UserService;
 import com.lms.userservice.validator.UserValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,7 @@ import java.util.Map;
 /**
  * REST Controller for managing user operations.
  * Handles user registration, fetching all users, and fetching user details by ID.
- * Handles user login,
+ * Handles user login, with Firebase JWT Authorisation
  *
  * @see <a href="https://www.baeldung.com/spring-security-firebase-authentication"> Setting up Firebase authentication and authorisation</a>
  * @author olanhealy
@@ -30,11 +31,10 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserController {
 
-    // Yse necessacary classes
     private final UserService userService;
     private final UserValidator userValidator;
 
-    //Used for login method
+    // Used for login method
     private final String apiKey = System.getProperty("FIREBASE_API_KEY");
     private final String apiUrl = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
 
@@ -85,7 +85,8 @@ public class UserController {
      * Handles request for a user logging in.
      *
      * Authenticates the user using Firebase by sending a POST request with the user's email and password.
-     * If the email and password are correct, Firebase returns an ID token, and the method responds with a 200 OK status.
+     * If the email and password are correct, Firebase returns a JWT ID token which will
+     * be used for accessing specific endpoints, and the method responds with a 200 OK status.
      * If the authentication fails, a 401 Unauthorized status is returned.
      *
      * @param loginDTO contains the user's email and password for authentication
@@ -99,8 +100,6 @@ public class UserController {
             body.put("email", loginDTO.getEmail());
             body.put("password", loginDTO.getPassword());
             body.put("returnSecureToken", "true");
-
-
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
 
@@ -137,5 +136,26 @@ public class UserController {
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+    }
+
+    /**
+     * PLACEHOLDER: Just for testing JWT token
+     * @param authorisationHeader
+     * @return
+     */
+    @GetMapping("/secure-endpoint")
+    public ResponseEntity<?> secureEndpoint(@RequestHeader("Authorisation") String authorisationHeader) {
+        try {
+
+            String idToken = authorisationHeader.replace("Bearer ", "");
+
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+
+
+            String uid = decodedToken.getUid();
+            return ResponseEntity.ok("Access granted for user: " + uid);
+        } catch (Exception e) {
+            return ResponseEntity.status(401).body("Unauthorised: Invalid or expired token");
+        }
     }
 }
