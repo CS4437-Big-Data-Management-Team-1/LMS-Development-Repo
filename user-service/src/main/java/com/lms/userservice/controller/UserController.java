@@ -34,9 +34,7 @@ import org.apache.logging.log4j.Logger;
 @RequestMapping("/api/users")
 public class UserController {
 
-
-
-    //Log4j
+    // Log4j
     private static final Logger logger = LogManager.getLogger(UserController.class);
 
     // Yse necessacary classes
@@ -57,6 +55,7 @@ public class UserController {
     public UserController(UserService userService, UserValidator userValidator) {
         this.userService = userService;
         this.userValidator = userValidator;
+        logger.info("UserController initialized.");
     }
 
     /**
@@ -67,25 +66,31 @@ public class UserController {
      */
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO userDTO) {
+        logger.info("Attempting to register user with email: {}", userDTO.getEmail());
         try {
             userValidator.validate(userDTO);
+            logger.debug("User data validated for email: {}", userDTO.getEmail());
+
             UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                     .setEmail(userDTO.getEmail())
                     .setPassword(userDTO.getPassword())
                     .setDisplayName(userDTO.getUsername());
 
             UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
-
+            logger.info("Firebase user created with UID: {}", userRecord.getUid());
 
             User user = new User();
             user.setEmail(userRecord.getEmail());
             user.setUsername(userRecord.getDisplayName());
             user.setPasswordHash(""); // TODO can probs get rid of this as firebase deal with password
+            logger.debug("User entity prepared for saving.");
 
             User savedUser = userService.registerUser(user);
+            logger.info("User registered and saved with ID: {}", savedUser.getId());
             return ResponseEntity.ok(savedUser);
 
         } catch (IllegalArgumentException | FirebaseAuthException e) {
+            logger.error("Error during user registration: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -104,26 +109,32 @@ public class UserController {
      */
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDTO loginDTO) {
+        logger.info("Attempting login for user: {}", loginDTO.getEmail());
         try {
             Map<String, String> body = new HashMap<>();
             body.put("email", loginDTO.getEmail());
             body.put("password", loginDTO.getPassword());
             body.put("returnSecureToken", "true");
+            logger.debug("Sending request to Firebase login endpoint.");
+
             RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Login successful for user: {}", loginDTO.getEmail());
                 Map<String, Object> responseBody = response.getBody();
                 String idToken = (String) responseBody.get("idToken");
+                logger.debug("Received ID token: {}", idToken);
                 return ResponseEntity.ok("Login successful. Token: " + idToken);
             } else {
+                logger.warn("Login failed for user: {}", loginDTO.getEmail());
                 return ResponseEntity.status(401).body("Invalid email or password");
             }
         } catch (Exception e) {
+            logger.error("Error during login for user: {}", loginDTO.getEmail(), e);
             return ResponseEntity.status(401).body("Invalid email or password");
         }
     }
-
 
     /**
      * Fetches all registered users from the database.
@@ -137,7 +148,6 @@ public class UserController {
         logger.debug("Number of users fetched: {}", users.size());
         return ResponseEntity.ok(users);
     }
-
 
     /**
      * Fetches a user by their unique ID or 404 if not found.
@@ -165,16 +175,18 @@ public class UserController {
      */
     @GetMapping("/secure-endpoint")
     public ResponseEntity<?> secureEndpoint(@RequestHeader("Authorisation") String authorisationHeader) {
+        logger.info("Accessing secure endpoint.");
         try {
-
             String idToken = authorisationHeader.replace("Bearer ", "");
+            logger.debug("Verifying ID token: {}", idToken);
 
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-
-
             String uid = decodedToken.getUid();
+            logger.info("Token verified. Access granted for UID: {}", uid);
+
             return ResponseEntity.ok("Access granted for user: " + uid);
         } catch (Exception e) {
+            logger.error("Unauthorised access attempt.", e);
             return ResponseEntity.status(401).body("Unauthorised: Invalid or expired token");
         }
     }
