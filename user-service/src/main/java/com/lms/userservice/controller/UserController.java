@@ -19,6 +19,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * REST Controller for managing user operations.
  * Handles user registration, fetching all users, and fetching user details by ID.
@@ -31,6 +34,12 @@ import java.util.Map;
 @RequestMapping("/api/users")
 public class UserController {
 
+
+
+    //Log4j
+    private static final Logger logger = LogManager.getLogger(UserController.class);
+
+    // Yse necessacary classes
     private final UserService userService;
     private final UserValidator userValidator;
 
@@ -115,6 +124,7 @@ public class UserController {
         }
     }
 
+
     /**
      * Fetches all registered users from the database.
      *
@@ -122,9 +132,12 @@ public class UserController {
      */
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
+        logger.info("Fetching all users.");
         List<User> users = userService.getAllUsers();
+        logger.debug("Number of users fetched: {}", users.size());
         return ResponseEntity.ok(users);
     }
+
 
     /**
      * Fetches a user by their unique ID or 404 if not found.
@@ -134,8 +147,15 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        logger.info("Fetching user with ID: {}", id);
         User user = userService.getUserById(id);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        if (user != null) {
+            logger.info("User found with ID: {}", id);
+            return ResponseEntity.ok(user);
+        } else {
+            logger.warn("User not found with ID: {}", id);
+            return ResponseEntity.notFound().build();
+        }
     }
 
     /**
