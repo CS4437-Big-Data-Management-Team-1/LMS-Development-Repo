@@ -2,39 +2,26 @@ services:
   user-service:
     build:
       context: .
-      target: user-service/Dockerfile
-
-  payment-service:
-    build:
-      context: .
-      target: payment-service/Dockerfile
-
-  notification-service:
-    build:
-      context: .
-      target: notification-service/Dockerfile
-
-  information-service:
-    build:
-      context: .
-      target: information-service/Dockerfile
-
-  game-service:
-    build:
-      context: .
-      target: game-service/Dockerfile
-
+      dockerfile: user-service/Dockerfile
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysqldb
+    environment:
+      - jdbc:mysql://database-users.mysql.database.azure.com:3306/users?useSSL=true
+    networks:
+      - app-network
 
   mysqldb:
     image: "mysql:8.0"
     ports:
-      - "3306:3306"
+      - 3306:3306
     networks:
       - springapimysql-net
     environment:
-      MYSQL_DATABASE: mysql://database-users.mysql.database.azure.com:3306/
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
       MYSQL_ROOT_PASSWORD:
 
 
