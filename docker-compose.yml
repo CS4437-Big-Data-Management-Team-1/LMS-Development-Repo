@@ -1,22 +1,27 @@
 services:
-  user-api:
-    container_name: user-container
-    image: user/user:0.0.1
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
     ports:
-      - 8080:8080
+      - "8080:8080"
+    depends_on:
+      - mysqldb
+    environment:
+      - jdbc:mysql://database-users.mysql.database.azure.com:3306/users?useSSL=true
     networks:
-      - spring-demo
+      - app-network
 
   mysqldb:
     image: "mysql:8.0"
     ports:
-      - "3306:3306"
+      - 3306:3306
     networks:
       - springapimysql-net
     environment:
-      MYSQL_DATABASE: mysql://database-users.mysql.database.azure.com:3306/
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE:
+      MYSQL_USER:
+      MYSQL_PASSWORD:
       MYSQL_ROOT_PASSWORD:
 
 
