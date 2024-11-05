@@ -15,6 +15,9 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service: [user-service, notification-service, information-service]
 
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +29,8 @@ jobs:
           distribution: 'microsoft'
 
       - name: unit tests
-        run: mvn -B test --file pom.xml
+        run: mvn -B test --file ./${{matrix.service}}/pom.xml
+        if: exists ('${{matrix.service}}/pom.xml')
 
       - name: Set-up Docker Buildx
         uses: docker/setup-buildx-action@v2
