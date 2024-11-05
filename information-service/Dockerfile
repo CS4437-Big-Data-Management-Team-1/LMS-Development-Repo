@@ -15,8 +15,6 @@ WORKDIR /app
 
 COPY --from=build /app/target/information-service-0.0.1-SNAPSHOT.jar ./information-service-0.0.1-SNAPSHOT.jar
 
-EXPOSE 8082
-ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/games
-ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/teams
+EXPOSE 8083
 
 ENTRYPOINT ["java", "-jar", "information-service-0.0.1-SNAPSHOT.jar"]
