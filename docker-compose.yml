@@ -2,6 +2,10 @@ services:
   user-api:
     container_name: user-container
     image: user/user:0.0.1
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
     ports:
       - 8080:8080
     networks:
