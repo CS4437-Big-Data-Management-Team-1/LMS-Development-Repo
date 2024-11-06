@@ -20,6 +20,7 @@ COPY --from=build /app/target/user-service-0.0.1-SNAPSHOT.jar ./user-service-0.0
 
 EXPOSE 8080
 
+ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/users
 ENV ACTIVE_PROFILE=${PROFILE}
 ENV JAR_VERSION = ${APP_VERSION}
 
