@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * REST Controller for managing user operations.
  * Handles user registration, fetching all users, and fetching user details by ID.
@@ -24,6 +27,8 @@ import java.util.Optional;
 public class UserController {
     UserDatabaseConnector db = new UserDatabaseConnector();
 
+    //Log4j
+    private static final Logger logger = LogManager.getLogger(UserController.class);
     // Yse necessacary classes
     private final UserService userService;
     private final UserValidator userValidator;
@@ -49,8 +54,11 @@ public class UserController {
      */
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO userDTO) {
+        logger.info("Registering new user with email: {}", userDTO.getEmail());
         try {
             userValidator.validate(userDTO); // Validate user input
+            logger.debug("User registration details validated successfully.");
+
 
             User user = new User();
             user.setUsername(userDTO.getUsername());
@@ -58,9 +66,11 @@ public class UserController {
             user.setPasswordHash(userDTO.getPassword());
 
             User savedUser = userService.registerUser(user); // Register the user
+            logger.info("User registered successfully with ID: {}", savedUser.getId());
             return ResponseEntity.ok(savedUser);
 
         } catch (IllegalArgumentException e) {
+            logger.error("Error during user registration: {}", e.getMessage());
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
@@ -78,11 +88,14 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<User> loginUser(@RequestBody UserLoginDTO loginDTO) {
+        logger.info("User login attempt with email: {}", loginDTO.getEmail());
         Optional<User> userOptional = userService.loginUser(loginDTO.getEmail(), loginDTO.getPassword());
 
         if (userOptional.isPresent()) {
+            logger.info("User login successful for email: {}", loginDTO.getEmail());
             return ResponseEntity.ok(userOptional.get());
         } else {
+            logger.warn("User login failed for email: {}", loginDTO.getEmail());
             return ResponseEntity.status(401).build();
         }
     }
@@ -94,9 +107,12 @@ public class UserController {
      */
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
+        logger.info("Fetching all users.");
         List<User> users = userService.getAllUsers();
+        logger.debug("Number of users fetched: {}", users.size());
         return ResponseEntity.ok(users);
     }
+
 
     /**
      * Fetches a user by their unique ID or 404 if not found.
@@ -106,7 +122,14 @@ public class UserController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        logger.info("Fetching user with ID: {}", id);
         User user = userService.getUserById(id);
-        return user != null ? ResponseEntity.ok(user) : ResponseEntity.notFound().build();
+        if (user != null) {
+            logger.info("User found with ID: {}", id);
+            return ResponseEntity.ok(user);
+        } else {
+            logger.warn("User not found with ID: {}", id);
+            return ResponseEntity.notFound().build();
+        }
     }
 }
