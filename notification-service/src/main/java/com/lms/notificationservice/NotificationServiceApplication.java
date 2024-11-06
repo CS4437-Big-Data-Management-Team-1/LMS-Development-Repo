@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 
+import com.lms.notificationservice.model.AccountCreationNotification;
 import com.lms.notificationservice.model.Notification;
 import com.lms.notificationservice.service.NotificationService;
 
@@ -23,13 +24,13 @@ public class NotificationServiceApplication {
         SpringApplication.run(NotificationServiceApplication.class, args);
     }
 
-    public void sendNotification(String recipient, String message, String subject) {
-        Notification notification = new Notification(recipient, message, subject);
+    public void sendNotification(String recipient) {
+        Notification notification = new AccountCreationNotification(recipient);
         notificationService.sendNotification(notification);
     }
     
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-		sendNotification("lastmanstanding.notifier@gmail.com", "Hello", "Test Subject");
+		sendNotification("lastmanstanding.notifier@gmail.com");
     }
 }
