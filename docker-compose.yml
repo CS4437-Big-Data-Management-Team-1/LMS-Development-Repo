@@ -1,15 +1,43 @@
 services:
-  user-api:
-    container_name: user-container
-    image: user/user:0.0.1
   user-service:
     build:
       context: .
       dockerfile: user-service/Dockerfile
     ports:
-      - 8080:8080
+      - "8080:8080"
+    depends_on:
+      - mysqldb
+    environment:
+      - jdbc:mysql://database-users.mysql.database.azure.com:3306/users?useSSL=true
     networks:
-      - spring-demo
+      - app-network
+
+  notification-service:
+    build:
+      context: .
+      dockerfile: notification-service/Dockerfile
+    ports:
+      - "8081-8081"
+    depends_on:
+      - mysqldb
+    environment:
+      - jdbc:mysql://database-users.mysql.database.azure.com:3306/notifications?useSSL=true
+    networks:
+      - app-network
+
+  information-service:
+    build:
+      context: .
+      dockerfile: information-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysqldb
+    environment:
+      - jdbc:mysql://database-users.mysql.database.azure.com:3306/games?useSSL=true
+      - jdbc:mysql://database-users.mysql.database.azure.com:3306/teams?useSSL=true
+    networks:
+      - app-network
 
   mysqldb:
     image: "mysql:8.0"
@@ -18,7 +46,7 @@ services:
     networks:
       - springapimysql-net
     environment:
-      MYSQL_DATABASE: mysql://database-users.mysql.database.azure.com:3306/
+      MYSQL_DATABASE: jdbc:mysql://localhost:3306/lms_db
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD:
