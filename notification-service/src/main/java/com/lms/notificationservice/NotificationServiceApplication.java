@@ -4,11 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 
-import com.lms.notificationservice.model.AccountCreationNotification;
-import com.lms.notificationservice.model.Notification;
-import com.lms.notificationservice.service.NotificationService;
+import com.lms.notificationservice.controller.NotificationController;
 
 import io.github.cdimascio.dotenv.Dotenv;
 
@@ -16,7 +15,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class NotificationServiceApplication {
 
     @Autowired
-    private NotificationService notificationService;
+    private ApplicationContext applicationContext;
 
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
@@ -24,13 +23,14 @@ public class NotificationServiceApplication {
         SpringApplication.run(NotificationServiceApplication.class, args);
     }
 
-    public void sendNotification(String recipient) {
-        Notification notification = new AccountCreationNotification(recipient);
-        notificationService.sendNotification(notification);
-    }
-    
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-		sendNotification("lastmanstanding.notifier@gmail.com");
+        NotificationController notificationController = applicationContext.getBean(NotificationController.class);
+        System.out.println("Notification Service is up and running");
+
+        // Test run the notification service
+        String recipient = "lastmanstanding.notifier@gmail.com";
+        String response = notificationController.sendNotification(recipient);
+        System.out.println(response);
     }
 }
