@@ -23,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    UserDatabaseConnector db = new UserDatabaseConnector();
     /**
      * Constructor for injecting the {@link UserRepository}.
      *
@@ -30,6 +31,7 @@ public class UserService {
      */
     @Autowired
     public UserService(UserRepository userRepository) {
+        db.connectToDB();
         this.userRepository = userRepository;
     }
 
@@ -41,7 +43,6 @@ public class UserService {
      * @return the saved user entity.
      */
     public User registerUser(User user) {
-
         //check if email already in use in database
         Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
         if (existingUserByEmail.isPresent()) {
@@ -53,7 +54,7 @@ public class UserService {
         if (existingUserByUsername.isPresent()) {
             throw new IllegalArgumentException("Username is already in use");
         }
-
+        db.addUserToDB(user);
         return userRepository.save(user);
     }
 
@@ -100,8 +101,8 @@ public class UserService {
         //just sample test to check if userservice can add values to DB
         UserDatabaseConnector database = new UserDatabaseConnector();
         database.connectToDB();
-        database.addUserToDB();
-        database.disconnectFromDB();
+       // database.addUserToDB();
+       // database.disconnectFromDB();
     }
 
 }

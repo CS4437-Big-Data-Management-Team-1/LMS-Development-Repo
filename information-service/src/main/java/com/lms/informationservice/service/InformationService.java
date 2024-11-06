@@ -59,16 +59,14 @@ public class InformationService {
 
     /**
      * Scheduled method to retrieve and save teams from the external API.
-     * Runs every Saturday at midnight.
-     *
-     * TODO: Improve Schedule Call
+     * Runs every day at midnight.
      *
      * This method fetches data from the "/teams" endpoint, maps the response to Team objects,
      * and saves them in the database. The method returns a list of all teams after updating.
      *
      * @return List<Team> List of all teams in the database.
      */
-    @Scheduled(cron = "0 0 0 * * SAT")
+    @Scheduled(cron = "0 0 0 * * *")
     public List<Team> apiCallGetTeams() {
         String url = "/teams";
 
@@ -106,16 +104,14 @@ public class InformationService {
 
     /**
      * Scheduled method to retrieve and save matches from the external API.
-     * Runs every Saturday at midnight.
-     *
-     * TODO: Improve Schedule Call
+     * Runs every day at midnight.
      *
      * This method fetches data from the "/matches" endpoint, maps the response to Matches objects,
      * and saves them in the database. The method returns a list of all matches after updating.
      *
      * @return List<Matches> List of all matches in the database.
      */
-    @Scheduled(cron = "0 0 0 * * SAT")
+    @Scheduled(cron = "0 0 0 * * *")
     public List<Matches> apiCallGetMatches(){
         String url = "/matches";
 
