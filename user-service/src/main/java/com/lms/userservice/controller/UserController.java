@@ -1,5 +1,6 @@
 package com.lms.userservice.controller;
 
+import com.lms.userservice.database.UserDatabaseConnector;
 import com.lms.userservice.login.UserLoginDTO;
 import com.lms.userservice.model.User;
 import com.lms.userservice.registration.UserRegistrationDTO;
@@ -24,6 +25,7 @@ import org.apache.logging.log4j.Logger;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
+    UserDatabaseConnector db = new UserDatabaseConnector();
 
     //Log4j
     private static final Logger logger = LogManager.getLogger(UserController.class);
@@ -39,6 +41,7 @@ public class UserController {
      */
     @Autowired
     public UserController(UserService userService, UserValidator userValidator) {
+        db.connectToDB();
         this.userService = userService;
         this.userValidator = userValidator;
     }
