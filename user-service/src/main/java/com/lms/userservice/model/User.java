@@ -102,4 +102,9 @@ public class User {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
     }
+
+    public String toString(){
+        String s = "Username:" + getUsername() + "\nPassword: " + getPasswordHash() + "\nEmail: " + getEmail() + "\nCreated At: " + getCreatedAt() + "\nLast Login : " + getLastLogin() + "\nBalance: " + getBalance();
+        return s;
+    }
 }
