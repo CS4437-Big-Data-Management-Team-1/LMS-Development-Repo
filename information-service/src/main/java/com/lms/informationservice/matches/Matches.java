@@ -19,7 +19,9 @@ public class Matches {
     @Id
     private int gameID;
     private int homeTeamID;
+    private String homeTeamName;
     private int awayTeamID;
+    private String awayTeamName;
     private Date gameDate;
     private String result;
 
@@ -62,5 +64,21 @@ public class Matches {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public String getHomeTeamName() {
+        return homeTeamName;
+    }
+
+    public void setHomeTeamName(String homeTeamName) {
+        this.homeTeamName = homeTeamName;
+    }
+
+    public String getAwayTeamName() {
+        return awayTeamName;
+    }
+
+    public void setAwayTeamName(String awayTeamName) {
+        this.awayTeamName = awayTeamName;
     }
 }
