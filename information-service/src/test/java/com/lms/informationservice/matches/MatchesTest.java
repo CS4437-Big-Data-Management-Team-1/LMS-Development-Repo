@@ -6,6 +6,10 @@ import java.util.Date;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+/**
+ * Unit tests for the Matches class
+ * @author Caoimhe Cahill
+ */
 class MatchesTest {
 
     @Test
