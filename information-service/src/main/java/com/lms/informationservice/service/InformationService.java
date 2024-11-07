@@ -155,7 +155,9 @@ public class InformationService {
                             Matches match = new Matches();
                             match.setGameID(matchId);
                             match.setHomeTeamID(homeTeamId);
+                            match.setHomeTeamName(homeTeamName);
                             match.setAwayTeamID(awayTeamId);
+                            match.setAwayTeamName(awayTeamName);
                             match.setGameDate(gameDate);
                             match.setResult(result);
 
