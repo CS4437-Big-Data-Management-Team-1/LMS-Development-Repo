@@ -17,6 +17,9 @@ public class NotificationServiceApplication {
     @Autowired
     private ApplicationContext applicationContext;
 
+    @Autowired
+    private NotificationController notificationController;
+
     public static void main(String[] args) {
         Dotenv dotenv = Dotenv.load();
         System.setProperty("NOTIFICATION_SERVICE_APP_PASSWORD", dotenv.get("NOTIFICATION_SERVICE_APP_PASSWORD"));
@@ -25,12 +28,12 @@ public class NotificationServiceApplication {
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        NotificationController notificationController = applicationContext.getBean(NotificationController.class);
-        System.out.println("Notification Service is up and running");
+        System.out.println("Notification Service is up and running and ready to accept requests.");
 
-        // Test run the notification service
-        String recipient = "lastmanstanding.notifier@gmail.com";
-        String response = notificationController.sendNotification(recipient);
-        System.out.println(response);
+        // Send a test notification to the email address below
+        // String recipient = "lastmanstanding.notifier@gmail.com";
+        // Map<String, String> payload = Map.of("recipient", recipient, "type", "account_creation");
+        // ResponseEntity<String> response = notificationController.sendNotification(payload);
+        // System.out.println(response.getBody());
     }
 }
