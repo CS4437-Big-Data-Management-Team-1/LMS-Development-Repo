@@ -59,23 +59,27 @@ class InformationControllerTest {
         Matches match1 = new Matches();
         match1.setGameID(1);
         match1.setHomeTeamID(123);
+        match1.setHomeTeamName("Liverpool");
         match1.setAwayTeamID(456);
+        match1.setAwayTeamName("Manchester");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date gameDate = dateFormat.parse("2023-11-01"); // Parse the string to a Date
         match1.setGameDate(gameDate);
 
-        match1.setResult("Team 1");
+        match1.setResult("Liverpool");
 
         Matches match2 = new Matches();
         match2.setGameID(2);
         match2.setHomeTeamID(12345);
+        match2.setHomeTeamName("Limerick");
         match2.setAwayTeamID(67890);
+        match2.setAwayTeamName("Dublin");
 
         Date gameDate2 = dateFormat.parse("2023-11-02"); // Parse the string to a Date
         match1.setGameDate(gameDate2);
 
-        match2.setResult("Team 2");
+        match2.setResult("Limerick");
 
         List<Matches> mockMatches = Arrays.asList(match1, match2);
 

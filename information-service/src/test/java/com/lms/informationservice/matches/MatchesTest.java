@@ -27,6 +27,15 @@ class MatchesTest {
     }
 
     @Test
+    void testGetAndSetHomeTeamName() {
+        Matches match = new Matches();
+        String homeTeamName = "Home Team";
+
+        match.setHomeTeamName(homeTeamName);
+        assertEquals(homeTeamName, match.getHomeTeamName());
+    }
+
+    @Test
     void testGetAndSetAwayTeamID() {
         Matches match = new Matches();
         int awayTeamID = 20;
@@ -36,12 +45,21 @@ class MatchesTest {
     }
 
     @Test
+    void testGetAndSetAwayTeamName() {
+        Matches match = new Matches();
+        String awayTeamName = "Away Team";
+
+        match.setAwayTeamName(awayTeamName);
+        assertEquals(awayTeamName, match.getAwayTeamName());
+    }
+
+    @Test
     void testGetAndSetGameDate() {
         Matches match = new Matches();
         Date gameDate = new Date();
 
         match.setGameDate(gameDate);
-        assertEquals(gameDate, match.getGameDate(), "The game date should be set and retrieved correctly.");
+        assertEquals(gameDate, match.getGameDate());
     }
 
     @Test
@@ -50,7 +68,7 @@ class MatchesTest {
         String result = "Home Team";
 
         match.setResult(result);
-        assertEquals(result, match.getResult(), "The result should be set and retrieved correctly.");
+        assertEquals(result, match.getResult());
     }
 
     @Test
@@ -58,19 +76,25 @@ class MatchesTest {
         Matches match = new Matches();
         int gameID = 1001;
         int homeTeamID = 10;
+        String homeTeamName = "Home Team";
         int awayTeamID = 20;
+        String awayTeamName= "Away Team";
         Date gameDate = new Date();
         String result = "Draw";
 
         match.setGameID(gameID);
         match.setHomeTeamID(homeTeamID);
+        match.setHomeTeamName(homeTeamName);
         match.setAwayTeamID(awayTeamID);
+        match.setAwayTeamName(awayTeamName);
         match.setGameDate(gameDate);
         match.setResult(result);
 
         assertEquals(gameID, match.getId());
         assertEquals(homeTeamID, match.getHomeTeamID());
+        assertEquals(homeTeamName, match.getHomeTeamName());
         assertEquals(awayTeamID, match.getAwayTeamID());
+        assertEquals(awayTeamName, match.getAwayTeamName());
         assertEquals(gameDate, match.getGameDate());
         assertEquals(result, match.getResult());
     }
