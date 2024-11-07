@@ -74,32 +74,4 @@ class MatchesTest {
         match.setResult(result);
         assertEquals(result, match.getResult());
     }
-
-    @Test
-    void testAllFields() {
-        Matches match = new Matches();
-        int gameID = 1001;
-        int homeTeamID = 10;
-        String homeTeamName = "Home Team";
-        int awayTeamID = 20;
-        String awayTeamName= "Away Team";
-        Date gameDate = new Date();
-        String result = "Draw";
-
-        match.setGameID(gameID);
-        match.setHomeTeamID(homeTeamID);
-        match.setHomeTeamName(homeTeamName);
-        match.setAwayTeamID(awayTeamID);
-        match.setAwayTeamName(awayTeamName);
-        match.setGameDate(gameDate);
-        match.setResult(result);
-
-        assertEquals(gameID, match.getId());
-        assertEquals(homeTeamID, match.getHomeTeamID());
-        assertEquals(homeTeamName, match.getHomeTeamName());
-        assertEquals(awayTeamID, match.getAwayTeamID());
-        assertEquals(awayTeamName, match.getAwayTeamName());
-        assertEquals(gameDate, match.getGameDate());
-        assertEquals(result, match.getResult());
-    }
 }

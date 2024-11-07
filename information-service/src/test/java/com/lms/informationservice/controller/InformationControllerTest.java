@@ -68,7 +68,7 @@ class InformationControllerTest {
         match1.setAwayTeamName("Manchester");
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-        Date gameDate = dateFormat.parse("2023-11-01"); // Parse the string to a Date
+        Date gameDate = dateFormat.parse("2023-11-01");
         match1.setGameDate(gameDate);
 
         match1.setResult("Liverpool");
@@ -80,7 +80,7 @@ class InformationControllerTest {
         match2.setAwayTeamID(67890);
         match2.setAwayTeamName("Dublin");
 
-        Date gameDate2 = dateFormat.parse("2023-11-02"); // Parse the string to a Date
+        Date gameDate2 = dateFormat.parse("2023-11-02");
         match1.setGameDate(gameDate2);
 
         match2.setResult("Limerick");

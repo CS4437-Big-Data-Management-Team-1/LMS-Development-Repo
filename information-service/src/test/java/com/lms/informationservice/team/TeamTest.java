@@ -36,20 +36,4 @@ class TeamTest {
         team.setTla(tla);
         assertEquals(tla, team.getTla());
     }
-
-    @Test
-    void testTeamAllFields() {
-        Team team = new Team();
-        int teamID = 101;
-        String teamName = "Manchester United";
-        String tla = "MUN";
-
-        team.setTeamID(teamID);
-        team.setTeamName(teamName);
-        team.setTla(tla);
-
-        assertEquals(teamID, team.getTeamID());
-        assertEquals(teamName, team.getTeamName());
-        assertEquals(tla, team.getTla());
-    }
 }

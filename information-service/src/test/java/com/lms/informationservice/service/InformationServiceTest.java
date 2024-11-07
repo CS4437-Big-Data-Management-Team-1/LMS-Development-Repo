@@ -3,7 +3,6 @@ package com.lms.informationservice.service;
 import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.repository.MatchesRepository;
 import com.lms.informationservice.repository.TeamRepository;
-import com.lms.informationservice.service.InformationService;
 import com.lms.informationservice.team.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -139,7 +138,7 @@ class InformationServiceTest {
         // Call the method
         List<Matches> matches = informationService.apiCallGetMatches();
 
-        assertEquals(1, matches.size()); // Expect 1 match saved
+        assertEquals(1, matches.size());
         assertEquals("Home Team A", matches.get(0).getResult());
         verify(matchesRepository, times(1)).saveAll(anyList());
         verify(matchesRepository, times(1)).findAll();
