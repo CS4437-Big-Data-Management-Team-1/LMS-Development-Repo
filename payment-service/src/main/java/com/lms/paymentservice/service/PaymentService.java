@@ -12,10 +12,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentService {
 
+    // Injects the Stripe secret key from env
+
     @Value("${stripe.secret.key}")
     private String stripeSecretKey;
 
-
+    /**
+     * Processes a payment request using the Stripe API.
+     *
+     * @param paymentRequest contains the details for the payment (amount, currency, etc.)
+     * @return a PaymentResponse indicating whether the payment was successful or not
+     */
 
     public PaymentResponse processPayment(PaymentRequest paymentRequest) {
         Stripe.apiKey = stripeSecretKey;
@@ -30,6 +37,7 @@ public class PaymentService {
                             .setSource(paymentRequest.getSource()) // Source from client-side
                             .build();
 
+            // Call Stripe's API to create the charge
             Charge charge = Charge.create(params);  // Perform the actual charge with Stripe API
 
             // Return success response with charge ID

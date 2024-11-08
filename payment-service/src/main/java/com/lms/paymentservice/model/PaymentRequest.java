@@ -1,9 +1,15 @@
 package com.lms.paymentservice.model;
 
+/**
+ * Represents a request for processing a payment.
+ * Contains information required by the payment gateway.
+ */
+
 public class PaymentRequest {
     private String amount;
     private String currency;
     private String description;
+    // token representing the payment method
     private String source;  
 
     public String getAmount() {
