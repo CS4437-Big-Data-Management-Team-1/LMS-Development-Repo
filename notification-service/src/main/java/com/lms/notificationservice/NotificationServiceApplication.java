@@ -21,7 +21,7 @@ public class NotificationServiceApplication {
     private NotificationController notificationController;
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().directory("../").load();
         System.setProperty("NOTIFICATION_SERVICE_APP_PASSWORD", dotenv.get("NOTIFICATION_SERVICE_APP_PASSWORD"));
         SpringApplication.run(NotificationServiceApplication.class, args);
     }
