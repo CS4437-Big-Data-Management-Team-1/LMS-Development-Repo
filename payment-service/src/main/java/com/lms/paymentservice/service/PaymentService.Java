@@ -1,7 +1,7 @@
 package com.lms.paymentservice.service;
 
-import com.example.paymentservice.model.PaymentRequest;
-import com.example.paymentservice.model.PaymentResponse;
+import com.lms.paymentservice.model.PaymentRequest;
+import com.lms.paymentservice.model.PaymentResponse;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Charge;
