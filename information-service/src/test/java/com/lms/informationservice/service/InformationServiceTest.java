@@ -48,7 +48,7 @@ class InformationServiceTest {
     private ResponseSpec responseSpec;
 
     @InjectMocks
-    private InformationService informationService;
+    private InformationService informationService = new InformationService(teamRepository, matchesRepository);
 
     @BeforeEach
     void setUp() {
