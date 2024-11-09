@@ -16,6 +16,9 @@ jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
+    env:
+        LMS_ENV_INFORMATION: ${{ secrets.LMS_ENV_INFORMATION}}
+
     steps:
       - uses: actions/checkout@v4
 
