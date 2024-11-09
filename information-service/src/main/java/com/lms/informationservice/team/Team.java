@@ -44,5 +44,13 @@ public class Team {
         this.tla = tla;
     }
 
+
+    public String toString() {
+        return "Team{" +
+                "teamID=" + teamID +
+                ", teamName='" + teamName + '\'' +
+                ", tla='" + tla + '\'' +
+                '}';
+    }
 }
 

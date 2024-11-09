@@ -60,7 +60,7 @@ public class UserController {
         db.connectToDB();
         this.userService = userService;
         this.userValidator = userValidator;
-        logger.info("UserController initialized.");
+        logger.info("UserController initialised.");
     }
 
     /**
