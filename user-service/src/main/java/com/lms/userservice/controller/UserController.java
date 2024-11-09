@@ -33,6 +33,7 @@ import org.apache.logging.log4j.Logger;
  * @see <a href="https://www.baeldung.com/spring-security-firebase-authentication"> Setting up Firebase authentication and authorisation</a>
  * @author olanhealy
  */
+@RestController
 @RequestMapping("/api/users")
 public class UserController {
     UserDatabaseConnector db = new UserDatabaseConnector();
