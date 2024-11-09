@@ -3,6 +3,7 @@ package com.lms.informationservice.database;
 import com.lms.informationservice.team.Team;
 import java.util.List;
 import java.sql.*;
+import jakarta.persistence.*;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 import java.io.IOException;
 import java.math.BigDecimal;
