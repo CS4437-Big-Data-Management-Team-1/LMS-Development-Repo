@@ -4,12 +4,11 @@ import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.repository.MatchesRepository;
 import com.lms.informationservice.repository.TeamRepository;
 import com.lms.informationservice.team.Team;
-import io.github.cdimascio.dotenv.Dotenv;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import reactor.core.publisher.Mono;
@@ -25,6 +24,11 @@ import static org.mockito.ArgumentMatchers.any;
  * Unit tests for the InformationService class
  * @author Caoimhe Cahill
  */
+
+@TestPropertySource(properties = {
+        "FOOTBALL_API_BASE_URL=http://mock-api-url.com",
+        "FOOTBALL_API_TOKEN=mock-token"
+})
 class InformationServiceTest {
 
     @Mock
@@ -54,17 +58,7 @@ class InformationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        System.setProperty("FOOTBALL_API_BASE_URL", "http://mock-api-url.com");
-        System.setProperty("FOOTBALL_API_TOKEN", "mock-token");
-
-        webClient = mock(WebClient.class);
-        informationService = new InformationService(teamRepository, matchesRepository);
-    }
-
-    @AfterEach
-    void tearDown() {
-        System.clearProperty("FOOTBALL_API_BASE_URL");
-        System.clearProperty("FOOTBALL_API_TOKEN");
+        when(webClientBuilder.build()).thenReturn(webClient);
     }
 
 
