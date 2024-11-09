@@ -4,6 +4,7 @@ import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.repository.MatchesRepository;
 import com.lms.informationservice.repository.TeamRepository;
 import com.lms.informationservice.team.Team;
+import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -25,6 +26,13 @@ import static org.mockito.ArgumentMatchers.any;
  */
 
 class InformationServiceTest {
+
+    Dotenv env = Dotenv.load();
+
+    private Dotenv getEnv() {
+        env.get("LMS_ENV_INFORMATION");
+        return env;
+    }
 
     @Mock
     private TeamRepository teamRepository;
@@ -52,6 +60,7 @@ class InformationServiceTest {
 
     @BeforeEach
     void setUp() {
+        getEnv();
         MockitoAnnotations.openMocks(this);
         when(webClientBuilder.build()).thenReturn(webClient);
     }
