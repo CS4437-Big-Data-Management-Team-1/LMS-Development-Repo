@@ -17,6 +17,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - shell: cmd
+        env:
+            super_secret: ${{ secrets.LMS_ENV_INFORMATION }}
+        run: |
+          example-command "%LMS_ENV_INFORMATION"
+
       - uses: actions/checkout@v4
 
       - name: Set up Java version
