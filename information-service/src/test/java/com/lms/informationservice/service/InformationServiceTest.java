@@ -4,7 +4,6 @@ import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.repository.MatchesRepository;
 import com.lms.informationservice.repository.TeamRepository;
 import com.lms.informationservice.team.Team;
-import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.*;
@@ -54,19 +53,8 @@ class InformationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        // Load the test-specific .env file
-        Dotenv dotenv = Dotenv.configure()
-                .filename(".env.test")
-                .load();
-
-        System.setProperty("FOOTBALL_API_BASE_URL", dotenv.get("FOOTBALL_API_BASE_URL"));
-        System.setProperty("FOOTBALL_API_TOKEN", dotenv.get("FOOTBALL_API_TOKEN"));
-
-        informationService = new InformationService(teamRepository, matchesRepository);
+        when(webClientBuilder.build()).thenReturn(webClient);
     }
-
-
 
     @Test
     void testApiCallGetTeams_SuccessfulResponse() {
