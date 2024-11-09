@@ -4,8 +4,11 @@ import com.lms.userservice.model.User;
 import com.lms.userservice.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import com.lms.userservice.database.UserDatabaseConnector;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Service class for managing user-related operations.
@@ -20,6 +23,7 @@ public class UserService {
 
     private final UserRepository userRepository;
 
+    UserDatabaseConnector db = new UserDatabaseConnector();
     /**
      * Constructor for injecting the {@link UserRepository}.
      *
@@ -27,16 +31,30 @@ public class UserService {
      */
     @Autowired
     public UserService(UserRepository userRepository) {
+        db.connectToDB();
         this.userRepository = userRepository;
     }
 
     /**
      * Registers a new user by saving it to the database.
+     * Also Checks for if the username already exists in database, or if email exists in database
      *
      * @param user the user entity to be registered.
      * @return the saved user entity.
      */
     public User registerUser(User user) {
+        //check if email already in use in database
+        Optional<User> existingUserByEmail = userRepository.findByEmail(user.getEmail());
+        if (existingUserByEmail.isPresent()) {
+            throw new IllegalArgumentException("Email is already in use");
+        }
+
+        //check if username already in use in database
+        Optional<User> existingUserByUsername = userRepository.findByUsername(user.getUsername());
+        if (existingUserByUsername.isPresent()) {
+            throw new IllegalArgumentException("Username is already in use");
+        }
+        db.addUserToDB(user);
         return userRepository.save(user);
     }
 
@@ -45,6 +63,24 @@ public class UserService {
      *
      * @return a list of all users.
      */
+
+    public Optional<User> loginUser(String email, String password) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+
+            // Validate the password ( no hashing at moment google auth later)
+            if (user.getPasswordHash().equals(password)) {
+
+                user.setLastLogin(LocalDateTime.now());
+                userRepository.save(user);
+
+                return Optional.of(user);
+            }
+        }
+        return Optional.empty();
+    }
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
@@ -65,8 +101,8 @@ public class UserService {
         //just sample test to check if userservice can add values to DB
         UserDatabaseConnector database = new UserDatabaseConnector();
         database.connectToDB();
-        database.addUserToDB();
-        database.disconnectFromDB();
+       // database.addUserToDB();
+       // database.disconnectFromDB();
     }
 
 }

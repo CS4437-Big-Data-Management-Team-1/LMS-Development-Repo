@@ -8,11 +8,11 @@
         <version>3.3.4</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.lms.userservice</groupId>
-    <artifactId>user-service</artifactId>
+    <groupId>com.lms.informationservice</groupId>
+    <artifactId>information-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>User Service</name>
-    <description>User Service Microservice - Manages user registrations and profiles</description>
+    <name>Information Service</name>
+    <description>Information Service Microservice - Manages teams and matches</description>
     <url/>
     <licenses>
         <license/>
@@ -76,36 +76,15 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- For env -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.github.cdimascio</groupId>
             <artifactId>java-dotenv</artifactId>
             <version>5.2.2</version>
-        </dependency>
-
-        <!-- Firebase -->
-        <dependency>
-            <groupId>com.google.firebase</groupId>
-            <artifactId>firebase-admin</artifactId>
-            <version>9.0.0</version>
-        </dependency>
-        <dependency>
-            <groupId>com.google.auth</groupId>
-            <artifactId>google-auth-library-oauth2-http</artifactId>
-            <version>1.15.0</version>
-        </dependency>
-
-        <!-- Log4j Core Dependency -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.24.1</version>
-        </dependency>
-        <!-- Log4j API Dependency -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.24.1</version>
         </dependency>
 
     </dependencies>
