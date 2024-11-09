@@ -6,8 +6,11 @@ import com.lms.informationservice.repository.TeamRepository;
 import com.lms.informationservice.team.Team;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import reactor.core.publisher.Mono;
@@ -24,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
  * @author Caoimhe Cahill
  */
 
+@ExtendWith(MockitoExtension.class)
 class InformationServiceTest {
 
     @Mock
@@ -31,9 +35,6 @@ class InformationServiceTest {
 
     @Mock
     private MatchesRepository matchesRepository;
-
-    @Mock
-    private WebClient.Builder webClientBuilder;
 
     @Mock
     private WebClient webClient;
@@ -51,9 +52,10 @@ class InformationServiceTest {
     private InformationService informationService;
 
     @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-        when(webClientBuilder.build()).thenReturn(webClient);
+    public void setUp() {
+        // Spy on the actual service to intercept WebClient calls
+        informationService = Mockito.spy(new InformationService(teamRepository, matchesRepository));
+        ReflectionTestUtils.setField(informationService, "webClient", webClient);
     }
 
     @Test
