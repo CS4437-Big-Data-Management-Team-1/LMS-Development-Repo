@@ -30,19 +30,16 @@ public class UserDatabaseConnector{
      */
     public static boolean connectToDB(){
 
-        log.info("Loading application properties");
-        Properties properties = new Properties();
-        try {
-            properties.load(UserDatabaseConnector.class.getClassLoader().getResourceAsStream("database.properties"));
-        } catch (IOException e){
-            log.severe("Error loading properties");
-            return false;
-        }
+
 
 
         log.info("Connecting to the database");
         try{
-            connection = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("user"), properties.getProperty("password"));
+            String dbUsername = System.getProperty("DB_USERNAME");
+            String dbPassword = System.getProperty("DB_PASSWORD");
+            String dbUrl = System.getProperty("DB_URL");
+            System.out.println(dbUrl);
+            connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
             log.info("Database connection test: " + connection.getCatalog());
             return true;
         } catch (SQLException e){
