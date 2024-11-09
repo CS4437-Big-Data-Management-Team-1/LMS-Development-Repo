@@ -12,7 +12,12 @@ import java.util.logging.Logger;
 
 
 public class NotificationDatabaseController{
-
+    /**
+     * Class responsible for controlling database operations.
+     * This class connects to the database and has mathods for modifying/adding to the games database specifically
+     *
+     * @author Mark Harrison
+     */
     private static final Logger log;
     private static Connection connection;
 
@@ -24,7 +29,7 @@ public class NotificationDatabaseController{
 
     /**
      * Connects to the database
-     * Pulls data from the database.properties file.
+     * Pulls data from the system properties
      * driver manager handles connection
      *
      * @return          The boolean value of if the connection succeeded
