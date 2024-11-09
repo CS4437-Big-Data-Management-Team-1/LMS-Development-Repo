@@ -4,11 +4,11 @@ import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.repository.MatchesRepository;
 import com.lms.informationservice.repository.TeamRepository;
 import com.lms.informationservice.team.Team;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.*;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
@@ -51,11 +51,28 @@ class InformationServiceTest {
     @InjectMocks
     private InformationService informationService;
 
+    private MockedStatic<Dotenv> mockedDotenv;
+
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
+
+        mockedDotenv = Mockito.mockStatic(Dotenv.class);
+        Dotenv mockDotenv = mock(Dotenv.class);
+        when(mockDotenv.get("FOOTBALL_API_BASE_URL")).thenReturn("http://mock-api-url.com");
+        when(mockDotenv.get("FOOTBALL_API_TOKEN")).thenReturn("mock-api-token");
+        when(Dotenv.load()).thenReturn(mockDotenv);
+
         when(webClientBuilder.build()).thenReturn(webClient);
     }
+
+    @AfterEach
+    void tearDown() {
+        if (mockedDotenv != null) {
+            mockedDotenv.close();
+        }
+    }
+
 
     @Test
     void testApiCallGetTeams_SuccessfulResponse() {
