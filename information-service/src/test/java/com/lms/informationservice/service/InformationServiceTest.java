@@ -27,19 +27,6 @@ import static org.mockito.ArgumentMatchers.any;
 
 class InformationServiceTest {
 
-    private void getEnv() {
-        // Access the environment variable directly
-        String envInformation = System.getenv("LMS_ENV_INFORMATION");
-
-        if (envInformation != null) {
-            // Use the environment variable, e.g., print it or use it in your logic
-            System.out.println("LMS_ENV_INFORMATION loaded");
-        } else {
-            // Handle the case where the variable is not set
-            System.err.println("Environment variable 'LMS_ENV_INFORMATION' is not set.");
-        }
-    }
-
     @Mock
     private TeamRepository teamRepository;
 
@@ -62,11 +49,10 @@ class InformationServiceTest {
     private ResponseSpec responseSpec;
 
     @InjectMocks
-    private InformationService informationService = new InformationService(teamRepository, matchesRepository);
+    private InformationService informationService;
 
     @BeforeEach
     void setUp() {
-        getEnv();
         MockitoAnnotations.openMocks(this);
         when(webClientBuilder.build()).thenReturn(webClient);
     }
