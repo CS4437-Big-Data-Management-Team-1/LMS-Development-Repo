@@ -51,26 +51,10 @@ class InformationServiceTest {
     @InjectMocks
     private InformationService informationService;
 
-    private MockedStatic<Dotenv> mockedDotenv;
-
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        mockedDotenv = Mockito.mockStatic(Dotenv.class);
-        Dotenv mockDotenv = mock(Dotenv.class);
-        when(mockDotenv.get("FOOTBALL_API_BASE_URL")).thenReturn("http://mock-api-url.com");
-        when(mockDotenv.get("FOOTBALL_API_TOKEN")).thenReturn("mock-api-token");
-        when(Dotenv.load()).thenReturn(mockDotenv);
-
         when(webClientBuilder.build()).thenReturn(webClient);
-    }
-
-    @AfterEach
-    void tearDown() {
-        if (mockedDotenv != null) {
-            mockedDotenv.close();
-        }
     }
 
 
