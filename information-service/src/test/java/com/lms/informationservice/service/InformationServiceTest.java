@@ -54,7 +54,17 @@ class InformationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        when(webClientBuilder.build()).thenReturn(webClient);
+        System.setProperty("FOOTBALL_API_BASE_URL", "http://mock-api-url.com");
+        System.setProperty("FOOTBALL_API_TOKEN", "mock-token");
+
+        webClient = mock(WebClient.class);
+        informationService = new InformationService(teamRepository, matchesRepository);
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.clearProperty("FOOTBALL_API_BASE_URL");
+        System.clearProperty("FOOTBALL_API_TOKEN");
     }
 
 
