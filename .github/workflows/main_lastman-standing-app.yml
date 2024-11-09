@@ -26,7 +26,7 @@ jobs:
           distribution: 'microsoft'
 
       - name: Create .env file
-        run: echo "LMS_ENV_INFORMATION ${{secrets.LMS_ENV_INFORMATION}} > .env"
+        run: echo "LMS_ENV_INFORMATION ${{secrets.LMS_ENV_INFORMATION}}" > .env
 
       - name: unit tests
         run: mvn -B test --file pom.xml
