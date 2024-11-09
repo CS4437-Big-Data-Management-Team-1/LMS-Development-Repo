@@ -1,14 +1,16 @@
 package com.lms.notificationservice.model;
 
-public class Notification {
+
+// Represents a notification
+public abstract class Notification {
     private String recipient;
     private String message;
     private String subject;
 
-    public Notification(String recipient, String message, String subject) {
+    public Notification(String recipient) {
         this.recipient = recipient;
-        this.message = message;
-        this.subject = subject;
+        this.message = "";
+        this.subject = "";
     }
     public String getRecipient() {
         return recipient;

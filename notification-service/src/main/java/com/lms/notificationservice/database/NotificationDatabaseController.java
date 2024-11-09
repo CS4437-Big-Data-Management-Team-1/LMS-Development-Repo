@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Logger;
 
-@Entity
+
 public class NotificationDatabaseController{
 
     private static final Logger log;
