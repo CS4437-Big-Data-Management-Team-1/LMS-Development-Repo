@@ -114,14 +114,11 @@
             </plugin>
         </plugins>
 
-        <resources>
-            <resource>
+        <testResources>
+            <testResource>
                 <directory>src/test/resources</directory>
-                <includes>
-                    <include>**/*.env</include>
-                </includes>
-            </resource>
-        </resources>
+            </testResource>
+        </testResources>
     </build>
 
 </project>
