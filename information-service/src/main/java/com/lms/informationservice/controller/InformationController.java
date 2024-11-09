@@ -3,6 +3,7 @@ package com.lms.informationservice.controller;
 import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.service.InformationService;
 import com.lms.informationservice.team.Team;
+import com.lms.informationservice.database.InformationDatabaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/information")
 public class InformationController {
+    InformationDatabaseController db = new InformationDatabaseController();
 
     @Autowired
     private final InformationService informationService;
@@ -34,6 +36,7 @@ public class InformationController {
      * @param informationService Service for handling team and match data operations.
      */
     public InformationController(InformationService informationService) {
+        db.connectToDB();
         this.informationService = informationService;
     }
 
@@ -47,6 +50,9 @@ public class InformationController {
     @GetMapping("/teams/fetch")
     public ResponseEntity<List<Team>> fetchTeams() {
         List<Team> teams = informationService.apiCallGetTeams();
+        for(Team t : teams) {
+            db.addTeamsToDB(t);
+        }
         return ResponseEntity.ok(teams);
     }
 
