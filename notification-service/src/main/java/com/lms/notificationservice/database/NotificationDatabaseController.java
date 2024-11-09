@@ -2,7 +2,7 @@ package com.lms.notificationservice.database;
 
 import com.lms.notificationservice.model.Notification;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-
+import jakarta.persistence.*;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.*;
@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Logger;
 
+@Entity
 public class NotificationDatabaseController{
 
     private static final Logger log;
