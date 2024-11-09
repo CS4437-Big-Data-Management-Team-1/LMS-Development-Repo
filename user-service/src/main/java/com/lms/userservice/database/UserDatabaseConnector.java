@@ -22,7 +22,7 @@ public class UserDatabaseConnector{
 
     /**
      * Connects to the database
-     * Pulls data from the database.properties file.
+     * Pulls data from the system properties
      * driver manager handles connection
      *
      * @return          The boolean value of if the connection succeeded
