@@ -33,20 +33,13 @@ public class NotificationDatabaseController{
     public static boolean connectToDB(){
 
 
-
-        log.info("Loading application properties");
-        Properties properties = new Properties();
-        try {
-            properties.load(NotificationDatabaseController.class.getClassLoader().getResourceAsStream("database.properties"));
-        } catch (IOException e){
-            log.severe("Error loading properties");
-            return false;
-        }
         log.info("Connecting to the database");
         try{
             String dbUsername = System.getProperty("DB_USERNAME");
             String dbPassword = System.getProperty("DB_PASSWORD");
-            connection = DriverManager.getConnection(properties.getProperty("url"), dbUsername, dbPassword);
+            String dbUrl = System.getProperty("DB_GAMES_URL");
+
+            connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
             log.info("Database connection test: " + connection.getCatalog());
             return true;
         } catch (SQLException e){
