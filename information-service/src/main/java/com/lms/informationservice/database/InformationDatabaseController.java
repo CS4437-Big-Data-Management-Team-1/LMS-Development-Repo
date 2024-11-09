@@ -66,7 +66,6 @@ public class InformationDatabaseController{
      *
      * @return boolean representing if the operation was successful
      */
-    @Entity
     public static boolean addTeamsToDB(Team team){
         if (connection == null) {
             log.severe("Database connection is null.");
