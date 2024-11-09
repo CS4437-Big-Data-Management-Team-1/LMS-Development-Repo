@@ -1,5 +1,7 @@
 package com.lms.notificationservice.model;
 
+
+// Represents a notification for game updates
 public class GameUpdateNotification extends Notification {
     public GameUpdateNotification(String recipient) {
         super(recipient);

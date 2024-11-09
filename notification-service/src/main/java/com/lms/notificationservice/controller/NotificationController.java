@@ -21,6 +21,7 @@ public class NotificationController {
     @Autowired
     private NotificationService notificationService;
 
+    // Send a notification to a recipient at endpoint - notifications/send
     @PostMapping("/send")
     public ResponseEntity<String> sendNotification(@RequestBody Map<String, String> request) {
         String recipient = request.get("recipient");
@@ -31,7 +32,7 @@ public class NotificationController {
         }
 
         Notification notification = createNotification(type, recipient);
-        
+
         if (notification == null) {
             return ResponseEntity.badRequest().body("Invalid notification type.");
         }
@@ -44,6 +45,7 @@ public class NotificationController {
         }
     }
 
+    // Handle the type of notification to be sent
     private Notification createNotification(String type, String recipient) {
         switch (type != null ? type.toLowerCase() : "") {
             case "account_creation":

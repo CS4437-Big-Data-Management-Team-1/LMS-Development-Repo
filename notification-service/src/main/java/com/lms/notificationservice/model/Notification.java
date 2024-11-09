@@ -1,5 +1,7 @@
 package com.lms.notificationservice.model;
 
+
+// Represents a notification
 public abstract class Notification {
     private String recipient;
     private String message;

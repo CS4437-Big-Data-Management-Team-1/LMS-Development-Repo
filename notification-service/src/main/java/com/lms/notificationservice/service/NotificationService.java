@@ -22,6 +22,7 @@ public class NotificationService {
     @Value("${spring.mail.username}")
     private String senderEmail;
 
+    // Handles sending of notifications
     public void sendNotification(Notification notification) {
         if (notification == null || notification.getRecipient() == null || notification.getRecipient().isEmpty()) {
             logger.error("Notification or recipient email is invalid. Cannot send email.");

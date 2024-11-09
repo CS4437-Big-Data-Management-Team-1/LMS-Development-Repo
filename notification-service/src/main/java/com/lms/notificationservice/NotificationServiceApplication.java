@@ -21,19 +21,15 @@ public class NotificationServiceApplication {
     private NotificationController notificationController;
 
     public static void main(String[] args) {
+        // Load environment variables from .env file
         Dotenv dotenv = Dotenv.configure().directory("../").load();
         System.setProperty("NOTIFICATION_SERVICE_APP_PASSWORD", dotenv.get("NOTIFICATION_SERVICE_APP_PASSWORD"));
         SpringApplication.run(NotificationServiceApplication.class, args);
     }
 
+    // Notify when the application is ready to accept requests
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         System.out.println("Notification Service is up and running and ready to accept requests.");
-
-        // Send a test notification to the email address below
-        // String recipient = "lastmanstanding.notifier@gmail.com";
-        // Map<String, String> payload = Map.of("recipient", recipient, "type", "account_creation");
-        // ResponseEntity<String> response = notificationController.sendNotification(payload);
-        // System.out.println(response.getBody());
     }
 }
