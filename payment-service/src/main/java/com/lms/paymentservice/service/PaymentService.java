@@ -16,7 +16,11 @@ public class PaymentService {
     private String stripeSecretKey = System.getProperty("STRIPE_SECRET_KEY");
 
     PaymentDatabaseController db = new PaymentDatabaseController();
-
+    /**
+     * Processes payment, validates, creates PaymentResponse object, add to database  and returns the response
+     * @param PaymentRequest   payment request passed through by user
+     * @response PaymentResponse Details of the payment post processing
+     */
 
     public PaymentResponse processPayment(PaymentRequest paymentRequest) {
         Stripe.apiKey = stripeSecretKey;

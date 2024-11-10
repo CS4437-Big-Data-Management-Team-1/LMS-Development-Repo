@@ -46,7 +46,7 @@ public class PaymentDatabaseController{
         }
     }
     /**
-     * PreparedStatement.executeUpdate() handles adding rows to the database users
+     * PreparedStatement.executeUpdate() handles adding rows to the database payments
      *
      * @return          returns the boolean status of the function
      */

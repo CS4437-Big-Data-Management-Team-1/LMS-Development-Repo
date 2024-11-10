@@ -14,7 +14,12 @@ public class PaymentController {
     @Autowired
     private PaymentService paymentService;
     PaymentDatabaseController db = new PaymentDatabaseController();
-
+    /**
+     * recieves payments and send them to the processpayment function for processing .
+     *
+     * @param PaymentRequest the details of the payment sent by the user
+     * @return PaymentResponse Details of the payment post processing
+     */
     @PostMapping("/process")
     public PaymentResponse processPayment(@RequestBody PaymentRequest paymentRequest) {
 
