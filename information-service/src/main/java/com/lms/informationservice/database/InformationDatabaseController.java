@@ -29,7 +29,7 @@ public class InformationDatabaseController{
 
     /**
      * Connects to the database
-     * Pulls data from the database.properties file.
+     * Pulls data from the system properties
      * driver manager handles connection
      *
      * @return          The boolean value of if the connection succeeded
@@ -77,6 +77,38 @@ public class InformationDatabaseController{
         }
 
     }
+    /**
+     * Fetches all teams in the database
+     * @return boolean representing if the operation was successful
+     */
+    public static List<Team> getTeamsFromDB(){
+        List<Team> resultsList = new ArrayList<>();
+
+        if (connection == null) {
+            log.severe("Database connection is null.");
+            return resultsList;
+        }
+
+
+        String sql = "SELECT * FROM teams";
+        try (PreparedStatement statement = connection.prepareStatement(sql)){
+            ResultSet results = statement.executeQuery();
+
+            while(results.next()){
+                Team t = new Team();
+                t.setTeamID(results.getInt("team_id"));
+                t.setTeamName(results.getString("team_name"));
+                t.setTla(results.getString("abbreviation"));
+                        resultsList.add(t);
+            }
+            return resultsList;
+        }catch (SQLException e){
+            log.severe("Error fetching teams " + e.getMessage());
+            return resultsList;
+        }
+
+    }
+
 
 
 }
