@@ -17,7 +17,6 @@ import java.util.logging.Logger;
  *
  * @author Mark Harrison
  */
-@Entity
 public class InformationDatabaseController{
 
     private static final Logger log;
@@ -38,21 +37,12 @@ public class InformationDatabaseController{
      */
     private final static String dbUsername = System.getProperty("DB_USERNAME");
     private final static String dbPassword = System.getProperty("DB_PASSWORD");
+    private final static String dbUrl = System.getProperty("DB_TEAMS_URL");
+
     public static boolean connectToDB(){
-            log.info("Loading application properties");
-
-        Properties properties = new Properties();
-        try {
-            properties.load(InformationDatabaseController.class.getClassLoader().getResourceAsStream("database.properties"));
-        } catch (IOException e){
-            log.severe("Error loading properties");
-            return false;
-        }
-
-
         log.info("Connecting to the database");
         try{
-            connection = DriverManager.getConnection(properties.getProperty("url"), dbUsername ,dbPassword);
+            connection = DriverManager.getConnection(dbUrl, dbUsername ,dbPassword);
             log.info("Database connection test: " + connection.getCatalog());
             return true;
         } catch (SQLException e){

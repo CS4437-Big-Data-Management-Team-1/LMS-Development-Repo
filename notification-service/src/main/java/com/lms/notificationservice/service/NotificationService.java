@@ -10,7 +10,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import com.lms.notificationservice.model.Notification;
-
+import com.lms.notificationservice.database.NotificationDatabaseController;
 @Service
 public class NotificationService {
 
@@ -24,10 +24,12 @@ public class NotificationService {
 
     // Handles sending of notifications
     public void sendNotification(Notification notification) {
+
         if (notification == null || notification.getRecipient() == null || notification.getRecipient().isEmpty()) {
             logger.error("Notification or recipient email is invalid. Cannot send email.");
             throw new IllegalArgumentException("Invalid notification or recipient email.");
         }
+            NotificationDatabaseController db = new NotificationDatabaseController();
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
@@ -44,5 +46,8 @@ public class NotificationService {
         } catch (Exception e) {
             logger.error("Unexpected error when sending email to {}: {}", notification.getRecipient(), e.getMessage());
         }
-    }
+
+            db.connectToDB();
+            db.addEmailToDB(notification);
+        }
 }
