@@ -4,11 +4,14 @@ public class PaymentResponse {
     private boolean success;
     private String transactionId;
     private String message;
+    private String amount;
 
-    public PaymentResponse(boolean success, String transactionId, String message) {
+    public PaymentResponse(boolean success, String transactionId, String message, String amount) {
+
         this.success = success;
         this.transactionId = transactionId;
         this.message = message;
+        this.amount = amount;
     }
 
     // Getter and Setter for success
@@ -36,5 +39,14 @@ public class PaymentResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    // Getter and Setter for amount
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
     }
 }
