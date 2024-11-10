@@ -15,8 +15,7 @@ public class InformationServiceApplication {
         System.setProperty("DB_TEAMS_URL", dotenv.get("DB_TEAMS_URL"));
         System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
         System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
-        String dbUrl = System.getProperty("DB_TEAMS_URL");
-        System.out.println(dbUrl);
+
 
         SpringApplication.run(InformationServiceApplication.class, args);
     }
