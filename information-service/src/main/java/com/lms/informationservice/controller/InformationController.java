@@ -45,7 +45,7 @@ public class InformationController {
      *
      * Retrieve teams from the API, storing the retrieved teams in the database, and returning a list of all teams.
      *
-     * @return ResponseEntity<List<Team>> Response entity containing a list of all teams in the database.
+     * @return ResponseEntity<List<Team>> Response entity containing a list of all teams in the API.
      */
     @GetMapping("/teams/fetch")
     public ResponseEntity<List<Team>> fetchTeams() {
@@ -56,6 +56,20 @@ public class InformationController {
         return ResponseEntity.ok(teams);
     }
 
+    /**
+     * Endpoint to get all team data from the database and provide it to the user
+     * It differs from the fetch endpoint in that it does not interact with the API, only the database.
+     * This'll be called whenever a user wants to see information about teams in the league etc
+     * while the fetch method will be called to update the teams ranking at the start of and during the course of a league
+     *
+     *
+     * @return ResponseEntity<List<Teams>> Response entity containing a list of all teams in the database.
+     */
+    @GetMapping("/teams/get-teams")
+    public ResponseEntity<List<Team>> getTeams(){
+        List<Team> teams = db.getTeamsFromDB();
+        return ResponseEntity.ok(teams);
+    }
     /**
      * Endpoint to fetch and store all match fixtures from the external API.
      *
