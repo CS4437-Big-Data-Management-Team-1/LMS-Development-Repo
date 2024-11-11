@@ -16,12 +16,12 @@ ARG APP_VERSION=0.0.1
 
 WORKDIR /app
 
-COPY --from=build /app/target/user-service-0.0.1-SNAPSHOT.jar ./user-service-0.0.1-SNAPSHOT.jar
+COPY target/user-service-0.0.1-SNAPSHOT.jar ./user-service-0.0.1-SNAPSHOT.jar
 
 EXPOSE 8080
 
 ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/users
 ENV ACTIVE_PROFILE=${PROFILE}
-ENV JAR_VERSION = ${APP_VERSION}
+ENV JAR_VERSION=${APP_VERSION}
 
 ENTRYPOINT ["java", "-jar","-Dspring.profiles.active=${ACTIVE_PROFILE}", "user-service-${JAR_VERSION}-SNAPSHOT.jar"]
