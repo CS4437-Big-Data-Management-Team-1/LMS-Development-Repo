@@ -55,7 +55,7 @@ public class PaymentDatabaseController{
         //Sample data for now, replace with actual data pulled from user input later
         String sql = "INSERT INTO payments (user_id, amount, payment_date,payment_status) VALUES (?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setInt(1, 4 );
+            statement.setString(1, "3K2KFFXQIlQdkZFkT8GNotao7pJ2" );
             statement.setLong(2, Long.parseLong(response.getAmount()));
             statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
             if(response.isSuccess()) {

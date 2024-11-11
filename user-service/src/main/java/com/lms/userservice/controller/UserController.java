@@ -85,6 +85,7 @@ public class UserController {
             logger.info("Firebase user created with UID: {}", userRecord.getUid());
 
             User user = new User();
+            user.setId(userRecord.getUid());
             user.setEmail(userRecord.getEmail());
             user.setUsername(userRecord.getDisplayName());
             user.setPasswordHash(""); // TODO can probs get rid of this as firebase deal with password
@@ -112,6 +113,7 @@ public class UserController {
      * @return A Response Entity containing a success message and the ID token if login is successful,
      *         or a 401 Unauthorized status if the login fails.
      */
+
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDTO loginDTO) {
         logger.info("Attempting login for user: {}", loginDTO.getEmail());
@@ -132,7 +134,10 @@ public class UserController {
 
                 String idToken = (String) responseBody.get("idToken");
                 String uid = (String) responseBody.get("localId");
-                db.searchForUser(uid)
+                System.out.println(uid);
+                User user = db.searchForUser(uid);
+
+                System.out.println(user.getUsername());
                 logger.debug("Received ID token: {}", idToken);
                 return ResponseEntity.ok("Login successful. Token: " + idToken);
             } else {

@@ -54,7 +54,7 @@ class UserControllerTest {
         userLoginDTO.setPassword("Valid123$");
 
         user = new User();
-        user.setId(1L);
+        user.setId("abcdefg");
         user.setEmail("testuser@example.com");
         user.setUsername("testUser");
     }
