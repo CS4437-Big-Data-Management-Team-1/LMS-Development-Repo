@@ -2,6 +2,8 @@ FROM maven:3.8.5-openjdk-17-slim AS build
 
 WORKDIR /build
 
+COPY user.env ./
+
 COPY pom.xml ./
 RUN mvn dependency:go-offline
 
@@ -22,6 +24,5 @@ EXPOSE 8080
 
 ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/users
 ENV ACTIVE_PROFILE=${PROFILE}
-ENV JAR_VERSION=${APP_VERSION}
 
-ENTRYPOINT ["java", "-jar","-Dspring.profiles.active=${ACTIVE_PROFILE}", "user-service-${JAR_VERSION}-SNAPSHOT.jar"]
+ENTRYPOINT ["java", "-jar","-Dspring.profiles.active=${ACTIVE_PROFILE}","-Dspring.datasource.url=${DB_URL}", "user-service-0.0.1-SNAPSHOT.jar"]
