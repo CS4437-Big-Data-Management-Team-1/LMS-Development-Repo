@@ -46,7 +46,7 @@ services:
     networks:
       - springapimysql-net
     environment:
-      MYSQL_DATABASE: jdbc:mysql://localhost:3306/lms_db
+      MYSQL_DATABASE: mysql://database-users.mysql.database.azure.com:3306/
       MYSQL_USER: ${DB_USERNAME}
       MYSQL_PASSWORD: ${DB_PASSWORD}
       MYSQL_ROOT_PASSWORD:
