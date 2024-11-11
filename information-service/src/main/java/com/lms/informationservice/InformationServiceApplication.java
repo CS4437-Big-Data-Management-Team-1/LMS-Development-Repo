@@ -11,12 +11,11 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class InformationServiceApplication {
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.configure().directory("../").load();
+        Dotenv dotenv = Dotenv.load();
         System.setProperty("DB_TEAMS_URL", dotenv.get("DB_TEAMS_URL"));
         System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
         System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
-        String dbUrl = System.getProperty("DB_TEAMS_URL");
-        System.out.println(dbUrl);
+
 
         SpringApplication.run(InformationServiceApplication.class, args);
     }
