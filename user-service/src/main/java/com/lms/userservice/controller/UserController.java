@@ -126,11 +126,13 @@ public class UserController {
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
-                db.searchForUser()
+
                 logger.info("Login successful for user: {}", loginDTO.getEmail());
                 Map<String, Object> responseBody = response.getBody();
 
                 String idToken = (String) responseBody.get("idToken");
+                String uid = (String) responseBody.get("localId");
+                db.searchForUser(uid)
                 logger.debug("Received ID token: {}", idToken);
                 return ResponseEntity.ok("Login successful. Token: " + idToken);
             } else {
