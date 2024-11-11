@@ -12,6 +12,7 @@
         <module>user-service</module>
         <module>information-service</module>
         <module>notification-service</module>
+		<module>game-service</module>
     </modules>
 
     <properties>
