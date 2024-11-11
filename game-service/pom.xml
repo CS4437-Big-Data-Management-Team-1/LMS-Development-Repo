@@ -104,6 +104,12 @@
             <scope>compile</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.lms.informationservice</groupId>
+            <artifactId>information-service</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
