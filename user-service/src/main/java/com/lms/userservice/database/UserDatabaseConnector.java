@@ -73,6 +73,23 @@ public class UserDatabaseConnector{
 
     }
 
+    public static User searchForUser(String id){
+        String sql = "SELECT * FROM users WHERE ID = ?";
+        try(preparedStatement statement = connection.prepareStatement(sql)){
+            statement.setString(1, id);
+            try(ResultSet userSet = statement.executeQuery()){
+                User user = new User();
+                            user.setId(resultSet.getString("id")),
+                            user.setUsernameresultSet.getString("username"),
+                            user.setEmail(resultSet.getString("email")),
+                            user.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime()),
+                            user.setLastLogin(resultSet.getTimestamp("last_login").toLocalDateTime())
+                }
+            return user;
+            }
+        }
+    }
+
     /**
      * Disconnects from database
      *
