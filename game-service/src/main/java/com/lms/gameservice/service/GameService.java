@@ -37,7 +37,7 @@ public class GameService {
 
 
         db.connectToDB();
-        db.addGameToDB();
+        db.addGameToDB(/**added when game vars are decided*/);
 
     }
 

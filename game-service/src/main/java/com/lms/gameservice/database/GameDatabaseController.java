@@ -38,7 +38,7 @@ public class GameDatabaseController{
         }
     }
 
-    public static boolean addGameToDB(PaymentResponse response){
+    public static boolean addGameToDB( /**Game vars to be added when decided*/){
 
 
         String sql = "INSERT INTO lastmanstandinggames (start_date, end_date, entry_fee) VALUES (?, ?, ?)";
