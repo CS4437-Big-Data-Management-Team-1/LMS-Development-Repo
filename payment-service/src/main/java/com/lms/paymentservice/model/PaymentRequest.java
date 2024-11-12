@@ -46,4 +46,14 @@ public class PaymentRequest {
     public void setSource(String source) {
         this.source = source;
     }
+
+    @Override
+    public String toString() {
+        return "PaymentRequest{" +
+                "amount='" + amount + '\'' +
+                ", currency='" + currency + '\'' +
+                ", description='" + description + '\'' +
+                ", source='" + source + '\'' +
+                '}';
+    }
 }

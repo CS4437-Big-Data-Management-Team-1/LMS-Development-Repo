@@ -55,14 +55,13 @@ public class UserDatabaseConnector{
     public static boolean addUserToDB(User user){
 
         //Sample data for now, replace with actual data pulled from user input later
-        String sql = "INSERT INTO users (username,email,password,created_at,last_login,balance) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO users (user_id, username,email,created_at,last_login) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setString(1, user.getUsername() );
-            statement.setString(2, user.getEmail());
-            statement.setString(3, user.getPasswordHash());
+            statement.setString(1, user.getId() );
+            statement.setString(2, user.getUsername() );
+            statement.setString(3, user.getEmail());
             statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-            statement.setBigDecimal(6, BigDecimal.TEN);
 
             int execute = statement.executeUpdate();
             return true;
@@ -72,6 +71,31 @@ public class UserDatabaseConnector{
         }
 
     }
+
+    public static User searchForUser(String id){
+        String sql = "SELECT * FROM users WHERE user_id = ?";
+        User user = new User();
+
+        try(PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setString(1, id);
+            try(ResultSet resultSet = statement.executeQuery()){
+                if(resultSet.next()) {
+                    user.setId(resultSet.getString("user_id"));
+                    user.setUsername(resultSet.getString("username"));
+                    user.setEmail(resultSet.getString("email"));
+                    user.setCreatedAt(resultSet.getTimestamp("created_at").toLocalDateTime());
+                }
+                }catch (SQLException e){
+                log.severe("Error inserting user " + e.getMessage());
+                return user;
+            }
+            return user;
+            }catch (SQLException e){
+            log.severe("Error inserting user " + e.getMessage());
+            return user;
+        }
+        }
+
 
     /**
      * Disconnects from database

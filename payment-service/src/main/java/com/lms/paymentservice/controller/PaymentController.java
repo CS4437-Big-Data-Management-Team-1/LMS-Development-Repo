@@ -2,14 +2,20 @@ package com.lms.paymentservice.controller;
 
 import com.lms.paymentservice.model.PaymentRequest;
 import com.lms.paymentservice.service.PaymentService;
+import com.lms.paymentservice.service.AuthService;
 import com.lms.paymentservice.database.PaymentDatabaseController;
 import com.lms.paymentservice.model.PaymentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/payment")
 public class PaymentController {
+
+    @Autowired
+    private AuthService authService;
 
     @Autowired
     private PaymentService paymentService;
@@ -18,11 +24,25 @@ public class PaymentController {
      * recieves payments and send them to the processpayment function for processing .
      *
      * @param PaymentRequest the details of the payment sent by the user
+     * @param authorisationHeader JWT token confiming the user is logged in
      * @return PaymentResponse Details of the payment post processing
      */
     @PostMapping("/process")
-    public PaymentResponse processPayment(@RequestBody PaymentRequest paymentRequest) {
+    public ResponseEntity<?> processPayment(
+            @RequestBody PaymentRequest paymentRequest,
+            @RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
+            try {
+                System.out.println("auth: " + authorisationHeader );
+                String msg = authService.validateToken(authorisationHeader);
+                System.out.println("uid:" + msg);
+                String[] splits = msg.split("Access granted for user: ");
+                String uid = splits[1];
+                System.out.println("uid:  " + uid);
+                PaymentResponse response = paymentService.processPayment(paymentRequest, uid);
+                return ResponseEntity.ok(response);
+            }catch(RuntimeException e){
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not logged in");
+            }
 
-        return paymentService.processPayment(paymentRequest);
     }
 }

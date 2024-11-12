@@ -1,4 +1,4 @@
-package com.lms.gameservice.service;
+package com.lms.paymentservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,6 @@ public class AuthService {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorisation", token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
-
         ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:8080/api/users/validate-jwt",
                 HttpMethod.POST,
