@@ -5,9 +5,12 @@ import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
 import com.lms.gameservice.service.RoundService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,11 +29,28 @@ public class GameController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGame(@RequestBody Game game, @RequestHeader("Authorisation") String authorisationHeader) {
-        String uid = authService.validateToken(authorisationHeader);
+    public ResponseEntity<?> createGame(
+            @RequestHeader("Authorisation") String authorisationHeader,
+            @RequestParam String name,
+            @RequestParam BigDecimal entryFee,
+            @RequestParam LocalDateTime startDate) {
 
-        Game createdGame = gameService.createGame(game, uid);
-        return ResponseEntity.ok(createdGame);
+        // Verify Firebase ID token for user authentication (Wont work till user id changed to UID
+        try {
+            String uid = authService.validateToken(authorisationHeader);
+
+            // Step 2: Create the game with the start date
+            Game game = gameService.createGame(name, entryFee, startDate);
+
+            // Potential to Send Notification game created
+            // sendGameCreationNotification(uid, game);
+
+            return ResponseEntity.ok(game);
+
+        } catch (Exception e) {
+            // Handle any Firebase authentication errors
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Firebase ID token.");
+        }
     }
 
     @PostMapping("/{gameId}/join")
