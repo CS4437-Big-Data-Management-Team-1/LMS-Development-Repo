@@ -7,8 +7,6 @@ import com.lms.gameservice.repository.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class GameService {
     private final GameRepository gameRepository;
@@ -23,10 +21,10 @@ public class GameService {
 
     }
 
-    public Game createGame(Game game) {
+    public Game createGame(Game game, String uid) {
         return gameRepository.save(game);
     }
-
+    //TODO future user id will become string
     public Player joinGame(Long gameId, Long userId) {
         Game game = gameRepository.findById(gameId).orElseThrow(() -> new IllegalArgumentException("Game not found"));
         //TODO Need to get and pay entry fee here
