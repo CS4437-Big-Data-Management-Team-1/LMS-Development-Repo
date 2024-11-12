@@ -54,8 +54,8 @@ class UserTest {
 
     @Test
     void testSetAndGetId() {
-        user.setId(1L);
-        assertEquals(1L, user.getId());
+        user.setId("abcdefg");
+        assertEquals("abcdefg", user.getId());
     }
 
     @Test

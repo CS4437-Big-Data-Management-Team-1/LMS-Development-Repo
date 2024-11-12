@@ -50,18 +50,19 @@ public class PaymentDatabaseController{
      *
      * @return          returns the boolean status of the function
      */
-    public static boolean addPaymentToDB(PaymentResponse response){
+    public static boolean addPaymentToDB(PaymentResponse response, String token){
 
         //Sample data for now, replace with actual data pulled from user input later
-        String sql = "INSERT INTO payments (user_id, amount, payment_date,payment_status) VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO payments (payment_id, user_id, amount, payment_date,payment_status) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setInt(1, 4 );
-            statement.setLong(2, Long.parseLong(response.getAmount()));
-            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setString(1, response.getTransactionId());
+            statement.setString(2, token );
+            statement.setLong(3, Long.parseLong(response.getAmount()));
+            statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             if(response.isSuccess()) {
-                statement.setString(4, "COMPLETED");
+                statement.setString(5, "COMPLETED");
             }else{
-                statement.setString(4, "FAILED");
+                statement.setString(5, "FAILED");
             }
             int execute = statement.executeUpdate();
             return true;
