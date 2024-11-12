@@ -53,6 +53,12 @@ public class GameController {
         }
     }
 
+    @GetMapping("/joinable")
+    public ResponseEntity<List<Game>> getJoinableGames() {
+        List<Game> joinableGames = gameService.getJoinableGames();
+        return ResponseEntity.ok(joinableGames);
+    }
+
     @PostMapping("/{gameId}/join")
     public ResponseEntity<String> joinGame(@PathVariable Long gameId, @RequestParam Long userId) {
         gameService.joinGame(gameId, userId);

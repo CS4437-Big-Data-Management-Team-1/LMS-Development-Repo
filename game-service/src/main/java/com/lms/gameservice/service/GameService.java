@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class GameService {
@@ -48,6 +49,11 @@ public class GameService {
 //        db.connectToDB();
 //        db.addGameToDB(/**added when game vars are decided*/);
 
+    }
+
+    public List<Game> getJoinableGames() {
+        // Retrieve games where startDate is in the future
+        return gameRepository.findJoinableGames(LocalDateTime.now());
     }
 
 
