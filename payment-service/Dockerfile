@@ -8,7 +8,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-COPY user.env .env
+COPY payment.env .env
 
 
 FROM openjdk:17-jdk-alpine
@@ -18,12 +18,12 @@ ARG APP_VERSION=0.0.1
 
 WORKDIR /app
 
-COPY target/user-service-0.0.1-SNAPSHOT.jar ./user-service-0.0.1-SNAPSHOT.jar
+COPY target/payment-service-0.0.1-SNAPSHOT.jar ./payment-service-0.0.1-SNAPSHOT.jar
 COPY --from=build /build/.env .env
 
 EXPOSE 8080
 
-ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/users
+ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/payment
 ENV ACTIVE_PROFILE=${PROFILE}
 
 ENTRYPOINT ["java", "-jar","-Dspring.profiles.active=${ACTIVE_PROFILE}","-Dspring.datasource.url=${DB_URL}", "user-service-0.0.1-SNAPSHOT.jar"]
