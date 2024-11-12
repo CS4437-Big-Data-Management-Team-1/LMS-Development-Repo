@@ -15,7 +15,7 @@ import com.lms.notificationservice.model.Notification;
 import com.lms.notificationservice.service.NotificationService;
 
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("/api/notifications")
 public class NotificationController {
 
     @Autowired
