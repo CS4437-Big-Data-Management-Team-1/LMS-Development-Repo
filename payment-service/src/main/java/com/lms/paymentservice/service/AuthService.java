@@ -13,7 +13,7 @@ public class AuthService {
 
     public String validateToken(String token) {
         HttpHeaders headers = new HttpHeaders();
-        headers.set("Authorization", token);
+        headers.set("Authorisation", token);
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<String> response = restTemplate.exchange(
                 "http://localhost:8080/api/users/validate-jwt",

@@ -187,11 +187,12 @@ public class UserController {
      * @param authorisationHeader
      * @return
      */
-    @GetMapping("/validate-jwt")
+    @PostMapping("/validate-jwt")
     public ResponseEntity<?> secureEndpoint(@RequestHeader("Authorisation") String authorisationHeader) {
         logger.info("Accessing secure endpoint.");
         try {
             String idToken = authorisationHeader.replace("Bearer ", "");
+            System.out.println(idToken);
             logger.debug("Verifying ID token: {}", idToken);
 
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);

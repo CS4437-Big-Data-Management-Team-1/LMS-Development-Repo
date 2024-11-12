@@ -26,7 +26,7 @@ public class GameController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGame(@RequestBody Game game, @RequestHeader("Authorisation") String authorisationHeader) {
+    public ResponseEntity<?> createGame(@RequestBody Game game, @RequestHeader("Authorization") String authorisationHeader) {
         String uid = authService.validateToken(authorisationHeader);
 
         Game createdGame = gameService.createGame(game, uid);

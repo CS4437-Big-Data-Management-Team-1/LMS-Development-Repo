@@ -30,13 +30,15 @@ public class PaymentController {
     @PostMapping("/process")
     public ResponseEntity<?> processPayment(
             @RequestBody PaymentRequest paymentRequest,
-            @RequestHeader(value = "Authorization", required = false) String authorisationHeader) {
-            System.out.println("req;" + paymentRequest);
+            @RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
             try {
                 System.out.println("auth: " + authorisationHeader );
-                String uid = authService.validateToken(authorisationHeader);
-
-                PaymentResponse response = paymentService.processPayment(paymentRequest, authorisationHeader);
+                String msg = authService.validateToken(authorisationHeader);
+                System.out.println("uid:" + msg);
+                String[] splits = msg.split("Access granted for user: ");
+                String uid = splits[1];
+                System.out.println("uid:  " + uid);
+                PaymentResponse response = paymentService.processPayment(paymentRequest, uid);
                 return ResponseEntity.ok(response);
             }catch(RuntimeException e){
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not logged in");
