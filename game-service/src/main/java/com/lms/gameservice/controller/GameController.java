@@ -89,11 +89,4 @@ public class GameController {
         //TODO logic
         return ResponseEntity.ok("Round results processed for game " + gameId);
     }
-
-    @GetMapping
-    public ResponseEntity<List<Game>> getAllAvailableGames() {
-
-        //TODO get all games
-        return null;
-    }
 }
