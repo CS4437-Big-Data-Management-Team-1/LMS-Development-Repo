@@ -10,6 +10,22 @@ import com.stripe.param.ChargeCreateParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service class for processing payments.
+ *
+ * This class interacts with the Stripe API to create and process charges based on
+ * payment requests, using Stripe's SDK for communication. It handles the conversion
+ * of {@link PaymentRequest} data into a Stripe charge and generates a {@link PaymentResponse}
+ * to indicate the outcome of the transaction.
+ *
+ * https://docs.stripe.com/api
+ *
+ * The Stripe secret key is obtained from system properties and set as the API key
+ * for all Stripe operations.
+ *
+ * @author Callum Carroll
+ */
+
 @Service
 public class PaymentService {
 
