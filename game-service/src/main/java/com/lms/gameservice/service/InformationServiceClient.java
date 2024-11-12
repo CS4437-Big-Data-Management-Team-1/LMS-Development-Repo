@@ -1,8 +1,6 @@
 package com.lms.gameservice.service;
 
 import com.lms.informationservice.matches.Matches;
-import com.lms.informationservice.repository.MatchesRepository;
-import com.lms.informationservice.repository.TeamRepository;
 import com.lms.informationservice.team.Team;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
