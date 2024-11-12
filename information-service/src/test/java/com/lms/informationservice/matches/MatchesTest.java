@@ -18,7 +18,7 @@ class MatchesTest {
         int gameID = 1001;
 
         match.setGameID(gameID);
-        assertEquals(gameID, match.getId());
+        assertEquals(gameID, match.getGameID());
     }
 
     @Test

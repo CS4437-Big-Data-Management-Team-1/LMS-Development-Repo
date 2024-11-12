@@ -1,5 +1,14 @@
 package com.lms.paymentservice.model;
 
+/**
+ * Model class representing a payment request.
+ *
+ * This class encapsulates the details required for processing a payment,
+ * including the amount, currency, description, and source of the payment.
+ *
+ * @author Callum Carroll
+ */
+
 public class PaymentRequest {
     private String amount;
     private String currency;
@@ -36,5 +45,15 @@ public class PaymentRequest {
 
     public void setSource(String source) {
         this.source = source;
+    }
+
+    @Override
+    public String toString() {
+        return "PaymentRequest{" +
+                "amount='" + amount + '\'' +
+                ", currency='" + currency + '\'' +
+                ", description='" + description + '\'' +
+                ", source='" + source + '\'' +
+                '}';
     }
 }

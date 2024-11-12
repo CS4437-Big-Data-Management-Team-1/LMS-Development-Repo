@@ -20,9 +20,8 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
-    private Long id;
+    @Column(name = "user_id",nullable = false, unique = true)
+    private String id;
 
     private String username;
     private String email;
@@ -40,11 +39,11 @@ public class User {
     private Double balance = 0.0;
 
     // Getters and setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
