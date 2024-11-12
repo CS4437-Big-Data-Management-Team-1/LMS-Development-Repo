@@ -9,7 +9,8 @@ import com.stripe.model.Charge;
 import com.stripe.param.ChargeCreateParams;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.*;
 /**
  * Service class for processing payments.
  *
@@ -38,7 +39,7 @@ public class PaymentService {
      * @response PaymentResponse Details of the payment post processing
      */
 
-    public PaymentResponse processPayment(PaymentRequest paymentRequest) {
+    public PaymentResponse processPayment(PaymentRequest paymentRequest, String token) {
         Stripe.apiKey = stripeSecretKey;
 
         try {
@@ -56,7 +57,7 @@ public class PaymentService {
             // Return success response with charge ID
             PaymentResponse response = new PaymentResponse(true, charge.getId(), "Payment successful!", paymentRequest.getAmount());
             db.connectToDB();
-            db.addPaymentToDB(response);
+            db.addPaymentToDB(response, token);
             return response;
 
         } catch (StripeException e) {
