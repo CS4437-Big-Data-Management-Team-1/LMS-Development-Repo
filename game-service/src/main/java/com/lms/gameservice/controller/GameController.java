@@ -1,6 +1,7 @@
 package com.lms.gameservice.controller;
 
 import com.lms.gameservice.model.Game;
+import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
 import com.lms.gameservice.service.RoundService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,14 +17,20 @@ public class GameController {
     private final RoundService roundService;
 
     @Autowired
+    private AuthService authService;
+
+    @Autowired
     public GameController(GameService gameService, RoundService roundService) {
         this.gameService = gameService;
         this.roundService = roundService;
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Game> createGame(@RequestBody Game game) {
-        return ResponseEntity.ok(gameService.createGame(game));
+    public ResponseEntity<?> createGame(@RequestBody Game game, @RequestHeader("Authorisation") String authorisationHeader) {
+        String uid = authService.validateToken(authorisationHeader);
+
+        Game createdGame = gameService.createGame(game, uid);
+        return ResponseEntity.ok(createdGame);
     }
 
     @PostMapping("/{gameId}/join")
