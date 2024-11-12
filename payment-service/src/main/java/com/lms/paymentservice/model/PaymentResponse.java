@@ -20,12 +20,16 @@ public class PaymentResponse {
      * @param success       whether the payment was successful
      * @param transactionId the unique identifier for the transaction
      * @param message       additional information about the transaction outcome
+     * @param amount        amount of payment
      */
 
-    public PaymentResponse(boolean success, String transactionId, String message) {
+
+    public PaymentResponse(boolean success, String transactionId, String message, String amount) {
+
         this.success = success;
         this.transactionId = transactionId;
         this.message = message;
+        this.amount = amount;
     }
 
     /**
@@ -42,7 +46,7 @@ public class PaymentResponse {
         this.success = success;
     }
 
-
+    // Getter and Setter for transactionId
     public String getTransactionId() {
         return transactionId;
     }
@@ -51,12 +55,21 @@ public class PaymentResponse {
         this.transactionId = transactionId;
     }
 
-
+    // Getter and Setter for message
     public String getMessage() {
         return message;
     }
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    // Getter and Setter for amount
+    public String getAmount() {
+        return amount;
+    }
+
+    public void setAmount(String amount) {
+        this.amount = amount;
     }
 }

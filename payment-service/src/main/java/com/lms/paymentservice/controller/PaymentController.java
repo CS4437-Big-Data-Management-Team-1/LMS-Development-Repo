@@ -2,6 +2,7 @@ package com.lms.paymentservice.controller;
 
 import com.lms.paymentservice.model.PaymentRequest;
 import com.lms.paymentservice.service.PaymentService;
+import com.lms.paymentservice.database.PaymentDatabaseController;
 import com.lms.paymentservice.model.PaymentResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,7 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+<<<<<<< HEAD
 
     /**
      * Endpoint to process a payment.
@@ -33,8 +35,18 @@ public class PaymentController {
      * @return a {@link PaymentResponse} object containing the outcome of the payment process
      */
 
+=======
+    PaymentDatabaseController db = new PaymentDatabaseController();
+    /**
+     * recieves payments and send them to the processpayment function for processing .
+     *
+     * @param PaymentRequest the details of the payment sent by the user
+     * @return PaymentResponse Details of the payment post processing
+     */
+>>>>>>> 967793f28bc87ef12ad955aa9613e5f6b9c8b8e9
     @PostMapping("/process")
     public PaymentResponse processPayment(@RequestBody PaymentRequest paymentRequest) {
+
         return paymentService.processPayment(paymentRequest);
     }
 }
