@@ -1,4 +1,4 @@
-package com.lms.paymentservice.database;
+package com.lms.gameservice.database;
 
 import com.lms.gameservice.service.GameService;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
@@ -38,13 +38,13 @@ public class GameDatabaseController{
         }
     }
 
-    public static boolean addPaymentToDB(PaymentResponse response){
+    public static boolean addGameToDB(PaymentResponse response){
 
 
         String sql = "INSERT INTO lastmanstandinggames (start_date, end_date, entry_fee) VALUES (?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setTimestamp(3, Timestamp.valueOf(LocalDateTime.now()));
-            statement.setDate(1, 4 );
+            statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
+         //   statement.setDate(); end date of lms game.
          //   statement.setLong(3, Long.parseLong(())); entry fee amount.
 
             int execute = statement.executeUpdate();

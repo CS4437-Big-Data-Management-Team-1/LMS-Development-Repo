@@ -4,6 +4,7 @@ import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.repository.GameRepository;
 import com.lms.gameservice.repository.PlayerRepository;
+import com.lms.gameservice.database.GameDatabaseController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,11 @@ public class GameService {
         player.setGame(game);
         player.setActive(true);
         return playerRepository.save(player);
+
+
+        db.connectToDB();
+        db.addGameToDB();
+
     }
 
 
