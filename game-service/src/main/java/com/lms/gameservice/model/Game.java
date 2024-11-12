@@ -2,15 +2,17 @@ package com.lms.gameservice.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import jakarta.persistence.*;
+@Entity
 public class Game {
+    @Id
+
     private Long id;
     private String name;
     private BigDecimal entryFee;
     private LocalDateTime startDate;
     private String status;
     private BigDecimal totalPot = BigDecimal.ZERO;
-
 
 
     public BigDecimal getTotalPot() {
