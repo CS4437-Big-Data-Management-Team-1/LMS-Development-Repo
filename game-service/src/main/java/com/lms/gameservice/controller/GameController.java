@@ -60,10 +60,27 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/join")
-    public ResponseEntity<String> joinGame(@PathVariable Long gameId, @RequestParam Long userId) {
-        gameService.joinGame(gameId, userId);
-        //TODO payment
-        return ResponseEntity.ok("User joined game " + gameId);
+    public ResponseEntity<String> joinGame(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @PathVariable Long gameId) {
+
+        // Verify Firebase ID token for user authentication
+        try {
+            String uid = authService.validateToken(authorizationHeader);
+
+            // Step 2: Attempt to join the game
+            boolean joinedSuccessfully = gameService.joinGame(gameId, uid);
+
+            if (joinedSuccessfully) {
+                return ResponseEntity.ok("User joined game " + gameId);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
+            }
+
+        } catch (Exception e) {
+            // Handle any Firebase authentication errors
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Firebase ID token.");
+        }
     }
 
     @PostMapping("/{gameId}/round/{roundId}/process")

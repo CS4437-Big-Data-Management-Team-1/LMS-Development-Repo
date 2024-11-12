@@ -1,47 +1,57 @@
 package com.lms.gameservice.model;
 
-import jakarta.persistence.*;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.List;
 
-@Entity
 public class Game {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long gameId;
-
+    private Long id;
     private String name;
-    private String status;
-    private LocalDateTime startDate;
     private BigDecimal entryFee;
+    private LocalDateTime startDate;
+    private String status;
+    private BigDecimal totalPot = BigDecimal.ZERO;
 
-    @OneToMany(mappedBy = "game")
-    private List<Round> rounds;
 
-    // Getters and Setters
-    public Long getGameId() { return gameId; }
 
-    public void setGameId(Long gameId) { this.gameId = gameId; }
+    public BigDecimal getTotalPot() {
+        return totalPot;
+    }
 
-    public String getName() { return name; }
+    public void setTotalPot(BigDecimal totalPot) {
+        this.totalPot = totalPot;
+    }
 
-    public void setName(String name) { this.name = name; }
+    // Getters and setters
 
-    public String getStatus() { return status; }
+    public String getName() {
+        return name;
+    }
 
-    public void setStatus(String status) { this.status = status; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public LocalDateTime getStartDate() { return startDate; }
+    public BigDecimal getEntryFee() {
+        return entryFee;
+    }
 
-    public void setStartDate(LocalDateTime startDate) { this.startDate = startDate; }
+    public void setEntryFee(BigDecimal entryFee) {
+        this.entryFee = entryFee;
+    }
 
-    public BigDecimal getEntryFee() { return entryFee; }
+    public LocalDateTime getStartDate() {
+        return startDate;
+    }
 
-    public void setEntryFee(BigDecimal entryFee) { this.entryFee = entryFee; }
+    public void setStartDate(LocalDateTime startDate) {
+        this.startDate = startDate;
+    }
 
-    public List<Round> getRounds() { return rounds; }
+    public String getStatus() {
+        return status;
+    }
 
-    public void setRounds(List<Round> rounds) { this.rounds = rounds; }
+    public void setStatus(String status) {
+        this.status = status;
+    }
 }
