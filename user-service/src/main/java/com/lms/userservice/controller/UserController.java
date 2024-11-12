@@ -178,7 +178,7 @@ public class UserController {
      * @param authorisationHeader
      * @return
      */
-    @GetMapping("/validate-jwt")
+    @PostMapping("/validate-jwt")
     public ResponseEntity<?> secureEndpoint(@RequestHeader("Authorisation") String authorisationHeader) {
         logger.info("Accessing secure endpoint.");
         try {

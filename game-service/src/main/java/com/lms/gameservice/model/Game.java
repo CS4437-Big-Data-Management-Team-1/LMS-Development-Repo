@@ -6,8 +6,8 @@ import jakarta.persistence.*;
 @Entity
 public class Game {
     @Id
-
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
     private String name;
     private BigDecimal entryFee;
     private LocalDateTime startDate;
@@ -25,8 +25,16 @@ public class Game {
 
     // Getters and setters
 
+    public int getId(){
+        return id;
+    }
+
+
     public String getName() {
         return name;
+    }
+    public void setId(int id){
+        this.id = id;
     }
 
     public void setName(String name) {

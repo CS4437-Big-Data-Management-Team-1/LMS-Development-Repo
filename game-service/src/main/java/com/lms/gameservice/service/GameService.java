@@ -3,6 +3,7 @@ package com.lms.gameservice.service;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.repository.GameRepository;
+import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.gameservice.database.GameDatabaseController;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,7 @@ import java.util.List;
 public class GameService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
-
+    private final GameDatabaseController db = new GameDatabaseController();
     //TODO  Will need payment service here probs notification too
 
     @Autowired
@@ -26,13 +27,14 @@ public class GameService {
 
     }
 
-    public Game createGame(String name, BigDecimal entryFee, LocalDateTime startDate) {
+    public Game createGame(String name, BigDecimal entryFee, LocalDateTime startDate, String uid) {
+        db.connectToDB();
         Game game = new Game();
         game.setName(name);
         game.setEntryFee(entryFee);
         game.setStartDate(startDate);
         game.setStatus("CREATED");
-
+        db.addGameToDB(game, uid);
         return gameRepository.save(game);
     }
 

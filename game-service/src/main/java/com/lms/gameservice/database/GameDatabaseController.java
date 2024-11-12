@@ -5,6 +5,7 @@ import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import com.lms.gameservice.model.Game;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -38,14 +39,18 @@ public class GameDatabaseController{
         }
     }
 
-    public static boolean addGameToDB( /**Game vars to be added when decided*/){
+    public static boolean addGameToDB( Game game, String token){
+        String[] splits = token.split("Access granted for user: ");
+        String uid = splits[1];
 
-
-        String sql = "INSERT INTO lastmanstandinggames (start_date, end_date, entry_fee) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO lastmanstandinggames (lms_game_id, start_date, entry_fee, creator_id) VALUES (?, ?, ?, ? )";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setTimestamp(1, Timestamp.valueOf(LocalDateTime.now()));
-         //   statement.setDate(); end date of lms game.
-         //   statement.setLong(3, Long.parseLong(())); entry fee amount.
+
+            statement.setInt(1, game.getId());
+            statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
+            statement.setBigDecimal(3, game.getEntryFee());
+            statement.setString(4, uid);
+
 
             int execute = statement.executeUpdate();
             return true;
