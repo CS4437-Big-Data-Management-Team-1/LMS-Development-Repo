@@ -2,13 +2,13 @@ FROM maven:3.8.5-openjdk-17-slim AS build
 
 WORKDIR /build
 
-COPY user.env ./
-
 COPY pom.xml ./
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 
 COPY src ./src
 RUN mvn clean package -DskipTests
+
+COPY user.env .env
 
 
 FROM openjdk:17-jdk-alpine
@@ -19,6 +19,7 @@ ARG APP_VERSION=0.0.1
 WORKDIR /app
 
 COPY target/user-service-0.0.1-SNAPSHOT.jar ./user-service-0.0.1-SNAPSHOT.jar
+COPY --from=build /build/.env .env
 
 EXPOSE 8080
 
