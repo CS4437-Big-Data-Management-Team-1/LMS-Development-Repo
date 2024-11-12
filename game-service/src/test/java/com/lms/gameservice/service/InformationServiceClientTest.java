@@ -5,6 +5,10 @@ import com.lms.informationservice.team.Team;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
 
@@ -23,6 +27,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
  * Unit tests for the InformationServiceClient class
  * @author Caoimhe Cahill
  */
+@ExtendWith(MockitoExtension.class)
 class InformationServiceClientTest {
 
     private RestTemplate restTemplate;
@@ -32,16 +37,29 @@ class InformationServiceClientTest {
 
     @BeforeEach
     void setUp() {
-        restTemplate = new RestTemplate();
-
+        // Load the environment variables from the test .env file
         Dotenv dotenv = Dotenv.configure()
                 .directory("src/test/resources")
+                .filename(".env")
                 .ignoreIfMissing()
                 .load();
 
-        informationServiceClient = new InformationServiceClient(restTemplate);
+        String baseUrl = dotenv.get("INFORMATION_SERVICE_BASE_URL");
+        System.setProperty("INFORMATION_SERVICE_BASE_URL", baseUrl);
+
+        // Initialize RestTemplate
+        restTemplate = new RestTemplate();
+
+        // Spy on InformationServiceClient
+        informationServiceClient = Mockito.spy(new InformationServiceClient(restTemplate));
+
+        // Inject the baseUrl using ReflectionTestUtils
+        ReflectionTestUtils.setField(informationServiceClient, "baseUrl", baseUrl);
+
+        // Set up MockRestServiceServer
         mockServer = MockRestServiceServer.createServer(restTemplate);
     }
+
 
     @Test
     void testFetchMatches() {
