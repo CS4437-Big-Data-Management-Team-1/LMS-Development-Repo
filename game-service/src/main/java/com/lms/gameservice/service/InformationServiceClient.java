@@ -128,9 +128,10 @@ public class InformationServiceClient {
      */
     public Optional<String> getMatchResultById(int matchId) {
         try {
+            System.out.println("Fetching result for matchId: " + matchId);
             List<Matches> matches = fetchMatches();
             return matches.stream()
-                    .filter(match -> match.getId() == matchId)
+                    .filter(match -> match.getGameID() == matchId)
                     .findFirst()
                     .map(Matches::getResult);
         } catch (Exception e) {
