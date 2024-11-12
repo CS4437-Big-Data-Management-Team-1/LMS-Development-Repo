@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lms.notificationservice.model.AccountCreationNotification;
+import com.lms.notificationservice.model.GameCreatedNotification;
+import com.lms.notificationservice.model.GameJoinedNotification;
 import com.lms.notificationservice.model.GameUpdateNotification;
 import com.lms.notificationservice.model.Notification;
 import com.lms.notificationservice.service.NotificationService;
@@ -52,6 +54,10 @@ public class NotificationController {
                 return new AccountCreationNotification(recipient);
             case "game_update":
                 return new GameUpdateNotification(recipient);
+            case "game_created":
+                return new GameCreatedNotification(recipient);
+            case "game_joined":
+                return new GameJoinedNotification(recipient);
             default:
                 return null;
         }
