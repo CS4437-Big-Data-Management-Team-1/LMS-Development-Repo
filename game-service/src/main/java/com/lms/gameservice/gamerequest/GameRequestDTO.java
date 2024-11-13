@@ -8,7 +8,7 @@ public class GameRequestDTO {
     private String name;
     private BigDecimal entryFee;
     private LocalDateTime startDate;
-
+    public GameRequestDTO(){}
     public GameRequestDTO(String name, BigDecimal entryFee, LocalDateTime startDate){
         this.name = name;
         this.entryFee = entryFee;

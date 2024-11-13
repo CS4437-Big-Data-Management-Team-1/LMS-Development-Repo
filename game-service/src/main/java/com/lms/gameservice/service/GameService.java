@@ -22,13 +22,14 @@ public class GameService {
 
     @Autowired
     public GameService(GameRepository gameRepository, PlayerRepository playerRepository) {
+        db.connectToDB();
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
 
     }
 
     public Game createGame(String name, BigDecimal entryFee, LocalDateTime startDate, String uid) {
-        db.connectToDB();
+
         Game game = new Game();
         game.setName(name);
         game.setEntryFee(entryFee);
@@ -38,21 +39,17 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public boolean joinGame(Long gameId, String uid) {
-        // Retrieve the game to ensure it’s joinable
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+    public boolean joinGame(int gameId, String uid) {
+        Game game = db.findGameByID(gameId);
+        System.out.println(game);
 
-        // Check if the game has already started
-        if (game.getStartDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Cannot join a game that has already started.");
-        }
 
-        // TODO Handle payment
-//        boolean paymentSuccessful = paymentService.processEntryFee(uid, game.getEntryFee());
-//        if (!paymentSuccessful) {
-//            return false;
+//        // Check if the game has already started
+//        if (game.getStartDate().isBefore(LocalDateTime.now())) {
+//            throw new IllegalStateException("Cannot join a game that has already started.");
 //        }
+//
+
 
         // Add the user to the game
         Player player = new Player();

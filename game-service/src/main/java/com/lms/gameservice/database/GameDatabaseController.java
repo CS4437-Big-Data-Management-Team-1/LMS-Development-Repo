@@ -2,7 +2,6 @@ package com.lms.gameservice.database;
 
 import com.lms.gameservice.service.GameService;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import com.lms.gameservice.model.Game;
@@ -43,13 +42,14 @@ public class GameDatabaseController{
         String[] splits = token.split("Access granted for user: ");
         String uid = splits[1];
 
-        String sql = "INSERT INTO lastmanstandinggames (lms_game_id, start_date, entry_fee, creator_id) VALUES (?, ?, ?, ? )";
+        String sql = "INSERT INTO lastmanstandinggames (lms_game_id, start_date, entry_fee, creator_id, game_name) VALUES (?, ?, ?, ?, ? )";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
 
             statement.setInt(1, game.getId());
             statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
             statement.setBigDecimal(3, game.getEntryFee());
             statement.setString(4, uid);
+            statement.setString(5, game.getName());
 
 
             int execute = statement.executeUpdate();
@@ -60,6 +60,36 @@ public class GameDatabaseController{
         }
 
     }
+
+    public static Game findGameByID(int id){
+
+            Game result = new Game();
+
+            if (connection == null) {
+                log.severe("Database connection is null.");
+                return result;
+            }
+
+
+            String sql = "SELECT * FROM lastmanstandinggames WHERE lms_game_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)){
+                statement.setInt(1, id);
+                        try(ResultSet results = statement.executeQuery()){
+                            if(results.next()){
+                                result.setId(results.getInt("lms_game_id"));
+                                result.setName(results.getString("game_name"));
+                                result.setStartDate(results.getTimestamp("start_date").toLocalDateTime());
+                                result.setEntryFee(results.getBigDecimal("entry_fee"));
+                            }
+                        }
+            }catch (SQLException e){
+                log.severe("Error fetching game " + e.getMessage());
+            }
+            return result;
+
+        }
+
+
 
 
     public static boolean disconnectFromDB() {

@@ -58,15 +58,15 @@ public class GameController {
         return ResponseEntity.ok(joinableGames);
     }
 
-    @PostMapping("/{gameId}/join")
+    @PostMapping("/{game_id}/join")
     public ResponseEntity<String> joinGame(
-            @RequestHeader("Authorization") String authorizationHeader,
-            @PathVariable Long gameId) {
+            @RequestHeader("Authorisation") String authorisationHeader,
+            @PathVariable("game_id") int gameId) {
+        System.out.println("hello!");
 
         // Verify Firebase ID token for user authentication
         try {
-            String uid = authService.validateToken(authorizationHeader);
-
+            String uid = authService.validateToken(authorisationHeader);
             // Step 2: Attempt to join the game
             boolean joinedSuccessfully = gameService.joinGame(gameId, uid);
 
