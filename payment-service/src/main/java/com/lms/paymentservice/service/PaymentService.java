@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.*;
+import java.math.BigDecimal;
 /**
  * Service class for processing payments.
  *
@@ -41,12 +42,11 @@ public class PaymentService {
 
     public PaymentResponse processPayment(PaymentRequest paymentRequest, String token) {
         Stripe.apiKey = stripeSecretKey;
-
         try {
             // Create a Charge object using Stripe's SDK
             ChargeCreateParams params =
                     ChargeCreateParams.builder()
-                            .setAmount(Long.parseLong(paymentRequest.getAmount())) // Amount in cents
+                            .setAmount(paymentRequest.getAmount().multiply(new BigDecimal("100")).longValue()) // Amount in cents
                             .setCurrency(paymentRequest.getCurrency())
                             .setDescription(paymentRequest.getDescription())
                             .setSource(paymentRequest.getSource()) // Source from client-side

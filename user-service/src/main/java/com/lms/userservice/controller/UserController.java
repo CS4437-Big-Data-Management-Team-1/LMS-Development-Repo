@@ -134,10 +134,8 @@ public class UserController {
 
                 String idToken = (String) responseBody.get("idToken");
                 String uid = (String) responseBody.get("localId");
-                System.out.println(uid);
                 User user = db.searchForUser(uid);
 
-                System.out.println(user.getUsername());
                 logger.debug("Received ID token: {}", idToken);
                 return ResponseEntity.ok("Login successful. Token: " + idToken);
             } else {
@@ -192,7 +190,6 @@ public class UserController {
         logger.info("Accessing secure endpoint.");
         try {
             String idToken = authorisationHeader.replace("Bearer ", "");
-            System.out.println(idToken);
             logger.debug("Verifying ID token: {}", idToken);
 
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);

@@ -1,5 +1,6 @@
 package com.lms.paymentservice.model;
 
+import java.math.BigDecimal ;
 /**
  * This class encapsulates the response details of a payment transaction,
  * including the success status, transaction ID, and an informational message.
@@ -13,7 +14,7 @@ public class PaymentResponse {
     private boolean success;
     private String transactionId;
     private String message;
-    private String amount;
+    private BigDecimal amount;
 
     /**
      * Constructs a new {@code PaymentResponse} with the specified success status,
@@ -25,7 +26,7 @@ public class PaymentResponse {
      * @param amount        amount of payment
      */
 
-    public PaymentResponse(boolean success, String transactionId, String message, String amount) {
+    public PaymentResponse(boolean success, String transactionId, String message, BigDecimal amount) {
 
 
         this.success = success;
@@ -66,11 +67,20 @@ public class PaymentResponse {
     }
 
     // Getter and Setter for amount
-    public String getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+    @Override
+    public String toString() {
+        return "PaymentResponse{" +
+                "success=" + success +
+                ", transactionId='" + transactionId + '\'' +
+                ", message='" + message + '\'' +
+                ", amount='" + String.valueOf(amount) + '\'' +
+                '}';
     }
 }

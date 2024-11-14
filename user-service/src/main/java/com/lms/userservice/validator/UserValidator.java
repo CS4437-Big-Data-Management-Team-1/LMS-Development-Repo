@@ -64,7 +64,6 @@ public class UserValidator {
      */
     private boolean isValidPassword(String password) {
         Pattern pattern = Pattern.compile(PATTERN_PASSWORD);
-        System.out.println(pattern);
         return pattern.matcher(password).matches();
     }
 

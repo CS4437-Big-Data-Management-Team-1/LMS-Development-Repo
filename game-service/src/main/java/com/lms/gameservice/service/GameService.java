@@ -6,6 +6,7 @@ import com.lms.gameservice.repository.GameRepository;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.gameservice.database.GameDatabaseController;
+import com.lms.gameservice.service.PaymentServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,14 +18,17 @@ import java.util.List;
 public class GameService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final PaymentServiceClient paymentService;
+
     private final GameDatabaseController db = new GameDatabaseController();
     //TODO  Will need payment service here probs notification too
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerRepository playerRepository) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, PaymentServiceClient paymentService) {
         db.connectToDB();
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.paymentService = paymentService;
 
     }
 
@@ -39,11 +43,13 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public boolean joinGame(int gameId, String uid) throws Exception {
+    public boolean joinGame(int gameId, String uid, String token) throws Exception {
         Game game = db.findGameByID(gameId);
-        System.out.println(game.getName());
 
-
+        boolean paidSuccessfully = paymentService.makePayment(game.getEntryFee(), gameId, token);
+        if(!paidSuccessfully){
+            throw new Exception("Payment not complete");
+        }
 //        // Check if the game has already started
 //        if (game.getStartDate().isBefore(LocalDateTime.now())) {
 //            throw new IllegalStateException("Cannot join a game that has already started.");
@@ -64,10 +70,9 @@ public class GameService {
         db.updateGame(game);
 
         //register user to game in user_game_table
-        String[] splits = uid.split("Access granted for user: ");
-        String userId= splits[1];
+
         try{
-        boolean added = db.addUserToGame(gameId, userId);
+        boolean added = db.addUserToGame(gameId, uid);
         return true;
         }catch(Exception e){
             throw new Exception("User already in game: " + e.getMessage());
