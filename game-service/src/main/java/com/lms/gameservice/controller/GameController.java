@@ -73,7 +73,7 @@ public class GameController {
 
             boolean joinedSuccessfully = gameService.joinGame(gameId, uid, authorisationHeader);
             if (joinedSuccessfully) {
-                System.out.println("user has joined game + " gameId + " successfully.");
+                System.out.println("user has joined game " +  gameId + " successfully.");
                 return ResponseEntity.ok("User joined game " + gameId);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
