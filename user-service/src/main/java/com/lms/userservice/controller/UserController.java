@@ -100,9 +100,30 @@ public class UserController {
             User savedUser = userService.registerUser(user);
             logger.info("User registered and saved with ID: {}", savedUser.getId());
 
-            sendNotification(user.getEmail(), "account_creation");
+            // Fetch the ID token (similar to login)
+            Map<String, String> body = new HashMap<>();
+            body.put("email", userDTO.getEmail());
+            body.put("password", userDTO.getPassword());
+            body.put("returnSecureToken", "true");
 
-            return ResponseEntity.ok(savedUser);
+            logger.debug("Sending request to Firebase login endpoint to retrieve idToken for registration.");
+
+            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> responseBody = response.getBody();
+                String idToken = (String) responseBody.get("idToken");
+
+                logger.debug("Received ID token: {}", idToken);
+                
+                // Send the account creation notification with the idToken
+                sendNotification(user.getEmail(), "account_creation", idToken);
+
+                return ResponseEntity.ok(savedUser);
+            } else {
+                logger.warn("Login for ID token failed for user: {}", userDTO.getEmail());
+                return ResponseEntity.status(500).body("Failed to retrieve ID token for user registration.");
+            }
 
         } catch (IllegalArgumentException | FirebaseAuthException e) {
             logger.error("Error during user registration: {}", e.getMessage());
@@ -219,11 +240,12 @@ public class UserController {
      * @param recipient The email address of the recipient
      * @param type      The type of notification (e.g., "account_creation")
      */
-    private void sendNotification(String recipient, String type) {
+    private void sendNotification(String recipient, String type, String idToken) {
         String notificationUrl = "http://localhost:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
         notificationData.put("type", type);
+        notificationData.put("idToken", idToken);
 
         try {
             restTemplate.postForEntity(notificationUrl, notificationData, String.class);
