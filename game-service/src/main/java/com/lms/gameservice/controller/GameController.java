@@ -64,7 +64,7 @@ public class GameController {
             @PathVariable Long gameId) {
 
         // Verify Firebase ID token for user authentication
-        try {
+        try { 
             String uid = authService.validateToken(authorizationHeader);
 
             // Step 2: Attempt to join the game
@@ -82,10 +82,15 @@ public class GameController {
         }
     }
 
-    @PostMapping("/{gameId}/round/{roundId}/process")
-    public ResponseEntity<String> processRound(@PathVariable Long gameId, @PathVariable Long roundId, @RequestBody List<Long> winningTeamIds) {
+    @PostMapping("/{gameId}/processRound")
+    public ResponseEntity<String> processRound(@PathVariable Long gameId) {
 
-        //TODO logic
-        return ResponseEntity.ok("Round results processed for game " + gameId);
+        boolean roundProcessed = gameService.nextRound(gameId);
+
+        if(roundProcessed) {
+            return ResponseEntity.ok("Round reults processed for game " + gameId + " next round started.");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process round.");
+        }
     }
 }
