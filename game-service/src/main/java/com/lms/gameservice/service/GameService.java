@@ -6,6 +6,7 @@ import com.lms.gameservice.repository.GameRepository;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.gameservice.database.GameDatabaseController;
+import com.lms.gameservice.service.PaymentServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,22 +14,27 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
+
 @Service
 public class GameService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final PaymentServiceClient paymentService;
+
     private final GameDatabaseController db = new GameDatabaseController();
     //TODO  Will need payment service here probs notification too
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerRepository playerRepository) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, PaymentServiceClient paymentService) {
+        db.connectToDB();
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.paymentService = paymentService;
 
     }
 
     public Game createGame(String name, BigDecimal entryFee, LocalDateTime startDate, String uid) {
-        db.connectToDB();
+
         Game game = new Game();
         game.setName(name);
         game.setEntryFee(entryFee);
@@ -38,21 +44,19 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public boolean joinGame(Long gameId, String uid) {
-        // Retrieve the game to ensure it’s joinable
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+    public boolean joinGame(int gameId, String uid, String token) throws Exception {
+        Game game = db.findGameByID(gameId);
 
-        // Check if the game has already started
-        if (game.getStartDate().isBefore(LocalDateTime.now())) {
-            throw new IllegalStateException("Cannot join a game that has already started.");
+        boolean paidSuccessfully = paymentService.makePayment(game.getEntryFee(), gameId, token);
+        if(!paidSuccessfully){
+            throw new Exception("Payment not complete");
         }
-
-        // TODO Handle payment
-//        boolean paymentSuccessful = paymentService.processEntryFee(uid, game.getEntryFee());
-//        if (!paymentSuccessful) {
-//            return false;
+//        // Check if the game has already started
+//        if (game.getStartDate().isBefore(LocalDateTime.now())) {
+//            throw new IllegalStateException("Cannot join a game that has already started.");
 //        }
+//
+
 
         // Add the user to the game
         Player player = new Player();
@@ -62,10 +66,19 @@ public class GameService {
         playerRepository.save(player);
 
         // Update the total pot in the game
-        game.setTotalPot(game.getTotalPot().add(game.getEntryFee()));
-        gameRepository.save(game);
 
+        game.setTotalPot(game.getTotalPot().add(game.getEntryFee()));
+        db.updateGame(game);
+
+        //register user to game in user_game_table
+
+        try{
+        boolean added = db.addUserToGame(gameId, uid);
         return true;
+        }catch(Exception e){
+            throw new Exception("User already in game: " + e.getMessage());
+        }
+
     }
 
     public List<Game> getJoinableGames() {

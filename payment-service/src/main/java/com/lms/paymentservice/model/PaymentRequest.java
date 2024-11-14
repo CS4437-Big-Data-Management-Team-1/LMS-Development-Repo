@@ -1,5 +1,5 @@
 package com.lms.paymentservice.model;
-
+import java.math.BigDecimal;
 /**
  * Model class representing a payment request.
  *
@@ -10,16 +10,16 @@ package com.lms.paymentservice.model;
  */
 
 public class PaymentRequest {
-    private String amount;
+    private BigDecimal amount;
     private String currency;
     private String description;
     private String source;  
 
-    public String getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(String amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 

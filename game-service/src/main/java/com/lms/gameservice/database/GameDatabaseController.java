@@ -1,8 +1,8 @@
+
 package com.lms.gameservice.database;
 
 import com.lms.gameservice.service.GameService;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-
 import java.io.IOException;
 import java.math.BigDecimal;
 import com.lms.gameservice.model.Game;
@@ -10,7 +10,13 @@ import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.logging.Logger;
-
+/**
+ * Service class for processing payments.
+ *
+ * This class is responsible for controlling all database interactions the games service needs.
+ *
+ * @author Callum Carroll, Mark Harrison
+ */
 public class GameDatabaseController{
 
     private static final Logger log;
@@ -38,18 +44,25 @@ public class GameDatabaseController{
             return false;
         }
     }
-
+    /**
+     *
+     * handles adding lms game to database
+     * @param game            Object representing the game being created.
+     * @param token            user's uid
+     * @author Mark Harrison
+     */
     public static boolean addGameToDB( Game game, String token){
         String[] splits = token.split("Access granted for user: ");
         String uid = splits[1];
 
-        String sql = "INSERT INTO lastmanstandinggames (lms_game_id, start_date, entry_fee, creator_id) VALUES (?, ?, ?, ? )";
+        String sql = "INSERT INTO lastmanstandinggames (lms_game_id, start_date, entry_fee, creator_id, game_name) VALUES (?, ?, ?, ?, ? )";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
 
             statement.setInt(1, game.getId());
             statement.setTimestamp(2, Timestamp.valueOf(LocalDateTime.now()));
             statement.setBigDecimal(3, game.getEntryFee());
             statement.setString(4, uid);
+            statement.setString(5, game.getName());
 
 
             int execute = statement.executeUpdate();
@@ -60,7 +73,89 @@ public class GameDatabaseController{
         }
 
     }
+    /**
+     *
+     * finds specific game from games by game id
+     * @param id            Game id of game being serached for .
+     * @return game         the searched for game object
+     * @author Mark Harrison
+     */
+    public static Game findGameByID(int id){
 
+            Game result = new Game();
+
+            if (connection == null) {
+                log.severe("Database connection is null.");
+                return result;
+            }
+
+
+            String sql = "SELECT * FROM lastmanstandinggames WHERE lms_game_id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(sql)){
+                statement.setInt(1, id);
+                        try(ResultSet results = statement.executeQuery()){
+                            if(results.next()){
+                                result.setId(results.getInt("lms_game_id"));
+                                result.setName(results.getString("game_name"));
+                                result.setStartDate(results.getTimestamp("start_date").toLocalDateTime());
+                                result.setEntryFee(results.getBigDecimal("entry_fee"));
+                            }
+                        }
+            }catch (SQLException e){
+                log.severe("Error fetching game " + e.getMessage());
+            }
+            return result;
+
+        }
+
+
+    /**
+
+     *
+     * Updates a game in the db with newest information
+     * @param game         the game object being updated
+     * @return boolean      the status of the process
+     * @author Mark Harrison
+     */
+    public static boolean updateGame(Game game){
+        String sql= "UPDATE lastmanstandinggames SET start_date = ?, entry_fee = ?, total_pot=?, game_name = ?  WHERE lms_game_id = ?;";
+                try (PreparedStatement statement = connection.prepareStatement(sql)){
+                    statement.setTimestamp(1, Timestamp.valueOf(game.getStartDate()));
+                    statement.setBigDecimal(2, game.getEntryFee());
+                    statement.setBigDecimal(3, game.getTotalPot());
+                    statement.setString(4, game.getName());
+                    statement.setInt(5, game.getId());
+
+                    int execute = statement.executeUpdate();
+                    return true;
+                }catch (SQLException e){
+                    log.severe("Error fetching game " + e.getMessage());
+                    return false;
+                }
+    }
+
+    /**
+
+     *
+     * adds a user uid to game gameid
+     * @param gameId            Game id of game in question
+     * @param uid             the uid of the user being added
+     * @return boolean         status of the process
+     * @author Mark Harrison
+     */
+    public static boolean addUserToGame(int gameId, String uid) throws Exception{
+        String sql= "INSERT INTO users.user_game_table (user_id, game_id) VALUES (?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setString(1,uid);
+            statement.setInt(2, gameId);
+
+            int execute = statement.executeUpdate();
+            return true;
+        }catch (SQLException e){
+            log.severe("Error adding to game " + e.getMessage());
+            throw new Exception("User is already in game");
+        }
+    }
 
     public static boolean disconnectFromDB() {
         if(connection != null) {
@@ -78,4 +173,5 @@ public class GameDatabaseController{
 
         }
     }
+
 }
