@@ -3,6 +3,7 @@ package com.lms.gameservice.service;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.repository.GameRepository;
+import com.lms.gameservice.config.Config;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.informationservice.matches.Matches;
@@ -17,6 +18,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service
@@ -24,14 +27,14 @@ public class GameService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
     private final GameDatabaseController db = new GameDatabaseController();
-    private final InformationServiceClient info = new InformationServiceClient(null);
+    private final InformationServiceClient info;
     //TODO  Will need payment service here probs notification too
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerRepository playerRepository) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, InformationServiceClient info) {
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
-
+        this.info = info;
     }
 
     public Game createGame(String name, BigDecimal entryFee, LocalDateTime startDate, String uid) {
@@ -42,6 +45,8 @@ public class GameService {
         game.setStartDate(startDate);
         game.setStatus("CREATED");
         game.setTotalPot(BigDecimal.ZERO);
+        game.setTeamNames(new LinkedHashMap<Integer, String>());
+        fillTeams(game);
         db.addGameToDB(game, uid);
         return gameRepository.save(game);
     }
@@ -86,11 +91,13 @@ public class GameService {
     public void fillTeams(Game game) {
         
         List<Team> teams = info.fetchTeams();
+        System.out.println("Teams fetched from information service = " + teams.size());
 
         for (Team team : teams) {
             game.getTeamNames().put(team.getTeamID(), team.getTeamName());
             game.getResults().put(team.getTeamName(), true);
         }
+        System.out.println("Teams added to game" + game.getTeamNames().size());
     }
 
     public void startGame(Long gameId) {
@@ -129,6 +136,8 @@ public class GameService {
             
                 game.eliminatePlayer(player);
             }
+
+            
             player.setTeamPick(player.getNextPick());
             player.setNextPick(null);
             playerRepository.save(player);
@@ -172,6 +181,7 @@ public class GameService {
         gameRepository.save(game);
     }
 
+    
     public void printNextWeeksMatches(Long gameId) {
         
         Game game = gameRepository.findById(gameId)
