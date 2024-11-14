@@ -91,6 +91,37 @@ public class GameDatabaseController{
 
 
 
+    public static boolean updateGame(Game game){
+        String sql= "UPDATE lastmanstandinggames SET start_date = ?, entry_fee = ?, total_pot=?, game_name = ?  WHERE lms_game_id = ?;";
+                try (PreparedStatement statement = connection.prepareStatement(sql)){
+                    statement.setTimestamp(1, Timestamp.valueOf(game.getStartDate()));
+                    statement.setBigDecimal(2, game.getEntryFee());
+                    statement.setBigDecimal(3, game.getTotalPot());
+                    statement.setString(4, game.getName());
+                    statement.setInt(5, game.getId());
+
+                    int execute = statement.executeUpdate();
+                    return true;
+                }catch (SQLException e){
+                    log.severe("Error fetching game " + e.getMessage());
+                    return false;
+                }
+    }
+
+
+    public static boolean addUserToGame(int gameId, String uid) throws Exception{
+        String sql= "INSERT INTO users.user_game_table (user_id, game_id) VALUES (?, ?)";
+        try (PreparedStatement statement = connection.prepareStatement(sql)){
+            statement.setString(1,uid);
+            statement.setInt(2, gameId);
+
+            int execute = statement.executeUpdate();
+            return true;
+        }catch (SQLException e){
+            log.severe("Error adding to game " + e.getMessage());
+            throw new Exception("User is already in game");
+        }
+    }
 
     public static boolean disconnectFromDB() {
         if(connection != null) {

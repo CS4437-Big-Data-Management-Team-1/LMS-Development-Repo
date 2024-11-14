@@ -39,9 +39,9 @@ public class GameService {
         return gameRepository.save(game);
     }
 
-    public boolean joinGame(int gameId, String uid) {
+    public boolean joinGame(int gameId, String uid) throws Exception {
         Game game = db.findGameByID(gameId);
-        System.out.println(game);
+        System.out.println(game.getName());
 
 
 //        // Check if the game has already started
@@ -59,10 +59,20 @@ public class GameService {
         playerRepository.save(player);
 
         // Update the total pot in the game
-        game.setTotalPot(game.getTotalPot().add(game.getEntryFee()));
-        gameRepository.save(game);
 
+        game.setTotalPot(game.getTotalPot().add(game.getEntryFee()));
+        db.updateGame(game);
+
+        //register user to game in user_game_table
+        String[] splits = uid.split("Access granted for user: ");
+        String userId= splits[1];
+        try{
+        boolean added = db.addUserToGame(gameId, userId);
         return true;
+        }catch(Exception e){
+            throw new Exception("User already in game: " + e.getMessage());
+        }
+
     }
 
     public List<Game> getJoinableGames() {

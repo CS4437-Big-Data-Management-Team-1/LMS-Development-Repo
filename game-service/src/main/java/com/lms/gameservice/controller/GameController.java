@@ -62,7 +62,6 @@ public class GameController {
     public ResponseEntity<String> joinGame(
             @RequestHeader("Authorisation") String authorisationHeader,
             @PathVariable("game_id") int gameId) {
-        System.out.println("hello!");
 
         // Verify Firebase ID token for user authentication
         try {
@@ -76,9 +75,11 @@ public class GameController {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
             }
 
+        }catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         } catch (Exception e) {
             // Handle any Firebase authentication errors
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Firebase ID token.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error joining game: " + e.getMessage());
         }
     }
 
