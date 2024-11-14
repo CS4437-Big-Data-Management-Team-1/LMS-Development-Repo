@@ -46,7 +46,8 @@ information-service/.env
 
 ### Payment Service env ###
 payment-service/.env
-## Payment Service env ###
+
+### Game Service env ###
 game-service/.env
 
 ### Firebase setup json
