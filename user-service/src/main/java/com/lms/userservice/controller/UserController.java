@@ -48,6 +48,7 @@ public class UserController {
     // Yse necessacary classes
     private final UserService userService;
     private final UserValidator userValidator;
+    private final RestTemplate restTemplate;
 
     // Used for login method
     private final String apiKey = System.getProperty("FIREBASE_API_KEY");
@@ -60,10 +61,11 @@ public class UserController {
      * @param userValidator Validator to validate user input during registration
      */
     @Autowired
-    public UserController(UserService userService, UserValidator userValidator) {
+    public UserController(UserService userService, UserValidator userValidator, RestTemplate restTemplate) {
         db.connectToDB();
         this.userService = userService;
         this.userValidator = userValidator;
+        this.restTemplate = restTemplate;
         logger.info("UserController initialised.");
     }
 
@@ -131,7 +133,6 @@ public class UserController {
             body.put("returnSecureToken", "true");
             logger.debug("Sending request to Firebase login endpoint.");
 
-            RestTemplate restTemplate = new RestTemplate();
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
@@ -219,28 +220,16 @@ public class UserController {
      * @param type      The type of notification (e.g., "account_creation")
      */
     private void sendNotification(String recipient, String type) {
+        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        Map<String, String> notificationData = new HashMap<>();
+        notificationData.put("recipient", recipient);
+        notificationData.put("type", type);
+
         try {
-            RestTemplate restTemplate = new RestTemplate();
-
-            // Create the JSON payload
-            Map<String, String> notificationData = new HashMap<>();
-            notificationData.put("recipient", recipient);
-            notificationData.put("type", type);
-
-            // Send the POST request to the notifications API
-            ResponseEntity<String> response = restTemplate.postForEntity(
-                    "http://localhost:8085/api/notifications/send",
-                    notificationData,
-                    String.class
-            );
-
-            if (response.getStatusCode().is2xxSuccessful()) {
-                logger.info("Notification sent successfully to {}", recipient);
-            } else {
-                logger.warn("Failed to send notification to {}", recipient);
-            }
+            restTemplate.postForEntity(notificationUrl, notificationData, String.class);
+            logger.info("Notification request sent for type: {}", type);
         } catch (Exception e) {
-            logger.error("Error sending notification to {}: {}", recipient, e.getMessage());
+            logger.error("Failed to send notification request for type {}: {}", type, e.getMessage());
         }
     }
 }
