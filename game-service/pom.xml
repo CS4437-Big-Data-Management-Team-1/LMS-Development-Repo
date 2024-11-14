@@ -110,11 +110,7 @@
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
 
-        <dependency>
-            <groupId>com.lms.paymentservice</groupId>
-            <artifactId>payment-service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
+
     </dependencies>
     <dependencyManagement>
         <dependencies>
