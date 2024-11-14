@@ -26,7 +26,7 @@ public class Matches {
     private String result;
 
     // Getters and Setters
-    public int getId() {
+    public int getGameID() {
         return gameID;
     }
 

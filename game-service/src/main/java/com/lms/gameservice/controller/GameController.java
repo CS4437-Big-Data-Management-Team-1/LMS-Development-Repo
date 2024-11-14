@@ -4,10 +4,14 @@ import com.lms.gameservice.model.Game;
 import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
 import com.lms.gameservice.service.RoundService;
+import com.lms.gameservice.gamerequest.GameRequestDTO;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -26,18 +30,56 @@ public class GameController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createGame(@RequestBody Game game, @RequestHeader("Authorisation") String authorisationHeader) {
-        String uid = authService.validateToken(authorisationHeader);
+    public ResponseEntity<?> createGame(
+            @RequestHeader("Authorisation") String authorisationHeader,
+            @RequestBody GameRequestDTO gameRequest) {
 
-        Game createdGame = gameService.createGame(game, uid);
-        return ResponseEntity.ok(createdGame);
+        // Verify Firebase ID token for user authentication (Wont work till user id changed to UID
+        try {
+            String uid = authService.validateToken(authorisationHeader);
+
+            // Step 2: Create the game with the start date
+            Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(), gameRequest.getStartDate(), uid);
+
+            // Potential to Send Notification game created
+            // sendGameCreationNotification(uid, game);
+
+            return ResponseEntity.ok(game);
+
+        } catch (Exception e) {
+            // Handle any Firebase authentication errors
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error creating game: " + e);
+        }
+    }
+
+    @GetMapping("/joinable")
+    public ResponseEntity<List<Game>> getJoinableGames() {
+        List<Game> joinableGames = gameService.getJoinableGames();
+        return ResponseEntity.ok(joinableGames);
     }
 
     @PostMapping("/{gameId}/join")
-    public ResponseEntity<String> joinGame(@PathVariable Long gameId, @RequestParam Long userId) {
-        gameService.joinGame(gameId, userId);
-        //TODO payment
-        return ResponseEntity.ok("User joined game " + gameId);
+    public ResponseEntity<String> joinGame(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @PathVariable Long gameId) {
+
+        // Verify Firebase ID token for user authentication
+        try {
+            String uid = authService.validateToken(authorizationHeader);
+
+            // Step 2: Attempt to join the game
+            boolean joinedSuccessfully = gameService.joinGame(gameId, uid);
+
+            if (joinedSuccessfully) {
+                return ResponseEntity.ok("User joined game " + gameId);
+            } else {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
+            }
+
+        } catch (Exception e) {
+            // Handle any Firebase authentication errors
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Firebase ID token.");
+        }
     }
 
     @PostMapping("/{gameId}/round/{roundId}/process")
@@ -45,12 +87,5 @@ public class GameController {
 
         //TODO logic
         return ResponseEntity.ok("Round results processed for game " + gameId);
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Game>> getAllAvailableGames() {
-
-        //TODO get all games
-        return null;
     }
 }

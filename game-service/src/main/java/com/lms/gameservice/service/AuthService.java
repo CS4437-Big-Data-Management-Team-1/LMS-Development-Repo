@@ -17,7 +17,9 @@ public class AuthService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
 
         ResponseEntity<String> response = restTemplate.exchange(
-                "http://localhost:8080/api/users/validate-jwt",
+
+                "http://localhost:8084/api/users/validate-jwt",
+
                 HttpMethod.POST,
                 entity,
                 String.class
