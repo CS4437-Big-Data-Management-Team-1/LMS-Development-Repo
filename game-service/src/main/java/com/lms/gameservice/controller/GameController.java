@@ -58,27 +58,32 @@ public class GameController {
         return ResponseEntity.ok(joinableGames);
     }
 
-    @PostMapping("/{gameId}/join")
+    @PostMapping("/{game_id}/join")
     public ResponseEntity<String> joinGame(
-            @RequestHeader("Authorization") String authorizationHeader,
-            @PathVariable Long gameId) {
+            @RequestHeader("Authorisation") String authorisationHeader,
+            @PathVariable("game_id") int gameId) {
 
         // Verify Firebase ID token for user authentication
-        try { 
-            String uid = authService.validateToken(authorizationHeader);
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String uid = splits[1];
 
             // Step 2: Attempt to join the game
-            boolean joinedSuccessfully = gameService.joinGame(gameId, uid);
 
+            boolean joinedSuccessfully = gameService.joinGame(gameId, uid, authorisationHeader);
             if (joinedSuccessfully) {
+                System.out.println("user has joined game " +  gameId + " successfully.");
                 return ResponseEntity.ok("User joined game " + gameId);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
             }
 
+        }catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error: " + e.getMessage());
         } catch (Exception e) {
             // Handle any Firebase authentication errors
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid Firebase ID token.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error joining game: " + e.getMessage());
         }
     }
 

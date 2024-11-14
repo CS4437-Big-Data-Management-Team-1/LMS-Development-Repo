@@ -10,34 +10,51 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lms.notificationservice.model.AccountCreationNotification;
+import com.lms.notificationservice.model.GameCreationNotification;
+import com.lms.notificationservice.model.GameJoinNotification;
 import com.lms.notificationservice.model.GameUpdateNotification;
 import com.lms.notificationservice.model.Notification;
 import com.lms.notificationservice.service.NotificationService;
 
+/**
+ * Controller class that handles notification-related operations.
+ * Provides an endpoint to send notifications based on user request.
+ */
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("/api/notifications")
 public class NotificationController {
 
     @Autowired
     private NotificationService notificationService;
 
-    // Send a notification to a recipient at endpoint - notifications/send
+    /**
+     * Handles the request to send a notification to a recipient.
+     * Validates the request for required fields and correct types, 
+     * then delegates the notification sending to the notification service.
+     * 
+     * @param request the notification request body containing "recipient" and "type" keys
+     * @return ResponseEntity with status and message about the notification request
+     */
     @PostMapping("/send")
     public ResponseEntity<String> sendNotification(@RequestBody Map<String, String> request) {
         String recipient = request.get("recipient");
         String type = request.get("type");
 
+        // Validate missing recipient
         if (recipient == null || recipient.isEmpty()) {
             return ResponseEntity.badRequest().body("Recipient email is required.");
         }
 
+        // Create the appropriate notification object based on the type
         Notification notification = createNotification(type, recipient);
 
+        // Validate invalid notification type
         if (notification == null) {
             return ResponseEntity.badRequest().body("Invalid notification type.");
         }
 
         try {
+            // Send the notification
             notificationService.sendNotification(notification);
             return ResponseEntity.ok("Notification sent to " + recipient);
         } catch (Exception e) {
@@ -45,13 +62,23 @@ public class NotificationController {
         }
     }
 
-    // Handle the type of notification to be sent
+    /**
+     * Creates the corresponding notification object based on the provided type.
+     * 
+     * @param type the notification type
+     * @param recipient the recipient's email address
+     * @return the corresponding Notification object or null if the type is invalid
+     */
     private Notification createNotification(String type, String recipient) {
         switch (type != null ? type.toLowerCase() : "") {
             case "account_creation":
                 return new AccountCreationNotification(recipient);
             case "game_update":
                 return new GameUpdateNotification(recipient);
+            case "game_created":
+                return new GameCreationNotification(recipient);
+            case "game_joined":
+                return new GameJoinNotification(recipient);
             default:
                 return null;
         }

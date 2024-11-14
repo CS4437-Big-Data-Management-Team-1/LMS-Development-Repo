@@ -38,7 +38,6 @@ public class UserDatabaseConnector{
             String dbUsername = System.getProperty("DB_USERNAME");
             String dbPassword = System.getProperty("DB_PASSWORD");
             String dbUrl = System.getProperty("DB_USERS_URL");
-            System.out.println(dbUrl);
             connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
             log.info("Database connection test: " + connection.getCatalog());
             return true;

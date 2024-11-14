@@ -1,29 +1,33 @@
 package com.lms.userservice.controller;
 
 
-import com.google.firebase.auth.FirebaseToken;
-import com.lms.userservice.database.UserDatabaseConnector;
-
-import com.lms.userservice.login.UserLoginDTO;
-import com.lms.userservice.model.User;
-import com.lms.userservice.registration.UserRegistrationDTO;
-import com.lms.userservice.service.UserService;
-import com.lms.userservice.validator.UserValidator;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseAuthException;
-import com.google.firebase.auth.UserRecord;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseToken;
+import com.google.firebase.auth.UserRecord;
+import com.lms.userservice.database.UserDatabaseConnector;
+import com.lms.userservice.login.UserLoginDTO;
+import com.lms.userservice.model.User;
+import com.lms.userservice.registration.UserRegistrationDTO;
+import com.lms.userservice.service.UserService;
+import com.lms.userservice.validator.UserValidator;
 
 /**
  * REST Controller for managing user operations.
@@ -93,6 +97,9 @@ public class UserController {
 
             User savedUser = userService.registerUser(user);
             logger.info("User registered and saved with ID: {}", savedUser.getId());
+
+            sendNotification(user.getEmail(), "account_creation");
+
             return ResponseEntity.ok(savedUser);
 
         } catch (IllegalArgumentException | FirebaseAuthException e) {
@@ -134,10 +141,8 @@ public class UserController {
 
                 String idToken = (String) responseBody.get("idToken");
                 String uid = (String) responseBody.get("localId");
-                System.out.println(uid);
                 User user = db.searchForUser(uid);
 
-                System.out.println(user.getUsername());
                 logger.debug("Received ID token: {}", idToken);
                 return ResponseEntity.ok("Login successful. Token: " + idToken);
             } else {
@@ -192,7 +197,6 @@ public class UserController {
         logger.info("Accessing secure endpoint.");
         try {
             String idToken = authorisationHeader.replace("Bearer ", "");
-            System.out.println(idToken);
             logger.debug("Verifying ID token: {}", idToken);
 
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
@@ -203,6 +207,37 @@ public class UserController {
         } catch (Exception e) {
             logger.error("Unauthorised access attempt.", e);
             return ResponseEntity.status(401).body("Unauthorised: Invalid or expired token");
+        }
+    }
+    /**
+     * Sends a notification to the given email with the specified type.
+     *
+     * @param recipient The email address of the recipient
+     * @param type      The type of notification (e.g., "account_creation")
+     */
+    private void sendNotification(String recipient, String type) {
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+
+            // Create the JSON payload
+            Map<String, String> notificationData = new HashMap<>();
+            notificationData.put("recipient", recipient);
+            notificationData.put("type", type);
+
+            // Send the POST request to the notifications API
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    "http://localhost:8085/api/notifications/send",
+                    notificationData,
+                    String.class
+            );
+
+            if (response.getStatusCode().is2xxSuccessful()) {
+                logger.info("Notification sent successfully to {}", recipient);
+            } else {
+                logger.warn("Failed to send notification to {}", recipient);
+            }
+        } catch (Exception e) {
+            logger.error("Error sending notification to {}: {}", recipient, e.getMessage());
         }
     }
 }

@@ -32,16 +32,13 @@ public class PaymentController {
             @RequestBody PaymentRequest paymentRequest,
             @RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
             try {
-                System.out.println("auth: " + authorisationHeader );
                 String msg = authService.validateToken(authorisationHeader);
-                System.out.println("uid:" + msg);
                 String[] splits = msg.split("Access granted for user: ");
                 String uid = splits[1];
-                System.out.println("uid:  " + uid);
                 PaymentResponse response = paymentService.processPayment(paymentRequest, uid);
-                return ResponseEntity.ok(response);
+                return ResponseEntity.ok("Payment processed");
             }catch(RuntimeException e){
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User is not logged in");
+                return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(e.getStackTrace()[0].getLineNumber() + " " + e + " " +  e.getMessage());
             }
 
     }

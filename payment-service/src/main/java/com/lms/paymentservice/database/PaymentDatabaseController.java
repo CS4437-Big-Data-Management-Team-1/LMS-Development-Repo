@@ -38,7 +38,7 @@ public class PaymentDatabaseController{
             String dbUrl = System.getProperty("DB_USERS_URL");
 
              connection = DriverManager.getConnection(dbUrl, dbUsername, dbPassword);
-            log.info("Database connection test: " + connection.getCatalog());
+            log.info("Database connection test for payment");
             return true;
         } catch (SQLException e){
             log.severe("DB Connection failed");
@@ -51,13 +51,12 @@ public class PaymentDatabaseController{
      * @return          returns the boolean status of the function
      */
     public static boolean addPaymentToDB(PaymentResponse response, String token){
-
         //Sample data for now, replace with actual data pulled from user input later
         String sql = "INSERT INTO payments (payment_id, user_id, amount, payment_date,payment_status) VALUES (?, ?, ?, ?, ?)";
         try (PreparedStatement statement = connection.prepareStatement(sql)){
             statement.setString(1, response.getTransactionId());
             statement.setString(2, token );
-            statement.setLong(3, Long.parseLong(response.getAmount()));
+            statement.setBigDecimal(3, response.getAmount());
             statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
             if(response.isSuccess()) {
                 statement.setString(5, "COMPLETED");
