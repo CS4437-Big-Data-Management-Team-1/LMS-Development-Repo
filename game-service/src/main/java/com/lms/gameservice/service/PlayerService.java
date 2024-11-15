@@ -3,6 +3,7 @@ package com.lms.gameservice.service;
 import java.util.ArrayList;
 import java.util.Optional;
 
+import org.checkerframework.checker.units.qual.t;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,14 +28,24 @@ public class PlayerService {
 
         ArrayList<String> availableTeams = player.getTeamsAvailable();
         if (availableTeams.contains(team)) {
+            System.out.println("Available Teams before pick: " + availableTeams);
             availableTeams.remove(team);
             player.setTeamsAvailable(availableTeams);
+            System.out.println();
+            System.out.println("Available Teams after pick: " + availableTeams);
+            System.out.println();
 
+            if(player.getTeamsUsed() == null){
+                player.setTeamsUsed(new ArrayList<>());
+            }
             ArrayList<String> usedTeams = player.getTeamsUsed();
+            System.out.println("here");
             usedTeams.add(team);
             player.setTeamsUsed(usedTeams);
+            System.out.println("Used Teams after pick: " + usedTeams);
 
             playerRepository.save(player);
+
         } else {
             throw new IllegalArgumentException("Team not available for pick.");
         }
@@ -43,6 +54,7 @@ public class PlayerService {
     public void changeTeamPick(Player player, String team){
 
         ArrayList<String> usedTeams = player.getTeamsUsed();
+        
         if (usedTeams.contains(team)) {
             usedTeams.remove(team);
             player.setTeamsUsed(usedTeams);

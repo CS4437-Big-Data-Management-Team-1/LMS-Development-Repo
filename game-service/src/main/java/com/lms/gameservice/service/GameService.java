@@ -82,10 +82,12 @@ public class GameService {
 
         List<Team> teams = info.getTeamsFromDatabase();
         ArrayList<String> teamsAvailable = new ArrayList<String>();
+        player.setTeamsUsed(teamsAvailable);
         for(Team team: teams){
             teamsAvailable.add(team.getTeamName());
         }
         player.setTeamsAvailable(teamsAvailable);
+        
         playerRepository.save(player);
         // Update the total pot in the game
 

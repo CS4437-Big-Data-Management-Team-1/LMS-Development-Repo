@@ -7,6 +7,10 @@ import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
 import com.lms.gameservice.service.PlayerService;
 import com.lms.gameservice.service.RoundService;
+
+import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+
 import com.lms.gameservice.gamerequest.GameRequestDTO;
 
 import org.checkerframework.checker.units.qual.t;
@@ -117,6 +121,10 @@ public class GameController {
             String[] splits = msg.split("Access granted for user: ");
             String uid = splits[1];
             
+            JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+            JSONObject teamObject = (JSONObject) parser.parse(team);
+            String teamStr = (String) teamObject.get("team");
+
             Player player = playerService.getPlayerByGameIdAndUserId(gameId, uid);
 
             if (player == null) {
@@ -124,7 +132,7 @@ public class GameController {
             }
 
             // Call service method to pick the team
-            playerService.pickTeam(player, team);
+            playerService.pickTeam(player, teamStr);
 
             return ResponseEntity.ok("Team " + team + " picked successfully.");
         } catch (IllegalArgumentException e) {
