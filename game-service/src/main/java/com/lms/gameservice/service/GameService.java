@@ -37,7 +37,6 @@ public class GameService {
 
     private final GameDatabaseController db = new GameDatabaseController();
     private final InformationServiceClient info;
-    //TODO  Will need payment service here probs notification too
 
     @Autowired
     public GameService(GameRepository gameRepository, PlayerRepository playerRepository, ResultsRepository resultsRepository, PaymentServiceClient paymentService, InformationServiceClient info) {
@@ -49,6 +48,15 @@ public class GameService {
         this.info = info;
     }
 
+    /**
+     * Create a new game
+     * 
+     * @param name name of the game
+     * @param entryFee entry fee for the game
+     * @param weeksTillStartDate number of weeks until the game starts (from next Monday)
+     * @param uid user id of the game creator
+     * @return the created game
+     */
     public Game createGame(String name, BigDecimal entryFee, int weeksTillStartDate, String uid) {
 
         Game game = new Game();
@@ -70,6 +78,15 @@ public class GameService {
         return gameRepository.save(game);
     }
 
+    /**
+     * Join a game
+     * 
+     * @param gameId id of the game
+     * @param uid user id of the player
+     * @param token payment token
+     * @return true if the player successfully joined the game
+     * @throws Exception if the player cannot join the game
+     */
     public boolean joinGame(int gameId, String uid, String token) throws Exception {
         Game game = gameRepository.findById(gameId)
         .orElseThrow(() -> new IllegalArgumentException("Game not found"));
@@ -118,11 +135,19 @@ public class GameService {
 
     }
 
+    /**
+     * Get all joinable games
+     * @return list of joinable games
+     */
     public List<Game> getJoinableGames() {
         // Retrieve games where startDate is in the future
         return gameRepository.findJoinableGames(LocalDateTime.now());
     }
 
+    /**
+     * Start a game on the start date
+     * @param gameId id of the game
+     */
     public void startGame(int gameId) {
 
         Game game = gameRepository.findById(gameId)
@@ -135,7 +160,11 @@ public class GameService {
         gameRepository.save(game);
     }
 
-    public boolean nextRound(int gameId) { 
+    /**
+     * process the current round of a game
+     * @param gameId id of the game
+     */
+    public void nextRound(int gameId) { 
 
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("Game not found"));
@@ -147,10 +176,12 @@ public class GameService {
         game.setCurrentRound(game.getCurrentRound() + 1);
         gameRepository.save(game);
 
-        return true;
     }
 
-    
+    /**
+     * update the all players status based on the results of the current round
+     * @param game the game to update
+     */
     public void updatePlayers(Game game) {
         
         Results results = resultsRepository.findLatestResult();
@@ -168,6 +199,10 @@ public class GameService {
         
     }
 
+    /**
+     * Print the next week's match fixtures
+     * @param gameId id of the game
+     */
     public void printNextWeeksMatches(int gameId) {
         
         Game game = gameRepository.findById(gameId)

@@ -122,6 +122,12 @@ public class InformationServiceClient {
         }
     }
 
+    /**
+     * Retrieves matches within a specific date range.
+     * @param startDate The start date of the range.
+     * @param endDate The end date of the range.
+     * @return List<Matches> containing matches within the date range.
+     */
     public List<Matches> fetchMatchesWithinDateRange(String startDate, String endDate) {
         try {
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");

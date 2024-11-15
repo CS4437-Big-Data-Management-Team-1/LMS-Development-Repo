@@ -38,6 +38,9 @@ public class GameUpdateScheduler {
         this.info = info;
     }
 
+    /**
+     * every Monday at 1am, update the active games
+     */
     @Scheduled(cron = "0 0 1 * * MON")
     public void updateActiveGames() {
         List<Game> games = gameRepository.findByStatus("ACTIVE");
@@ -47,6 +50,9 @@ public class GameUpdateScheduler {
         }
     }
 
+    /**
+     * every Monday at 2am, check if any games need to be started
+     */
     @Scheduled(cron = "0 0 2 * * MON")
     public void checkFutureGames() {
         List<Game> games = gameRepository.findByStatus("CREATED");
@@ -58,6 +64,9 @@ public class GameUpdateScheduler {
         }
     }
 
+    /**
+     * every Monday at 1am, upload the results of the previous week
+     */
     @Scheduled(cron = "0 0 1 * * MON")
     public void uploadResults() {
         

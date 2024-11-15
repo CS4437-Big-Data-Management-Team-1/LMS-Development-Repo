@@ -24,6 +24,11 @@ public class PlayerService {
 
     }
 
+    /**
+     * Allows a player to pick a team for the next round.
+     * @param player The player object
+     * @param team The team to pick
+     */
     public void pickTeam(Player player, String team){
 
         ArrayList<String> availableTeams = player.getTeamsAvailable();
@@ -52,6 +57,11 @@ public class PlayerService {
         }
     }
 
+    /**
+     * Allows a player to change their team pick.
+     * @param player The player object
+     * @param team The team to change to
+     */
     public void changeTeamPick(Player player, String team){
 
         ArrayList<String> usedTeams = player.getTeamsUsed();
@@ -72,6 +82,10 @@ public class PlayerService {
         }
     }
 
+    /**
+     * Allows a player to view their available team picks.
+     * @param player The player object
+     */
     public void printAvailableTeams(Player player){
         System.out.println("Available Teams: ");
         int index = 1;
@@ -81,6 +95,13 @@ public class PlayerService {
         }
     }
 
+    
+    /**
+     * Get a player by their gameId and userId
+     * @param gameId The id of the game
+     * @param userId The id of the user
+     * @return The player object
+     */
     public Player getPlayerByGameIdAndUserId(int gameId, String userId) {
 
         System.out.println("Looking for player with gameId: " + gameId + " and userId: " + userId);

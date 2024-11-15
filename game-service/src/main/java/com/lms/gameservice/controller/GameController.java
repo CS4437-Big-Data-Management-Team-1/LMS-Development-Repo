@@ -55,6 +55,12 @@ public class GameController {
         this.playerRepository = playerRepository;
     }
 
+    /**
+     * Endpoint to create a new game.
+     * creates Game and stores it in the database table 'games'
+     * 
+     * @param gameRequest DTO containing the game name, entry fee and weeks till start date
+     */
     @PostMapping("/create")
     public ResponseEntity<?> createGame(
             @RequestHeader("Authorisation") String authorisationHeader,
@@ -78,12 +84,23 @@ public class GameController {
         }
     }
 
+    /**
+     * Endpoint to show all joinable games.
+     * games are joinable if the start date is in the future.
+     * 
+     */
     @GetMapping("/joinable")
     public ResponseEntity<List<Game>> getJoinableGames() {
         List<Game> joinableGames = gameService.getJoinableGames();
         return ResponseEntity.ok(joinableGames);
     }
 
+
+    /**
+     * Endpoint to allow a user to join a game
+     * 
+     * @param game_id the id of the game the user will attempt to join
+     */
     @PostMapping("/{game_id}/join")
     public ResponseEntity<String> joinGame(
             @RequestHeader("Authorisation") String authorisationHeader,
@@ -113,18 +130,14 @@ public class GameController {
         }
     }
 
-    @PostMapping("/{gameId}/processRound")
-    public ResponseEntity<String> processRound(@PathVariable int gameId) {
 
-        boolean roundProcessed = gameService.nextRound(gameId);
 
-        if(roundProcessed) {
-            return ResponseEntity.ok("Round reults processed for game " + gameId + " next round started.");
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process round.");
-        }
-    }
-
+    /**
+     * Endpoint to allow a user to pick a team for next week's matches
+     * 
+     * @param game_id the id of the game the user will pick their team,
+     *  (not game here is Game object not soccer game)
+     */
     @PostMapping("/{game_id}/pickTeam")
     public ResponseEntity<String> pickTeam(
             @RequestHeader("Authorisation") String authorisationHeader,
