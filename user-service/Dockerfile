@@ -22,6 +22,7 @@ COPY --from=build /build/.env .env
 
 EXPOSE 8080
 
+
 ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/users
 ENV ACTIVE_PROFILE=${PROFILE}
 
