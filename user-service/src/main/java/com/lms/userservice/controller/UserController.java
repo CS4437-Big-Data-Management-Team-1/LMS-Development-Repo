@@ -76,7 +76,7 @@ public class UserController {
      * @return the saved User entity in the response body or error message if invalid registration
      */
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO userDTO) {
+    public ResponseEntity<?> registerUser(@RequestBody UserRegistrationDTO userDTO)  throws Exception{
         logger.info("Attempting to register user with email: {}", userDTO.getEmail());
         try {
             userValidator.validate(userDTO);

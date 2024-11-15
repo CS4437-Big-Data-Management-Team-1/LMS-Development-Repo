@@ -20,7 +20,7 @@ class UserValidatorTest {
     }
 
     @Test
-    public void testValidUserRegistrationDetails() {
+    public void testValidUserRegistrationDetails() throws Exception {
         UserRegistrationDTO validUser = new UserRegistrationDTO();
         validUser.setUsername("TestUser");
         validUser.setEmail("testemail@example.com");
