@@ -61,7 +61,7 @@ class UserControllerTest {
 
 
     @Test
-    void testRegisterUserInvalidUserName() {
+    void testRegisterUserInvalidUserName() throws Exception {
         UserRegistrationDTO registrationDTO = new UserRegistrationDTO();
         registrationDTO.setUsername("test"); // Invalid username (too short)
 

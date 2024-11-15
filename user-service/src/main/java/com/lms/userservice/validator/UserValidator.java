@@ -25,7 +25,7 @@ public class UserValidator {
      * @param userDTO the user registration DTO containing the user details.
      * @throws IllegalArgumentException if any of the validation rules are violated.
      */
-    public void validate(UserRegistrationDTO userDTO) {
+    public void validate(UserRegistrationDTO userDTO) throws Exception {
 
         // Validate username (Has to be entered and > 4 characters)
         if (userDTO.getUsername() == null || userDTO.getUsername().isEmpty()) {
