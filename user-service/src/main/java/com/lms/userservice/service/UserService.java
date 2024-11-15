@@ -92,7 +92,7 @@ public class UserService {
      * @return the user if found, or null if not found.
      */
 
-    public User getUserById(Long id) {
+    public User getUserById(String id) {
         return userRepository.findById(id).orElse(null);
     }
 
