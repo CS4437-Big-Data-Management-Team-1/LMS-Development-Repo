@@ -1,11 +1,29 @@
 services:
-  user-api:
-    container_name: user-container
-    image: user/user:0.0.1
-    ports:
-      - 8080:8080
-    networks:
-      - spring-demo
+  user-service:
+    build:
+      context: .
+      target: user-service/Dockerfile
+
+  payment-service:
+    build:
+      context: .
+      target: payment-service/Dockerfile
+
+  notification-service:
+    build:
+      context: .
+      target: notification-service/Dockerfile
+
+  information-service:
+    build:
+      context: .
+      target: information-service/Dockerfile
+
+  game-service:
+    build:
+      context: .
+      target: game-service/Dockerfile
+
 
   mysqldb:
     image: "mysql:8.0"
