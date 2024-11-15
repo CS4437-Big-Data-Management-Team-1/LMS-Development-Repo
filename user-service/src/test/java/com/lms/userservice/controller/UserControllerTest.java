@@ -90,9 +90,11 @@ class UserControllerTest {
 
     @Test
     void testGetUserByIdUserExists() {
-        when(userService.getUserById(1L)).thenReturn(user);
+        String userId = "test-uid-123";
+        when(userService.getUserById(userId)).thenReturn(user);
 
-        ResponseEntity<User> response = userController.getUserById(1L);
+
+        ResponseEntity<User> response = userController.getUserById(userId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(user, response.getBody());
@@ -100,9 +102,10 @@ class UserControllerTest {
 
     @Test
     void testGetUserByIdUserNotFound() {
-        when(userService.getUserById(1L)).thenReturn(null);
+        String userId = "non-existing-uid";
+        when(userService.getUserById(userId)).thenReturn(null);
 
-        ResponseEntity<User> response = userController.getUserById(1L);
+        ResponseEntity<User> response = userController.getUserById(userId);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
     }

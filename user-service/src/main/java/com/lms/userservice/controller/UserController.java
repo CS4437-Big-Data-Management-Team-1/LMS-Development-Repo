@@ -175,7 +175,7 @@ public class UserController {
      * @return the User entity or 404 Not Found if the user does not exist
      */
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable String id) {
         logger.info("Fetching user with ID: {}", id);
         User user = userService.getUserById(id);
         if (user != null) {
