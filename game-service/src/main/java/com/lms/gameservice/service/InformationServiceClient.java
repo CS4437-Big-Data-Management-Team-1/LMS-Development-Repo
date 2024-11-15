@@ -41,7 +41,7 @@ public class InformationServiceClient {
 
     /**
      * Retrieves all teams from the information-service.
-     * @return List<Team> containing a list of teams.
+     * @return List<TeamDTO> containing a list of teams.
      */
     public List<TeamDTO> fetchTeams() {
         System.out.println("Base URL: " + baseUrl);
@@ -64,7 +64,7 @@ public class InformationServiceClient {
      * Retrieve all teams from the database via the information-service.
      * This does not interact with the external API.
      *
-     * @return List<Team> containing teams stored in the database.
+     * @return List<TeamDTO> containing teams stored in the database.
      */
     public List<TeamDTO> getTeamsFromDatabase() {
         try {
@@ -83,7 +83,7 @@ public class InformationServiceClient {
 
     /**
      * Retrieves all matches from the information-service.
-     * @return List<Matches> containing a list of matches.
+     * @return List<MatchesDTO> containing a list of matches.
      */
     public List<MatchesDTO> fetchMatches() {
         String url = baseUrl + "/matches/fetch";
@@ -104,7 +104,7 @@ public class InformationServiceClient {
     /**
      * Retrieves matches from a specific start date onward.
      * @param startDate The start date to filter matches.
-     * @return List<Matches> containing matches from the start date onward.
+     * @return List<MatchesDTO> containing matches from the start date onward.
      */
     public List<MatchesDTO> fetchMatchesFromDate(String startDate) {
         try {
@@ -126,7 +126,7 @@ public class InformationServiceClient {
      * Retrieves matches within a specific date range.
      * @param startDate The start date of the range.
      * @param endDate The end date of the range.
-     * @return List<Matches> containing matches within the date range.
+     * @return List<MatchesDTO> containing matches within the date range.
      */
     public List<MatchesDTO> fetchMatchesWithinDateRange(String startDate, String endDate) {
         try {

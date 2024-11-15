@@ -2,6 +2,12 @@ package com.lms.gameservice.matches;
 
 import java.util.Date;
 
+/**
+ * Data Transfer Object (DTO) for Matches information when getting from Information-service
+ *
+ * @author Caoimhe Cahill
+ */
+
 public class MatchesDTO {
     private int gameID;
     private int homeTeamID;

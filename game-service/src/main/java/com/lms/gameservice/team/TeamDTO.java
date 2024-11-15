@@ -1,5 +1,10 @@
 package com.lms.gameservice.team;
 
+/**
+ * Data Transfer Object (DTO) for Matches information when getting from Information-service
+ *
+ * @author Caoimhe Cahill
+ */
 public class TeamDTO {
 
     private int teamID;
