@@ -26,7 +26,7 @@ jobs:
             docker_access_token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN_CAOIMHE}}
 
         service: [user-service, notification-service, information-service]
- 
+
     steps:
       - uses: actions/checkout@v4
 
@@ -54,19 +54,29 @@ jobs:
            username: ${{ matrix.user.docker_username }}
            password: ${{ matrix.user.docker_access_token }}
 
-      - name: build docker image
+      - name: build user docker image
         uses: docker/build-push-action@v4
         with:   
           context: . 
-          file: Dockerfile
+          file: user-service/Dockerfile
           push: false
-          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest  
+          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest
 
-      - name: login to docker hub
-        uses: docker/login-action@v1
-        with:  
-          username: ${{secrets.DOCKER_HUB_USERNAME }}
-          password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN }}
+      - name: build payment docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: payment-service/Dockerfile
+          push: false
+          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest
+
+      - name: build notification docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: notification-service/Dockerfile
+          push: false
+          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest
 
       - name: push image to docker hub  
         uses: docker/build-push-action@v4
