@@ -156,6 +156,43 @@ public class GameController {
         }
     }
 
+    /**
+     * Endpoint to allow a user change their team  
+     * 
+     * @param game_id the id of the Game
+     */
+    @PostMapping("/{game_id}/changeTeamPick")
+    public ResponseEntity<String> changeTeam(
+            @RequestHeader("Authorisation") String authorisationHeader,
+            @PathVariable("game_id") int gameId,
+            @RequestBody String team) {
+
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String uid = splits[1];
+            
+            JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
+            JSONObject teamObject = (JSONObject) parser.parse(team);
+            String teamStr = (String) teamObject.get("team");
+
+            Player player = playerService.getPlayerByGameIdAndUserId(gameId, uid);
+
+            if (player == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Player not found in the game.");
+            }
+
+            // Call service method to pick the team
+            playerService.changeTeamPick(player, teamStr);
+
+            return ResponseEntity.ok("Team " + team + " picked successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error picking team: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request: " + e.getMessage());
+        }
+    }
+
   
     /**
      * Used to test the Results Table is working.
