@@ -1,5 +1,6 @@
 package com.lms.gameservice.service;
 
+import com.lms.gameservice.matches.MatchesDTO;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,6 @@ import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Results;
 import com.lms.gameservice.repository.GameRepository;
 import com.lms.gameservice.repository.ResultsRepository;
-import com.lms.informationservice.matches.Matches;
 
 @Component
 public class GameUpdateScheduler {
@@ -77,11 +77,11 @@ public class GameUpdateScheduler {
     String startDate = lastMonday.format(formatter);
     String endDate = lastSunday.format(formatter);
     
-    List<Matches> matches = info.fetchMatchesWithinDateRange(startDate, endDate);
+    List<MatchesDTO> matches = info.fetchMatchesWithinDateRange(startDate, endDate);
 
     Results result = new Results();
     ArrayList<String> winners = new ArrayList<>();
-    for (Matches match : matches) {
+    for (MatchesDTO match : matches) {
         winners.add(match.getResult());
     }
     result.setWinners(winners);

@@ -1,5 +1,6 @@
 package com.lms.gameservice.service;
 
+import com.lms.gameservice.matches.MatchesDTO;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.model.Results;
@@ -8,8 +9,7 @@ import java.time.DayOfWeek;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.gameservice.repository.ResultsRepository;
-import com.lms.informationservice.matches.Matches;
-import com.lms.informationservice.team.Team;
+import com.lms.gameservice.team.TeamDTO;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,10 +103,10 @@ public class GameService {
         player.setActive(true);
         player.setUserId(uid);
 
-        List<Team> teams = info.getTeamsFromDatabase();
+        List<TeamDTO> teams = info.getTeamsFromDatabase();
         ArrayList<String> teamsAvailable = new ArrayList<String>();
         player.setTeamsUsed(teamsAvailable);
-        for(Team team: teams){
+        for(TeamDTO team: teams){
             teamsAvailable.add(team.getTeamName());
         }
         player.setTeamsAvailable(teamsAvailable);
@@ -205,8 +205,8 @@ public class GameService {
         String formattedStartDate = game.getCurrentRoundEndDate().plusDays(1).format(formatter);
         String formattedEndDate = game.getCurrentRoundEndDate().plusDays(8).format(formatter);
 
-        List<Matches> matches = info.fetchMatchesWithinDateRange(formattedStartDate, formattedEndDate);
-        for(Matches m: matches) {
+        List<MatchesDTO> matches = info.fetchMatchesWithinDateRange(formattedStartDate, formattedEndDate);
+        for(MatchesDTO m: matches) {
             System.out.println(m.getHomeTeamName() + " vs " + m.getAwayTeamName() + " on " + m.getGameDate());
         }
     }
