@@ -3,18 +3,27 @@ FROM maven:3.8.5-openjdk-17-slim AS build
 WORKDIR /build
 
 COPY pom.xml ./
-RUN mvn dependency:go-offline
+RUN mvn dependency:go-offline -B
 
 COPY src ./src
 RUN mvn clean package -DskipTests
 
+COPY .env .env
+
 
 FROM openjdk:17-jdk-alpine
+ARG PROFILE=dev
+ARG APP_VERSION=0.0.1
+
 
 WORKDIR /app
 
-COPY --from=build /app/target/notification-service-0.0.1-SNAPSHOT.jar ./notification-service-0.0.1-SNAPSHOT.jar
+COPY target/notification-service-0.0.1-SNAPSHOT.jar ./notification-service-0.0.1-SNAPSHOT.jar
+COPY --from=build /build/.env .env
 
-EXPOSE 8081
+EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "notification-service-0.0.1-SNAPSHOT.jar"]
+ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/users
+ENV ACTIVE_PROFILE=${PROFILE}
+
+ENTRYPOINT ["java", "-jar","-Dspring.profiles.active=${ACTIVE_PROFILE}","-Dspring.datasource.url=${DB_URL}", "notification-service-0.0.1-SNAPSHOT.jar"]
