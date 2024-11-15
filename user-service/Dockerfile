@@ -8,8 +8,7 @@ RUN mvn dependency:go-offline -B
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-COPY user.env .env
-
+COPY .env .env
 
 FROM openjdk:17-jdk-alpine
 ARG PROFILE=dev
