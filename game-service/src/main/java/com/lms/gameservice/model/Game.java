@@ -18,11 +18,8 @@ public class Game {
     private String status;
     private BigDecimal totalPot = BigDecimal.ZERO;
 
-    private ArrayList<Player> playersStillStanding = new ArrayList<>();
-    private ArrayList<Player> playersEliminated = new ArrayList<>();
-
-    private LinkedHashMap<Integer, String> teamNames = new LinkedHashMap<>();
-    private HashMap<String, Boolean> results = new HashMap<>();
+    // private LinkedHashMap<Integer, String> teamNames = new LinkedHashMap<>();
+    // private HashMap<String, Boolean> results = new HashMap<>();
 
     private int currentRound;
     private LocalDateTime currentRoundStartDate;
@@ -80,42 +77,34 @@ public class Game {
         this.status = status;
     }
 
-    public void addPlayer(Player player) {
-        this.playersStillStanding.add(player);
-    }
-    
-    public void eliminatePlayer(Player player) {
-        this.playersStillStanding.remove(player);
-        this.playersEliminated.add(player);
-    }
 
-    public HashMap<Integer, String> getTeamNames() {
-        return teamNames;
-    }
+    // public HashMap<Integer, String> getTeamNames() {
+    //     return teamNames;
+    // }
 
-    public void setTeamNames(LinkedHashMap<Integer, String> teamNames) {
-        this.teamNames = teamNames;
-    }
+    // public void setTeamNames(LinkedHashMap<Integer, String> teamNames) {
+    //     this.teamNames = teamNames;
+    // }
 
-    public HashMap<String, Boolean> getResults() {
-        return results;
-    }
+    // public HashMap<String, Boolean> getResults() {
+    //     return results;
+    // }
 
-    public void setResults(HashMap<String, Boolean> results) {
-        this.results = results;
-    }
+    // public void setResults(HashMap<String, Boolean> results) {
+    //     this.results = results;
+    // }
 
-    public ArrayList<Player> getPlayersStillStanding() {
-        return playersStillStanding;
-    }
+    // public ArrayList<Player> getPlayersStillStanding() {
+    //     return playersStillStanding;
+    // }
 
-    public void setPlayersStillStanding(ArrayList<Player> playersStillStanding) {
-        this.playersStillStanding = playersStillStanding;
-    } 
+    // public void setPlayersStillStanding(ArrayList<Player> playersStillStanding) {
+    //     this.playersStillStanding = playersStillStanding;
+    // } 
 
-    public ArrayList<Player> getPlayersEliminated() {
-        return playersEliminated;
-    }
+    // public ArrayList<Player> getPlayersEliminated() {
+    //     return playersEliminated;
+    // }
 
     public int getCurrentRound() {
         return currentRound;

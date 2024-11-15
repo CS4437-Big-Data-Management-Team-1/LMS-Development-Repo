@@ -13,7 +13,8 @@ public class Player {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId; // User ID from user-service
+    @JoinColumn(name = "user_id")
+    private String userId; // User ID from user-service
     
 
     @ManyToOne
@@ -45,11 +46,11 @@ public class Player {
         this.id = id;
     }
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

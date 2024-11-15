@@ -78,6 +78,7 @@ public class GameService {
         // player.setUserId(uid); can fix when user id takes in string
         player.setGame(game);
         player.setActive(true);
+        player.setUserId(uid);
 
         List<Team> teams = info.getTeamsFromDatabase();
         ArrayList<String> teamsAvailable = new ArrayList<String>();

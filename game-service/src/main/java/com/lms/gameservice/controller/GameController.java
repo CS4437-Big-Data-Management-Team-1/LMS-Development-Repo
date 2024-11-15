@@ -1,10 +1,15 @@
 package com.lms.gameservice.controller;
 
 import com.lms.gameservice.model.Game;
+import com.lms.gameservice.model.Player;
+import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
+import com.lms.gameservice.service.PlayerService;
 import com.lms.gameservice.service.RoundService;
 import com.lms.gameservice.gamerequest.GameRequestDTO;
+
+import org.checkerframework.checker.units.qual.t;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,15 +23,17 @@ import java.util.List;
 @RequestMapping("/api/games")
 public class GameController {
     private final GameService gameService;
-    private final RoundService roundService;
+    private final PlayerService playerService;
+    private final PlayerRepository playerRepository;
 
     @Autowired
     private AuthService authService;
 
     @Autowired
-    public GameController(GameService gameService, RoundService roundService) {
+    public GameController(GameService gameService, PlayerService playerService, PlayerRepository playerRepository) {
         this.gameService = gameService;
-        this.roundService = roundService;
+        this.playerService = playerService;
+        this.playerRepository = playerRepository;
     }
 
     @PostMapping("/create")
@@ -88,7 +95,7 @@ public class GameController {
     }
 
     @PostMapping("/{gameId}/processRound")
-    public ResponseEntity<String> processRound(@PathVariable Long gameId) {
+    public ResponseEntity<String> processRound(@PathVariable int gameId) {
 
         boolean roundProcessed = gameService.nextRound(gameId);
 
@@ -98,4 +105,34 @@ public class GameController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to process round.");
         }
     }
+
+    @PostMapping("/{game_id}/pickTeam")
+    public ResponseEntity<String> pickTeam(
+            @RequestHeader("Authorisation") String authorisationHeader,
+            @PathVariable("game_id") int gameId,
+            @RequestBody String team) {
+
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String uid = splits[1];
+            
+            Player player = playerService.getPlayerByGameIdAndUserId(gameId, uid);
+
+            if (player == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Player not found in the game.");
+            }
+
+            // Call service method to pick the team
+            playerService.pickTeam(player, team);
+
+            return ResponseEntity.ok("Team " + team + " picked successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error picking team: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request: " + e.getMessage());
+        }
+    }
+
+  
 }
