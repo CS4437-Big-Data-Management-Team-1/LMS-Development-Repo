@@ -2,17 +2,18 @@ package com.lms.gameservice.service;
 
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
+import com.lms.gameservice.model.Results;
 import com.lms.gameservice.repository.GameRepository;
 import java.time.DayOfWeek;
 import com.lms.gameservice.config.Config;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
+import com.lms.gameservice.repository.ResultsRepository;
 import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.team.Team;
 
 import jakarta.persistence.criteria.CriteriaBuilder.In;
 
-import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.service.PaymentServiceClient;
 
 import org.checkerframework.checker.units.qual.A;
@@ -31,6 +32,7 @@ import java.util.List;
 public class GameService {
     private final GameRepository gameRepository;
     private final PlayerRepository playerRepository;
+    private final ResultsRepository resultsRepository;
     private final PaymentServiceClient paymentService;
 
     private final GameDatabaseController db = new GameDatabaseController();
@@ -38,10 +40,11 @@ public class GameService {
     //TODO  Will need payment service here probs notification too
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, PaymentServiceClient paymentService, InformationServiceClient info) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, ResultsRepository resultsRepository, PaymentServiceClient paymentService, InformationServiceClient info) {
         db.connectToDB();
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
+        this.resultsRepository = resultsRepository;
         this.paymentService = paymentService;
         this.info = info;
     }
@@ -68,8 +71,9 @@ public class GameService {
     }
 
     public boolean joinGame(int gameId, String uid, String token) throws Exception {
-        Game game = db.findGameByID(gameId);
-
+        Game game = gameRepository.findById(gameId)
+        .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+        
         boolean paidSuccessfully = paymentService.makePayment(game.getEntryFee(), gameId, token);
         if(!paidSuccessfully){
             throw new Exception("Payment not complete");
@@ -136,8 +140,8 @@ public class GameService {
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("Game not found"));
 
-        // updateResults(game);
-        // updatePlayers(game);
+        System.out.println("Processing round for game: " + game.getName());
+        updatePlayers(game);
         game.setCurrentRoundStartDate(game.getCurrentRoundEndDate().plusDays(1));
         game.setCurrentRoundEndDate(game.getCurrentRoundStartDate().plusDays(6));
         game.setCurrentRound(game.getCurrentRound() + 1);
@@ -146,61 +150,24 @@ public class GameService {
         return true;
     }
 
-    // public void updatePlayers(Game game) {
+    
+    public void updatePlayers(Game game) {
         
-    //     for(Player player : game.getPlayersStillStanding()) {
-    //         String teamPick = player.getTeamPick();
+        Results results = resultsRepository.findLatestResult();
+        System.out.println("Results: " + results.getWinners());
+        ArrayList<String> winners = results.getWinners();
+        System.out.println("Winners: " + winners);
 
-    //         if(!game.getResults().get(teamPick)) {
-            
-    //             game.eliminatePlayer(player);
-    //         }
+        List<Player> activePlayers = playerRepository.findByGameAndIsActive(game, true);
+        for (Player player : activePlayers) {
+            if (!winners.contains(player.getTeamPick())) {
+                player.setActive(false);
+                playerRepository.save(player);
+            }
+        }
+        
+    }
 
-
-    //         player.setTeamPick(player.getNextPick());
-    //         player.setNextPick(null);
-    //         playerRepository.save(player);
-    //     }
-    //     gameRepository.save(game);
-
-    // }
-
-    // public void updateResults(Game game) {
-
-    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    //     String formattedStartDate = game.getCurrentRoundStartDate().format(formatter);
-    //     String formattedEndDate = game.getCurrentRoundEndDate().format(formatter);
-
-    //     List<Matches> matches = info.fetchMatchesWithinDateRange(formattedStartDate, formattedEndDate);
-    //     for(Matches m: matches) {
-    //         String winner = m.getResult();
-    //         if(winner.equals("DRAW")) {
-    //             game.getResults().put(m.getHomeTeamName(), false);
-    //             game.getResults().put(m.getAwayTeamName(), false);
-
-    //         } else if (winner.equals(m.getHomeTeamName())) {
-    //             game.getResults().put(m.getHomeTeamName(), true);
-    //             game.getResults().put(m.getAwayTeamName(), false);
-
-    //         } else {
-    //             game.getResults().put(m.getHomeTeamName(), false);
-    //             game.getResults().put(m.getAwayTeamName(), true);
-    //         }
-    //     }
-
-    //     gameRepository.save(game);
-    // }
-
-    // public void eliminatePlayer(Game game, Player player) {
-    
-    //     player.setActive(false);
-    //     game.getPlayersStillStanding().remove(player);
-    //     game.getPlayersEliminated().add(player);
-    
-    //     gameRepository.save(game);
-    // }
-
-    
     public void printNextWeeksMatches(int gameId) {
         
         Game game = gameRepository.findById(gameId)

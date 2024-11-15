@@ -64,7 +64,7 @@ public class GameUpdateScheduler {
     LocalDate today = LocalDate.now();
     
     LocalDate lastMonday = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-    LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+    LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY)).minusDays(1);
     
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     String startDate = lastMonday.format(formatter);
