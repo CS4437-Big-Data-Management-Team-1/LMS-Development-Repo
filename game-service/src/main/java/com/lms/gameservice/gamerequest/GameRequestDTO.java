@@ -1,18 +1,18 @@
 package com.lms.gameservice.gamerequest;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
 
 public class GameRequestDTO {
 
     private String name;
     private BigDecimal entryFee;
-    private LocalDateTime startDate;
+    private int weeksTillStartDate;
+
     public GameRequestDTO(){}
-    public GameRequestDTO(String name, BigDecimal entryFee, LocalDateTime startDate){
+    public GameRequestDTO(String name, BigDecimal entryFee, int weeksTillStartDate){
         this.name = name;
         this.entryFee = entryFee;
-        this.startDate = startDate;
+        this.weeksTillStartDate = weeksTillStartDate;
     }
 
     public String getName() {
@@ -31,11 +31,11 @@ public class GameRequestDTO {
         this.entryFee = entryFee;
     }
 
-    public LocalDateTime getStartDate() {
-        return startDate;
+    public int getWeeksTillStartDate() {
+        return weeksTillStartDate;
     }
 
-    public void setStartDate(LocalDateTime startDate) {
-        this.startDate = startDate;
+    public void setWeeksTillStartDate(int weeksTillStartDate) {
+        this.weeksTillStartDate = weeksTillStartDate;
     }
 }

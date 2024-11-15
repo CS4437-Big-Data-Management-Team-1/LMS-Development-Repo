@@ -50,7 +50,7 @@ public class GameController {
             String uid = authService.validateToken(authorisationHeader);
 
             // Step 2: Create the game with the start date
-            Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(), gameRequest.getStartDate(), uid);
+            Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(), gameRequest.getWeeksTillStartDate(), uid);
 
             // Potential to Send Notification game created
             // sendGameCreationNotification(uid, game);

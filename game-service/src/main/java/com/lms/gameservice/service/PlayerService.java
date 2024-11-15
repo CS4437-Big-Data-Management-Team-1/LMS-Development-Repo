@@ -39,11 +39,12 @@ public class PlayerService {
                 player.setTeamsUsed(new ArrayList<>());
             }
             ArrayList<String> usedTeams = player.getTeamsUsed();
-            System.out.println("here");
             usedTeams.add(team);
             player.setTeamsUsed(usedTeams);
             System.out.println("Used Teams after pick: " + usedTeams);
 
+            player.setNextPick(team);
+            
             playerRepository.save(player);
 
         } else {

@@ -3,6 +3,7 @@ package com.lms.gameservice.service;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.repository.GameRepository;
+import java.time.DayOfWeek;
 import com.lms.gameservice.config.Config;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
@@ -45,11 +46,14 @@ public class GameService {
         this.info = info;
     }
 
-    public Game createGame(String name, BigDecimal entryFee, LocalDateTime startDate, String uid) {
+    public Game createGame(String name, BigDecimal entryFee, int weeksTillStartDate, String uid) {
 
         Game game = new Game();
         game.setName(name);
         game.setEntryFee(entryFee);
+        LocalDateTime today = LocalDateTime.now();
+        LocalDateTime nextMonday = today.with(java.time.temporal.TemporalAdjusters.next(DayOfWeek.MONDAY));
+        LocalDateTime startDate = nextMonday.plusWeeks(weeksTillStartDate);
         game.setStartDate(startDate);
         game.setStatus("CREATED");
         game.setTotalPot(BigDecimal.ZERO);
