@@ -2,35 +2,21 @@ package com.lms.gameservice.controller;
 
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
-import com.lms.gameservice.model.Results;
 import com.lms.gameservice.repository.PlayerRepository;
-import com.lms.gameservice.repository.ResultsRepository;
 import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
-import com.lms.gameservice.service.InformationServiceClient;
 import com.lms.gameservice.service.PlayerService;
-import com.lms.gameservice.service.RoundService;
-import com.lms.informationservice.matches.Matches;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 
 import com.lms.gameservice.gamerequest.GameRequestDTO;
 
-import org.checkerframework.checker.units.qual.t;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
-import java.math.BigDecimal;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController

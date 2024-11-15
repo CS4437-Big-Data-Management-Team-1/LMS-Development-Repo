@@ -3,14 +3,12 @@ package com.lms.gameservice.service;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Array;
 import java.time.DayOfWeek;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.model.Game;

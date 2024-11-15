@@ -5,18 +5,12 @@ import com.lms.gameservice.model.Player;
 import com.lms.gameservice.model.Results;
 import com.lms.gameservice.repository.GameRepository;
 import java.time.DayOfWeek;
-import com.lms.gameservice.config.Config;
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.gameservice.repository.ResultsRepository;
 import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.team.Team;
 
-import jakarta.persistence.criteria.CriteriaBuilder.In;
-
-import com.lms.gameservice.service.PaymentServiceClient;
-
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +18,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 @Service

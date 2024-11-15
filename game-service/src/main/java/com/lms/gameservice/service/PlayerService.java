@@ -1,14 +1,11 @@
 package com.lms.gameservice.service;
 
 import java.util.ArrayList;
-import java.util.Optional;
 
-import org.checkerframework.checker.units.qual.t;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.lms.gameservice.database.GameDatabaseController;
-import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.repository.PlayerRepository;
 
