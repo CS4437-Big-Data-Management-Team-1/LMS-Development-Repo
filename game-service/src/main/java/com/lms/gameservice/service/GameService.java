@@ -51,7 +51,12 @@ public class GameService {
         Game game = new Game();
         game.setName(name);
         game.setEntryFee(entryFee);
-        LocalDateTime today = LocalDateTime.now();
+
+        LocalDateTime today = LocalDateTime.now()
+        .withHour(0)
+        .withMinute(0)
+        .withSecond(1);
+        
         LocalDateTime nextMonday = today.with(java.time.temporal.TemporalAdjusters.next(DayOfWeek.MONDAY));
         LocalDateTime startDate = nextMonday.plusWeeks(weeksTillStartDate);
         game.setStartDate(startDate);
@@ -211,5 +216,4 @@ public class GameService {
         }
     }
 
-    
 }

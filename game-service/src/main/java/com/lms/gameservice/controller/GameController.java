@@ -2,11 +2,15 @@ package com.lms.gameservice.controller;
 
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
+import com.lms.gameservice.model.Results;
 import com.lms.gameservice.repository.PlayerRepository;
+import com.lms.gameservice.repository.ResultsRepository;
 import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
+import com.lms.gameservice.service.InformationServiceClient;
 import com.lms.gameservice.service.PlayerService;
 import com.lms.gameservice.service.RoundService;
+import com.lms.informationservice.matches.Matches;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
@@ -17,10 +21,16 @@ import org.checkerframework.checker.units.qual.t;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,6 +39,11 @@ public class GameController {
     private final GameService gameService;
     private final PlayerService playerService;
     private final PlayerRepository playerRepository;
+
+    //for results testing
+    // private final InformationServiceClient info;
+    // private final ResultsRepository resultsRepository;
+
 
     @Autowired
     private AuthService authService;
@@ -143,4 +158,31 @@ public class GameController {
     }
 
   
+    /**
+     * Used to test the Results Table is working.
+     * 
+     */
+    // @PostMapping("/resultTest")
+    // public void uploadResultsTest() {
+        
+    // LocalDate today = LocalDate.now();
+    
+    // LocalDate lastMonday = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    // LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+    
+    // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    // String startDate = lastMonday.format(formatter);
+    // String endDate = lastSunday.format(formatter);
+    
+    // List<Matches> matches = info.fetchMatchesWithinDateRange(startDate, endDate);
+
+    // Results result = new Results();
+    // ArrayList<String> winners = new ArrayList<>();
+    // for (Matches match : matches) {
+    //     winners.add(match.getResult());
+    // }
+    // result.setWinners(winners);
+
+    // resultsRepository.save(result);
+    // }
 }

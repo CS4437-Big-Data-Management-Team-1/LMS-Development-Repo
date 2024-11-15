@@ -11,4 +11,6 @@ import java.util.List;
 public interface GameRepository extends JpaRepository<Game, Integer> {
     @Query("SELECT g FROM Game g WHERE g.startDate > :currentDate")
     List<Game> findJoinableGames(@Param("currentDate") LocalDateTime currentDate);
+
+    List<Game> findByStatus(String status);
 }
