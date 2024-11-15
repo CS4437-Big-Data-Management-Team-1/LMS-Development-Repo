@@ -13,8 +13,6 @@
         <module>information-service</module>
         <module>notification-service</module>
 		<module>game-service</module>
-		<module>payment-service</module>
-
     </modules>
 
     <properties>
