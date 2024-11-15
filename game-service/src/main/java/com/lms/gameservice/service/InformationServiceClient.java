@@ -45,7 +45,7 @@ public class InformationServiceClient {
      */
     public List<Team> fetchTeams() {
         System.out.println("Base URL: " + baseUrl);
-        String url = baseUrl + "/teams/get-teams";
+        String url = baseUrl + "/teams/fetch";
         try {
             ResponseEntity<List<Team>> response = restTemplate.exchange(
                     url,

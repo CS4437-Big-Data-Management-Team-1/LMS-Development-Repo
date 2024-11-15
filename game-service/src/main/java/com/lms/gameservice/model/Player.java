@@ -2,6 +2,9 @@ package com.lms.gameservice.model;
 
 import java.util.ArrayList;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -22,11 +25,16 @@ public class Player {
     private String teamPick; // Team picked by the player this week
     private String nextPick; //team for next week
 
-    @ElementCollection
-    private ArrayList<String> teamsAvailable = new ArrayList<>();
+    @Lob
+    @Column(name = "teams_available")
+    private String teamsAvailableJson;
 
-    @ElementCollection
-    private ArrayList<String> teamsUsed = new ArrayList<>();
+    @Lob
+    @Column(name = "teams_used")
+    private String teamsUsedJson;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
 
     // Getters and Setters
     public Long getId() {
@@ -78,18 +86,36 @@ public class Player {
     }
 
     public ArrayList<String> getTeamsAvailable() {
-        return teamsAvailable;
+        try {
+            return objectMapper.readValue(teamsAvailableJson, ArrayList.class);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     public void setTeamsAvailable(ArrayList<String> teamsAvailable) {
-        this.teamsAvailable = teamsAvailable;
+        try {
+            this.teamsAvailableJson = objectMapper.writeValueAsString(teamsAvailable);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 
     public ArrayList<String> getTeamsUsed() {
-        return teamsUsed;
+        try {
+            return objectMapper.readValue(teamsUsedJson, objectMapper.getTypeFactory().constructCollectionType(ArrayList.class, String.class));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
     }
 
     public void setTeamsUsed(ArrayList<String> teamsUsed) {
-        this.teamsUsed = teamsUsed;
+        try {
+            this.teamsUsedJson = objectMapper.writeValueAsString(teamsUsed);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
     }
 }

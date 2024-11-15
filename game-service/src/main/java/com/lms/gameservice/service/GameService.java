@@ -13,12 +13,15 @@ import jakarta.persistence.criteria.CriteriaBuilder.In;
 
 import com.lms.gameservice.database.GameDatabaseController;
 import com.lms.gameservice.service.PaymentServiceClient;
+
+import org.checkerframework.checker.units.qual.A;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -34,12 +37,12 @@ public class GameService {
     //TODO  Will need payment service here probs notification too
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, PaymentServiceClient paymentService) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, PaymentServiceClient paymentService, InformationServiceClient info) {
         db.connectToDB();
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.paymentService = paymentService;
-
+        this.info = info;
     }
 
     public Game createGame(String name, BigDecimal entryFee, LocalDateTime startDate, String uid) {
@@ -50,8 +53,7 @@ public class GameService {
         game.setStartDate(startDate);
         game.setStatus("CREATED");
         game.setTotalPot(BigDecimal.ZERO);
-        game.setTeamNames(new LinkedHashMap<Integer, String>());
-        fillTeams(game);
+        // fillTeams(game);
         db.addGameToDB(game, uid);
         return gameRepository.save(game);
     }
@@ -63,6 +65,7 @@ public class GameService {
         if(!paidSuccessfully){
             throw new Exception("Payment not complete");
         }
+
 //        // Check if the game has already started
 //        if (game.getStartDate().isBefore(LocalDateTime.now())) {
 //            throw new IllegalStateException("Cannot join a game that has already started.");
@@ -75,8 +78,14 @@ public class GameService {
         // player.setUserId(uid); can fix when user id takes in string
         player.setGame(game);
         player.setActive(true);
-        playerRepository.save(player);
 
+        List<Team> teams = info.getTeamsFromDatabase();
+        ArrayList<String> teamsAvailable = new ArrayList<String>();
+        for(Team team: teams){
+            teamsAvailable.add(team.getTeamName());
+        }
+        player.setTeamsAvailable(teamsAvailable);
+        playerRepository.save(player);
         // Update the total pot in the game
 
         game.setTotalPot(game.getTotalPot().add(game.getEntryFee()));
@@ -98,19 +107,7 @@ public class GameService {
         return gameRepository.findJoinableGames(LocalDateTime.now());
     }
 
-    public void fillTeams(Game game) {
-        
-        List<Team> teams = info.fetchTeams();
-        System.out.println("Teams fetched from information service = " + teams.size());
-
-        for (Team team : teams) {
-            game.getTeamNames().put(team.getTeamID(), team.getTeamName());
-            game.getResults().put(team.getTeamName(), true);
-        }
-        System.out.println("Teams added to game" + game.getTeamNames().size());
-    }
-
-    public void startGame(Long gameId) {
+    public void startGame(int gameId) {
 
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("Game not found"));
@@ -118,17 +115,17 @@ public class GameService {
         game.setStatus("ACTIVE");
         game.setCurrentRoundStartDate(LocalDateTime.now());
         game.setCurrentRoundEndDate(LocalDateTime.now().plusDays(6));
-        fillTeams(game);
+        // fillTeams(game);
         gameRepository.save(game);
     }
 
-    public boolean nextRound(Long gameId) { 
+    public boolean nextRound(int gameId) { 
 
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("Game not found"));
 
-        updateResults(game);
-        updatePlayers(game);
+        // updateResults(game);
+        // updatePlayers(game);
         game.setCurrentRoundStartDate(game.getCurrentRoundEndDate().plusDays(1));
         game.setCurrentRoundEndDate(game.getCurrentRoundStartDate().plusDays(6));
         game.setCurrentRound(game.getCurrentRound() + 1);
@@ -137,62 +134,62 @@ public class GameService {
         return true;
     }
 
-    public void updatePlayers(Game game) {
+    // public void updatePlayers(Game game) {
         
-        for(Player player : game.getPlayersStillStanding()) {
-            String teamPick = player.getTeamPick();
+    //     for(Player player : game.getPlayersStillStanding()) {
+    //         String teamPick = player.getTeamPick();
 
-            if(!game.getResults().get(teamPick)) {
+    //         if(!game.getResults().get(teamPick)) {
             
-                game.eliminatePlayer(player);
-            }
+    //             game.eliminatePlayer(player);
+    //         }
 
 
-            player.setTeamPick(player.getNextPick());
-            player.setNextPick(null);
-            playerRepository.save(player);
-        }
-        gameRepository.save(game);
+    //         player.setTeamPick(player.getNextPick());
+    //         player.setNextPick(null);
+    //         playerRepository.save(player);
+    //     }
+    //     gameRepository.save(game);
 
-    }
+    // }
 
-    public void updateResults(Game game) {
+    // public void updateResults(Game game) {
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String formattedStartDate = game.getCurrentRoundStartDate().format(formatter);
-        String formattedEndDate = game.getCurrentRoundEndDate().format(formatter);
+    //     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    //     String formattedStartDate = game.getCurrentRoundStartDate().format(formatter);
+    //     String formattedEndDate = game.getCurrentRoundEndDate().format(formatter);
 
-        List<Matches> matches = info.fetchMatchesWithinDateRange(formattedStartDate, formattedEndDate);
-        for(Matches m: matches) {
-            String winner = m.getResult();
-            if(winner.equals("DRAW")) {
-                game.getResults().put(m.getHomeTeamName(), false);
-                game.getResults().put(m.getAwayTeamName(), false);
+    //     List<Matches> matches = info.fetchMatchesWithinDateRange(formattedStartDate, formattedEndDate);
+    //     for(Matches m: matches) {
+    //         String winner = m.getResult();
+    //         if(winner.equals("DRAW")) {
+    //             game.getResults().put(m.getHomeTeamName(), false);
+    //             game.getResults().put(m.getAwayTeamName(), false);
 
-            } else if (winner.equals(m.getHomeTeamName())) {
-                game.getResults().put(m.getHomeTeamName(), true);
-                game.getResults().put(m.getAwayTeamName(), false);
+    //         } else if (winner.equals(m.getHomeTeamName())) {
+    //             game.getResults().put(m.getHomeTeamName(), true);
+    //             game.getResults().put(m.getAwayTeamName(), false);
 
-            } else {
-                game.getResults().put(m.getHomeTeamName(), false);
-                game.getResults().put(m.getAwayTeamName(), true);
-            }
-        }
+    //         } else {
+    //             game.getResults().put(m.getHomeTeamName(), false);
+    //             game.getResults().put(m.getAwayTeamName(), true);
+    //         }
+    //     }
 
-        gameRepository.save(game);
-    }
+    //     gameRepository.save(game);
+    // }
 
-    public void eliminatePlayer(Game game, Player player) {
+    // public void eliminatePlayer(Game game, Player player) {
     
-        player.setActive(false);
-        game.getPlayersStillStanding().remove(player);
-        game.getPlayersEliminated().add(player);
+    //     player.setActive(false);
+    //     game.getPlayersStillStanding().remove(player);
+    //     game.getPlayersEliminated().add(player);
     
-        gameRepository.save(game);
-    }
+    //     gameRepository.save(game);
+    // }
 
     
-    public void printNextWeeksMatches(Long gameId) {
+    public void printNextWeeksMatches(int gameId) {
         
         Game game = gameRepository.findById(gameId)
                 .orElseThrow(() -> new IllegalArgumentException("Game not found"));
