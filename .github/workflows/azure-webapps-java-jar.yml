@@ -1,4 +1,4 @@
-name: Running unit tests and building on pull request
+name: Build and run unit tests for pull requests
 
 on:
   pull_request:
@@ -23,9 +23,5 @@ jobs:
           distribution: 'microsoft'
 
       - name: unit tests
-        run: mvn -B test --file ./pom.xml
-
-      - name: Build with Maven
-        run: |
-          mvn clean
-          mvn -B package --file pom.xml
+        run: mvn -B test --file ./${{matrix.service}}/pom.xml
+        if: exists ('${{matrix.service}}/pom.xml')
