@@ -59,19 +59,23 @@ public class PlayerService {
      * @param player The player object
      * @param team The team to change to
      */
-    public void changeTeamPick(Player player, String team){
+    public void changeTeamPick(Player player, String newTeam){
 
         ArrayList<String> usedTeams = player.getTeamsUsed();
-        
-        if (usedTeams.contains(team)) {
-            usedTeams.remove(team);
+        String oldTeam = player.getNextPick();
+        if (usedTeams.contains(oldTeam)) {
+            usedTeams.remove(oldTeam);
+            usedTeams.add(newTeam);
             player.setTeamsUsed(usedTeams);
 
-            // Add the team back to available teams
+            // Add the old team back to available teams
             ArrayList<String> availableTeams = player.getTeamsAvailable();
-            availableTeams.add(team);
+            availableTeams.remove(newTeam);
+            System.out.println(newTeam + " removed from available teams: " + availableTeams);
+            availableTeams.add(oldTeam);
             player.setTeamsAvailable(availableTeams);
 
+            player.setNextPick(newTeam);
             // Save the updated player object
             playerRepository.save(player);
         } else {
