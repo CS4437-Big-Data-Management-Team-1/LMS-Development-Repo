@@ -1,7 +1,7 @@
 package com.lms.gameservice.service;
 
-import com.lms.informationservice.matches.Matches;
-import com.lms.informationservice.team.Team;
+import com.lms.gameservice.matches.MatchesDTO;
+import com.lms.gameservice.team.TeamDTO;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -69,7 +69,7 @@ class InformationServiceClientTest {
         mockServer.expect(requestTo("http://mock-api.com/matches/fetch"))
                 .andRespond(withSuccess(fakeResponse, org.springframework.http.MediaType.APPLICATION_JSON));
 
-        List<Matches> result = informationServiceClient.fetchMatches();
+        List<MatchesDTO> result = informationServiceClient.fetchMatches();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -84,7 +84,7 @@ class InformationServiceClientTest {
         mockServer.expect(requestTo("http://mock-api.com/teams/fetch"))
                 .andRespond(withSuccess(fakeResponse, org.springframework.http.MediaType.APPLICATION_JSON));
 
-        List<Team> result = informationServiceClient.fetchTeams();
+        List<TeamDTO> result = informationServiceClient.fetchTeams();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -99,7 +99,7 @@ class InformationServiceClientTest {
         mockServer.expect(requestTo("http://mock-api.com/teams/get-teams"))
                 .andRespond(withSuccess(fakeResponse, org.springframework.http.MediaType.APPLICATION_JSON));
 
-        List<Team> result = informationServiceClient.getTeamsFromDatabase();
+        List<TeamDTO> result = informationServiceClient.getTeamsFromDatabase();
 
         assertNotNull(result);
         assertEquals(2, result.size());
@@ -119,7 +119,7 @@ class InformationServiceClientTest {
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         Date date = dateFormat.parse(filterDate);
 
-        List<Matches> result = informationServiceClient.fetchMatchesFromDate(filterDate);
+        List<MatchesDTO> result = informationServiceClient.fetchMatchesFromDate(filterDate);
 
         assertNotNull(result);
         assertEquals(1, result.size());
@@ -145,7 +145,7 @@ class InformationServiceClientTest {
         mockServer.expect(requestTo("http://mock-api.com/teams/fetch"))
                 .andRespond(withServerError());
 
-        List<Team> result = informationServiceClient.fetchTeams();
+        List<TeamDTO> result = informationServiceClient.fetchTeams();
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -156,7 +156,7 @@ class InformationServiceClientTest {
         mockServer.expect(requestTo("http://mock-api.com/teams/get-teams"))
                 .andRespond(withServerError());
 
-        List<Team> result = informationServiceClient.getTeamsFromDatabase();
+        List<TeamDTO> result = informationServiceClient.getTeamsFromDatabase();
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -167,7 +167,7 @@ class InformationServiceClientTest {
         mockServer.expect(requestTo("http://mock-api.com/matches/fetch"))
                 .andRespond(withServerError());
 
-        List<Matches> result = informationServiceClient.fetchMatches();
+        List<MatchesDTO> result = informationServiceClient.fetchMatches();
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -178,7 +178,7 @@ class InformationServiceClientTest {
         mockServer.expect(requestTo("http://mock-api.com/matches/fetch"))
                 .andRespond(withServerError());
 
-        List<Matches> result = informationServiceClient.fetchMatchesFromDate("2024-11-12");
+        List<MatchesDTO> result = informationServiceClient.fetchMatchesFromDate("2024-11-12");
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
@@ -186,7 +186,7 @@ class InformationServiceClientTest {
 
     @Test
     void testFetchMatchesFromDate_InvalidDateFormat() {
-        List<Matches> result = informationServiceClient.fetchMatchesFromDate("invalid-date");
+        List<MatchesDTO> result = informationServiceClient.fetchMatchesFromDate("invalid-date");
 
         assertNotNull(result);
         assertTrue(result.isEmpty());
