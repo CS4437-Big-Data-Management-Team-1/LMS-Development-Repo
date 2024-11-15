@@ -39,6 +39,7 @@ public class NotificationController {
     public ResponseEntity<String> sendNotification(@RequestBody Map<String, String> request) {
         String recipient = request.get("recipient");
         String type = request.get("type");
+        String idToken = request.get("idToken");
 
         // Validate missing recipient
         if (recipient == null || recipient.isEmpty()) {
@@ -46,7 +47,7 @@ public class NotificationController {
         }
 
         // Create the appropriate notification object based on the type
-        Notification notification = createNotification(type, recipient);
+        Notification notification = createNotification(type, recipient, idToken);
 
         // Validate invalid notification type
         if (notification == null) {
@@ -69,10 +70,10 @@ public class NotificationController {
      * @param recipient the recipient's email address
      * @return the corresponding Notification object or null if the type is invalid
      */
-    private Notification createNotification(String type, String recipient) {
+    private Notification createNotification(String type, String recipient, String idToken) {
         switch (type != null ? type.toLowerCase() : "") {
             case "account_creation":
-                return new AccountCreationNotification(recipient);
+                return new AccountCreationNotification(recipient, idToken);
             case "game_update":
                 return new GameUpdateNotification(recipient);
             case "game_created":
