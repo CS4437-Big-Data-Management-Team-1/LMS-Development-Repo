@@ -1,14 +1,9 @@
 
 package com.lms.gameservice.database;
 
-import com.lms.gameservice.service.GameService;
-import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import java.io.IOException;
-import java.math.BigDecimal;
 import com.lms.gameservice.model.Game;
 import java.sql.*;
 import java.time.LocalDateTime;
-import java.util.*;
 import java.util.logging.Logger;
 /**
  * Service class for processing payments.

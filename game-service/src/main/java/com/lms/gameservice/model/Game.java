@@ -2,6 +2,7 @@ package com.lms.gameservice.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
 import jakarta.persistence.*;
 @Entity
 public class Game {
@@ -13,6 +14,11 @@ public class Game {
     private LocalDateTime startDate;
     private String status;
     private BigDecimal totalPot = BigDecimal.ZERO;
+
+    private int currentRound;
+    private LocalDateTime currentRoundStartDate;
+    private LocalDateTime currentRoundEndDate;
+
 
 
     public BigDecimal getTotalPot() {
@@ -63,5 +69,30 @@ public class Game {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+
+    public int getCurrentRound() {
+        return currentRound;
+    }
+
+    public void setCurrentRound(int currentRound) {
+        this.currentRound = currentRound;
+    }
+
+    public LocalDateTime getCurrentRoundStartDate() {
+        return currentRoundStartDate;
+    }
+
+    public void setCurrentRoundStartDate(LocalDateTime currentRoundStartDate) {
+        this.currentRoundStartDate = currentRoundStartDate;
+    }
+
+    public LocalDateTime getCurrentRoundEndDate() {
+        return currentRoundEndDate;
+    }
+
+    public void setCurrentRoundEndDate(LocalDateTime currentRoundEndDate) {
+        this.currentRoundEndDate = currentRoundEndDate;
     }
 }

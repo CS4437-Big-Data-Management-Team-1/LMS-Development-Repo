@@ -44,6 +44,7 @@ public class InformationServiceClient {
      * @return List<Team> containing a list of teams.
      */
     public List<Team> fetchTeams() {
+        System.out.println("Base URL: " + baseUrl);
         String url = baseUrl + "/teams/fetch";
         try {
             ResponseEntity<List<Team>> response = restTemplate.exchange(
@@ -121,6 +122,33 @@ public class InformationServiceClient {
         }
     }
 
+    /**
+     * Retrieves matches within a specific date range.
+     * @param startDate The start date of the range.
+     * @param endDate The end date of the range.
+     * @return List<Matches> containing matches within the date range.
+     */
+    public List<Matches> fetchMatchesWithinDateRange(String startDate, String endDate) {
+        try {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Date filterStartDate = dateFormat.parse(startDate);
+            Date filterEndDate = dateFormat.parse(endDate);
+    
+            List<Matches> allMatches = fetchMatches();
+    
+            return allMatches.stream()
+                    .filter(match -> {
+                        Date gameDate = match.getGameDate();
+                        return gameDate != null && !gameDate.before(filterStartDate) && !gameDate.after(filterEndDate);
+                    })
+                    .collect(Collectors.toList());
+        } catch (ParseException e) {
+            System.err.println("Error parsing dates: " + e.getMessage());
+            return List.of();
+        }
+    }
+
+    
     /**
      * Retrieves the result of a specific match by its ID.
      * @param matchId The ID of the match to get.
