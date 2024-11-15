@@ -1,0 +1,25 @@
+
+
+@Component
+public class GameUpdateScheduler {
+
+    private final GameService gameService;
+    private final GameRepository gameRepository;
+
+
+    @Autowired
+    private GameDatabaseController gameDatabaseController;
+
+    public GameService(GameRepository gameRepository) {
+        this.gameRepository = gameRepository;
+    }
+
+    @Scheduled(cron = "0 0 1 * * MON")
+    public void updateGames() {
+        List<Game> games = gameRepository.findByStatus("ACTIVE");
+
+        for (Game game : games) {
+            gameService.updateGame(game);
+        }
+    }
+}
