@@ -46,16 +46,9 @@ jobs:
             -Dsonar.organization=cs4437-big-data-management-team-1 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-
-
-      - name: Extract SonarCloud Results URL
-        id: sonar-result
-        run: |
-          echo "Extracting SonarCloud results URL..."
-          SONAR_RESULT_URL=$(grep -oP '(https://sonarcloud.io/dashboard\?id=[^ ]+branch=[^ ]+)' <<< "$(cat $GITHUB_WORKSPACE/target/logs/sonar-scanner.log || echo '')" | head -n 1)
-          echo "SONAR_RESULT_URL=$SONAR_RESULT_URL" >> $GITHUB_ENV
+          echo "::set-output name=sonar_url::$(grep -o 'https://sonarcloud.io/dashboard?id=[^ ]*branch=[^ ]*' maven_output.log | head -1)"
 
       - name: Post Job Summary
         if: always()
         run: |
-          echo "SonarCloud analysis completed. Results available here: $SONAR_RESULT_URL"
+          echo "SonarCloud analysis completed. Results available here: ${{ steps.sonar-analysis.outputs.sonar_url }}"
