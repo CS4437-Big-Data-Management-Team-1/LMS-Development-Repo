@@ -48,12 +48,15 @@ jobs:
             -Dsonar.token=${{ secrets.SONAR_TOKEN }}
 
 
+      - name: Extract SonarCloud Results URL
+        if: always()
+        run: |
+          echo "Extracting SonarCloud results URL..."
+          export URL=$(grep -oP 'https://sonarcloud.io/dashboard\?id=.*' "${{ github.workspace }}/target/sonar/sonar.log" | head -n 1)
+          echo "SONAR_URL=${URL}" >> $GITHUB_ENV
+
       - name: Post Job Summary
         if: always()
         run: |
           echo "SonarCloud analysis completed. Results available here:"
-          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
-            echo "https://sonarcloud.io/project/branches?id=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo&branch=${{ github.head_ref }}"
-          else
-            echo "https://sonarcloud.io/project/branches?id=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo&branch=${{ github.ref_name }}"
-          fi
+          echo $SONAR_URL
