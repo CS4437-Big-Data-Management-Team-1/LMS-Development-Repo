@@ -46,9 +46,8 @@ jobs:
             -Dsonar.organization=cs4437-big-data-management-team-1 \
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.token=${{ secrets.SONAR_TOKEN }}
-          echo "::set-output name=sonar_url::$(grep -o 'https://sonarcloud.io/dashboard?id=[^ ]*branch=[^ ]*' maven_output.log | head -1)"
 
       - name: Post Job Summary
         if: always()
         run: |
-          echo "SonarCloud analysis completed. Results available here: ${{ steps.sonar-analysis.outputs.sonar_url }}"
+          echo "SonarCloud analysis completed. Results available online https://sonarcloud.io/project/overview?id=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo "
