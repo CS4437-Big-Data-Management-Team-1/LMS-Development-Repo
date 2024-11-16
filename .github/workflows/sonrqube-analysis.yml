@@ -49,14 +49,13 @@ jobs:
 
 
       - name: Extract SonarCloud Results URL
-        if: always()
+        id: sonar-result
         run: |
           echo "Extracting SonarCloud results URL..."
-          export URL=$(grep -oP 'https://sonarcloud.io/dashboard\?id=.*' "${{ github.workspace }}/target/sonar/sonar.log" | head -n 1)
-          echo "SONAR_URL=${URL}" >> $GITHUB_ENV
+          SONAR_RESULT_URL=$(grep -oP '(https://sonarcloud.io/dashboard\?id=[^ ]+branch=[^ ]+)' <<< "$(cat $GITHUB_WORKSPACE/target/logs/sonar-scanner.log || echo '')" | head -n 1)
+          echo "SONAR_RESULT_URL=$SONAR_RESULT_URL" >> $GITHUB_ENV
 
       - name: Post Job Summary
         if: always()
         run: |
-          echo "SonarCloud analysis completed. Results available here:"
-          echo $SONAR_URL
+          echo "SonarCloud analysis completed. Results available here: $SONAR_RESULT_URL"
