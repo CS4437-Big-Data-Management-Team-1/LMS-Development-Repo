@@ -4,7 +4,7 @@ package com.lms.notificationservice.model;
 public class AccountCreationNotification extends Notification {
     public AccountCreationNotification(String recipient, String idToken) {
         super(recipient);
-        setMessage("Dear" + " " + recipient + ",\nYour account has been created successfully." + "\n\n" + "Your ID Token is: " + idToken);
+        setMessage("Dear" + " " + recipient + ",\nYour account has been created successfully." + "\n\n" + "Your Temporary Login JWT Token is: " + idToken);
         setSubject("Account Creation");
     }
 }
