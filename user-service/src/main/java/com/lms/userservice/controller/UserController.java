@@ -45,7 +45,7 @@ public class UserController {
     // Log4j
     private static final Logger logger = LogManager.getLogger(UserController.class);
 
-    // Yse necessacary classes
+    // Yse necessary classes
     private final UserService userService;
     private final UserValidator userValidator;
     private final RestTemplate restTemplate;
@@ -208,6 +208,25 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    /**
+     * Fetches the email of a user by their unique ID.
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}/email")
+    public ResponseEntity<String> getUserEmailById(@PathVariable String id) {
+        logger.info("Fetching email for user with ID: {}", id);
+        User user = userService.getUserById(id);
+        if (user != null) {
+            logger.info("User found with ID: {}", id);
+            return ResponseEntity.ok(user.getEmail());
+        } else {
+            logger.warn("User not found with ID: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 
     /**
      * PLACEHOLDER: Just for testing JWT token

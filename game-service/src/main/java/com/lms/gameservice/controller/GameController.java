@@ -1,5 +1,25 @@
 package com.lms.gameservice.controller;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.lms.gameservice.gamerequest.GameRequestDTO;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.repository.PlayerRepository;
@@ -10,35 +30,28 @@ import com.lms.gameservice.service.PlayerService;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 
-import com.lms.gameservice.gamerequest.GameRequestDTO;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/games")
 public class GameController {
     private final GameService gameService;
     private final PlayerService playerService;
     private final PlayerRepository playerRepository;
+    private final RestTemplate restTemplate;
 
     //for results testing
     // private final InformationServiceClient info;
     // private final ResultsRepository resultsRepository;
-
+    private static final Logger logger = LogManager.getLogger(GameController.class);
 
     @Autowired
     private AuthService authService;
 
     @Autowired
-    public GameController(GameService gameService, PlayerService playerService, PlayerRepository playerRepository) {
+    public GameController(GameService gameService, PlayerService playerService, PlayerRepository playerRepository, RestTemplate restTemplate) {
         this.gameService = gameService;
         this.playerService = playerService;
         this.playerRepository = playerRepository;
+        this.restTemplate = restTemplate;
     }
 
     /**
@@ -56,12 +69,16 @@ public class GameController {
         try {
             String uid = authService.validateToken(authorisationHeader);
 
+            String userID = extractUidFromMessage(uid);
+
+            String userEmail = getUserEmailByUid(userID);
+
             // Step 2: Create the game with the start date
-            Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(), gameRequest.getWeeksTillStartDate(), uid);
+            Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(),
+                    gameRequest.getWeeksTillStartDate(), uid);
 
-            // Potential to Send Notification game created
-            // sendGameCreationNotification(uid, game);
-
+            sendGameCreationNotification(userEmail, "game_created");
+            System.out.print(userEmail);
             return ResponseEntity.ok(game);
 
         } catch (Exception e) {
@@ -171,7 +188,7 @@ public class GameController {
             String msg = authService.validateToken(authorisationHeader);
             String[] splits = msg.split("Access granted for user: ");
             String uid = splits[1];
-            
+
             JSONParser parser = new JSONParser(JSONParser.MODE_JSON_SIMPLE);
             JSONObject teamObject = (JSONObject) parser.parse(team);
             String teamStr = (String) teamObject.get("team");
@@ -189,11 +206,50 @@ public class GameController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error picking team: " + e.getMessage());
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error processing request: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error processing request: " + e.getMessage());
         }
     }
 
+    private void sendGameCreationNotification(String recipient, String type) {
+        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        Map<String, String> notificationData = new HashMap<>();
+        notificationData.put("recipient", recipient);
+        notificationData.put("type", type);
+        try {
+            restTemplate.postForEntity(notificationUrl, notificationData, String.class);
+            logger.info("Notification request sent for type: {}", type);
+        } catch (Exception e) {
+            logger.error("Failed to send notification request for type {}: {}", type, e.getMessage());
+        }
+    }
+
+    private String getUserEmailByUid(String uid) {
+        // Call the UserController's endpoint to get the email
+        String url = "http://localhost:8080/api/users/" + uid + "/email";
+
+        try {
+            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody(); // Return the email
+            } else {
+                return null; // Handle the case when the user is not found
+            }
+        } catch (Exception e) {
+            // Handle errors
+            return null;
+        }
+    }
+    
+    private String extractUidFromMessage(String message) {
+        // Check if the message starts with "Access granted for user: "
+        String prefix = "Access granted for user: ";
+        if (message != null && message.startsWith(prefix)) {
+            return message.substring(prefix.length());  // Extract the UID
+        }
+        return null; // Handle errors
   
+    }
     /**
      * Used to test the Results Table is working.
      * 
