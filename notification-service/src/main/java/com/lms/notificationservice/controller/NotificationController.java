@@ -40,6 +40,28 @@ public class NotificationController {
         String recipient = request.get("recipient");
         String type = request.get("type");
         String idToken = request.get("idToken");
+        String gameName = request.get("gameName");
+        int weeksTillStartDate;
+        try {
+            weeksTillStartDate = request.get("weeksTillStartDate") != null 
+                ? Integer.parseInt(request.get("weeksTillStartDate")) 
+                : 0;
+        } catch (NumberFormatException e) {
+            weeksTillStartDate = 0; // Default if parsing fails
+        }
+    
+        double entryFee;
+        try {
+            entryFee = request.get("entryFee") != null 
+                ? Double.parseDouble(request.get("entryFee")) 
+                : 0.0;
+        } catch (NumberFormatException e) {
+            entryFee = 0.0; // Default if parsing fails
+        }
+
+        if (recipient == null || recipient.isEmpty()) {
+            return ResponseEntity.badRequest().body("Recipient email is required.");
+        }
 
         // Validate missing recipient
         if (recipient == null || recipient.isEmpty()) {
@@ -47,7 +69,7 @@ public class NotificationController {
         }
 
         // Create the appropriate notification object based on the type
-        Notification notification = createNotification(type, recipient, idToken);
+        Notification notification = createNotification(type, recipient, idToken, gameName, weeksTillStartDate, entryFee);
 
         // Validate invalid notification type
         if (notification == null) {
@@ -70,14 +92,14 @@ public class NotificationController {
      * @param recipient the recipient's email address
      * @return the corresponding Notification object or null if the type is invalid
      */
-    private Notification createNotification(String type, String recipient, String idToken) {
+    private Notification createNotification(String type, String recipient, String idToken, String gameName, int weeksTillStartDate, double entryFee) {
         switch (type != null ? type.toLowerCase() : "") {
             case "account_creation":
                 return new AccountCreationNotification(recipient, idToken);
             case "game_update":
                 return new GameUpdateNotification(recipient);
             case "game_created":
-                return new GameCreationNotification(recipient);
+                return new GameCreationNotification(recipient, gameName, weeksTillStartDate, entryFee);
             case "game_joined":
                 return new GameJoinNotification(recipient);
             default:

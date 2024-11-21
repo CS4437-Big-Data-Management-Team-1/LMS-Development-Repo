@@ -77,7 +77,7 @@ public class GameController {
             Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(),
                     gameRequest.getWeeksTillStartDate(), uid);
 
-            sendGameCreationNotification(userEmail, "game_created");
+            sendGameCreationNotification(userEmail, "game_created", gameRequest.getName(), gameRequest.getWeeksTillStartDate(), gameRequest.getEntryFee().doubleValue());
             System.out.print(userEmail);
             return ResponseEntity.ok(game);
 
@@ -211,11 +211,14 @@ public class GameController {
         }
     }
 
-    private void sendGameCreationNotification(String recipient, String type) {
+    private void sendGameCreationNotification(String recipient, String type, String gameName, int weeksTillStartDate, double entryFee) {
         String notificationUrl = "http://localhost:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
         notificationData.put("type", type);
+        notificationData.put("gameName", gameName);
+        notificationData.put("weeksTillStartDate", String.valueOf(weeksTillStartDate));
+        notificationData.put("entryFee", String.valueOf(entryFee));
         try {
             restTemplate.postForEntity(notificationUrl, notificationData, String.class);
             logger.info("Notification request sent for type: {}", type);
