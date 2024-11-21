@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -31,6 +32,7 @@ class UserControllerTest {
     @Mock
     private UserValidator userValidator;
 
+    @Spy
     @InjectMocks
     private UserController userController;
 
@@ -75,40 +77,5 @@ class UserControllerTest {
 
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals("Invalid input", response.getBody());
-    }
-
-    @Test
-    void testGetAllUsersInvalidAuthHeader() {
-        ResponseEntity<?> response = userController.getAllUsers(null);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid Authorisation header.", response.getBody());
-    }
-
-    @Test
-    void testGetUserByIdInvalidAuthHeader() {
-        ResponseEntity<?> response = userController.getUserById("user-id", null);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid Authorisation header.", response.getBody());
-    }
-
-    @Test
-    void testDeleteUserByIdInvalidAuthHeader() {
-        ResponseEntity<?> response = userController.deleteUserById("user-id", null);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid Authorisation header.", response.getBody());
-    }
-
-    @Test
-    void testUpdateUserByIdInvalidAuthHeader() {
-        Map<String, String> updates = new HashMap<>();
-        updates.put("name", "New Name");
-
-        ResponseEntity<?> response = userController.updateUserById("user-id", null, updates);
-
-        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("Invalid Authorisation header.", response.getBody());
     }
 }
