@@ -107,6 +107,35 @@ public class UserService {
         return user != null && Boolean.TRUE.equals(user.getIsAdmin());
     }
 
+    public boolean deleteUserById(String id) {
+        // Check if user exists before deleting
+        if (!userRepository.existsById(id)) {
+            return false;
+        }
+
+        userRepository.deleteById(id);
+        return true;
+    }
+
+    // Update a user's name and/or email by ID
+    public User updateUserById(String id, String newName, String newEmail) {
+        // Find the user
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        // Update fields
+        if (newName != null && !newName.isBlank()) user.setUsername(newName);
+        if (newEmail != null && !newEmail.isBlank()) user.setEmail(newEmail);
+
+        // Save updated user
+        return userRepository.save(user);
+    }
+
+
+
+
     public static void main(String[] args) {
 
         //just sample test to check if userservice can add values to DB
