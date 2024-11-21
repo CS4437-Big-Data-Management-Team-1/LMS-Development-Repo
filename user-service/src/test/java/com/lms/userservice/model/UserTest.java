@@ -76,4 +76,18 @@ class UserTest {
     void testDefaultBalance() {
         assertEquals(0.0, user.getBalance());
     }
+
+    @Test
+    void testSetAndGetIsAdmin() {
+        user.setIsAdmin(true);
+        assertTrue(user.getIsAdmin());
+
+        user.setIsAdmin(false);
+        assertFalse(user.getIsAdmin());
+    }
+
+    @Test
+    void testDefaultIsAdmin() {
+        assertFalse(user.getIsAdmin(), "Default value for isAdmin should be false.");
+    }
 }
