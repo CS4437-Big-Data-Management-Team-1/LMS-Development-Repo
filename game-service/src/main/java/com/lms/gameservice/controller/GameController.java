@@ -224,7 +224,7 @@ public class GameController {
         }
     }
 
-    private void sendGameCreationNotification(String recipient, String type, String gameName, int weeksTillStartDate, double entryFee) {
+    public void sendGameCreationNotification(String recipient, String type, String gameName, int weeksTillStartDate, double entryFee) {
         String notificationUrl = "http://localhost:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
@@ -240,7 +240,7 @@ public class GameController {
         }
     }
 
-    private void sendGameJoinedNotification(String recipient, String type, String gameName, double entryFee) {
+    public void sendGameJoinedNotification(String recipient, String type, String gameName, double entryFee) {
         String notificationUrl = "http://localhost:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
