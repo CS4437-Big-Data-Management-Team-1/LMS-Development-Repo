@@ -39,7 +39,7 @@ public class UserController {
     // Log4j
     private static final Logger logger = LogManager.getLogger(UserController.class);
 
-    // Yse necessacary classes
+    // Yse necessary classes
     private final UserService userService;
     private final UserValidator userValidator;
     private final RestTemplate restTemplate;
@@ -405,7 +405,7 @@ public class UserController {
     }
 
     /**
-     * Use for validating  JWT token
+     * PLACEHOLDER: Just for testing JWT token
      * @param authorisationHeader
      * @return
      */
