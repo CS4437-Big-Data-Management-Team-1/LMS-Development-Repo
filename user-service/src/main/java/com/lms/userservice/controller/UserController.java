@@ -298,7 +298,7 @@ public class UserController {
     public ResponseEntity<?> deleteUserById(
             @PathVariable String id,
             @RequestHeader("Authorisation") String authorisationHeader) {
-        logger.info("Attempting to delete user with ID: {}", id);
+        logger.info("Attempting to delete a user");
 
         try {
             // Validate and extract ID token from header
@@ -310,7 +310,7 @@ public class UserController {
             String idToken = authorisationHeader.replace("Bearer ", "").trim();
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
             String userId = decodedToken.getUid();
-            logger.debug("Verified token for user ID: {}", userId);
+            logger.debug("Verified token for user ID.");
 
             // Check admin privileges
             if (!userService.isUserAdmin(userId)) {
@@ -321,18 +321,18 @@ public class UserController {
             // Delete the user
             boolean deleted = userService.deleteUserById(id);
             if (deleted) {
-                logger.info("User with ID {} deleted successfully.", id);
+                logger.info("User deleted successfully.");
                 return ResponseEntity.ok("User deleted successfully.");
             } else {
-                logger.warn("User with ID {} not found.", id);
+                logger.warn("User not found.");
                 return ResponseEntity.status(404).body("User not found.");
             }
 
         } catch (FirebaseAuthException e) {
-            logger.error("Error verifying ID token: {}", e.getMessage(), e);
+            logger.error("Error verifying ID token", e);
             return ResponseEntity.status(401).body("Invalid or expired token.");
         } catch (Exception e) {
-            logger.error("Error deleting user: {}", e.getMessage(), e);
+            logger.error("Error deleting user", e);
             return ResponseEntity.status(500).body("An error occurred while deleting the user.");
         }
     }
@@ -357,7 +357,7 @@ public class UserController {
             @PathVariable String id,
             @RequestHeader("Authorisation") String authorisationHeader,
             @RequestBody Map<String, String> updates) {
-        logger.info("Attempting to update user with ID: {}", id);
+        logger.info("Attempting to update a user");
 
         try {
             // Validate and extract ID token from header
@@ -369,7 +369,7 @@ public class UserController {
             String idToken = authorisationHeader.replace("Bearer ", "").trim();
             FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
             String userId = decodedToken.getUid();
-            logger.debug("Verified token for user ID: {}", userId);
+            logger.debug("Verified token for user ID.");
 
             // Check admin privileges
             if (!userService.isUserAdmin(userId)) {
@@ -388,18 +388,18 @@ public class UserController {
             // Update the user
             User updatedUser = userService.updateUserById(id, newName, newEmail);
             if (updatedUser != null) {
-                logger.info("User with ID {} updated successfully.", id);
+                logger.info("User updated successfully.");
                 return ResponseEntity.ok(updatedUser);
             } else {
-                logger.warn("User with ID {} not found.", id);
+                logger.warn("User not found.");
                 return ResponseEntity.status(404).body("User not found.");
             }
 
         } catch (FirebaseAuthException e) {
-            logger.error("Error verifying ID token: {}", e.getMessage(), e);
+            logger.error("Error verifying ID token", e);
             return ResponseEntity.status(401).body("Invalid or expired token.");
         } catch (Exception e) {
-            logger.error("Error updating user: {}", e.getMessage(), e);
+            logger.error("Error updating user", e);
             return ResponseEntity.status(500).body("An error occurred while updating the user.");
         }
     }
