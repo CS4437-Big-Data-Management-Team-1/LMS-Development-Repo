@@ -96,6 +96,17 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+    /**
+     * Checks if an admin status is set to 'true'
+     *
+     * @param userId
+     * @return true if status admin, otherwise false
+     */
+    public boolean isUserAdmin(String userId) {
+        User user = getUserById(userId);
+        return user != null && Boolean.TRUE.equals(user.getIsAdmin());
+    }
+
     public static void main(String[] args) {
 
         //just sample test to check if userservice can add values to DB

@@ -38,6 +38,9 @@ public class User {
     @Column(nullable = false)
     private Double balance = 0.0;
 
+    @Column(name = "is_admin", nullable = false)
+    private Boolean isAdmin = false;
+
     // Getters and setters
     public String getId() {
         return id;
@@ -94,6 +97,14 @@ public class User {
 
     public void setBalance(Double balance) {
         this.balance = balance;
+    }
+
+    public Boolean getIsAdmin() {
+        return isAdmin;
+    }
+
+    public void setIsAdmin(Boolean isAdmin) {
+        this.isAdmin = isAdmin;
     }
 
 

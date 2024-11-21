@@ -180,32 +180,109 @@ public class UserController {
     /**
      * Fetches all registered users from the database.
      *
-     * @return a list of all users in the response body
+     * This endpoint is restricted to admin users only. The caller must provide
+     * a valid Firebase ID token in the `Authorisation` header. The ID token is verified,
+     * and the user is checked for admin privileges before returning the list of all users.
+     *
+     * @param authHeader The `Authorisation` header containing the Bearer token.
+     * @return A list of all users if the requester is an admin, or an appropriate error response:
+     *         - 400 if the `Authorisation` header is invalid.
+     *         - 401 if the token is invalid or expired.
+     *         - 403 if the requester is not an admin.
+     *         - 500 if an internal server error occurs.
      */
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorisation") String authHeader) {
         logger.info("Fetching all users.");
-        List<User> users = userService.getAllUsers();
-        logger.debug("Number of users fetched: {}", users.size());
-        return ResponseEntity.ok(users);
+
+        try {
+            // Validate and extract ID token from header
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                logger.warn("Invalid Authorization header.");
+                return ResponseEntity.status(400).body("Invalid Authorization header.");
+            }
+
+            String idToken = authHeader.replace("Bearer ", "").trim();
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            String userId = decodedToken.getUid();
+            logger.debug("Verified token for user ID: {}", userId);
+
+            // Check if user has admin privileges
+            if (!userService.isUserAdmin(userId)) {
+                logger.warn("Access denied: User is not an admin.");
+                return ResponseEntity.status(403).body("Access denied. Admin only.");
+            }
+
+            // Fetch all users if the user is an admin
+            List<User> users = userService.getAllUsers();
+            logger.debug("Number of users fetched: {}", users.size());
+            return ResponseEntity.ok(users);
+
+        } catch (FirebaseAuthException e) {
+            logger.error("Error verifying ID token: {}", e.getMessage(), e);
+            return ResponseEntity.status(401).body("Invalid or expired token.");
+        } catch (Exception e) {
+            logger.error("Error fetching users: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("An error occurred while fetching users.");
+        }
     }
 
     /**
-     * Fetches a user by their unique ID or 404 if not found.
+     * Fetches a specific user by their unique ID.
      *
-     * @param id the unique ID of the user
-     * @return the User entity or 404 Not Found if the user does not exist
+     * This endpoint is restricted to admin users only. The caller must provide
+     * a valid Firebase ID token in the `Authorisation` header. The ID token is verified,
+     * and the user is checked for admin privileges before returning the requested user's details.
+     *
+     * @param id The unique ID of the user to retrieve.
+     * @param authHeader The `Authorisation` header containing the Bearer token.
+     * @return The requested user's details if found and the requester is an admin, or an appropriate error response:
+     *         - 400 if the `Authorisation` header is invalid.
+     *         - 401 if the token is invalid or expired.
+     *         - 403 if the requester is not an admin.
+     *         - 404 if the user with the specified ID is not found.
+     *         - 500 if an internal server error occurs.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
+    public ResponseEntity<?> getUserById(
+            @PathVariable String id,
+            @RequestHeader("Authorisation") String authHeader) {
         logger.info("Fetching user with ID: {}", id);
-        User user = userService.getUserById(id);
-        if (user != null) {
-            logger.info("User found with ID: {}", id);
-            return ResponseEntity.ok(user);
-        } else {
-            logger.warn("User not found with ID: {}", id);
-            return ResponseEntity.notFound().build();
+
+        try {
+            // Validate and extract ID token from header
+            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                logger.warn("Invalid Authorisation header.");
+                return ResponseEntity.status(400).body("Invalid Authorisation header.");
+            }
+
+            String idToken = authHeader.replace("Bearer ", "").trim();
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            String userId = decodedToken.getUid();
+            logger.debug("Verified token for user ID: {}", userId);
+
+            // Check admin privileges
+            if (!userService.isUserAdmin(userId)) {
+                logger.warn("Access denied: User is not an admin.");
+                return ResponseEntity.status(403).body("Access denied. Admin only.");
+            }
+
+            // Fetch the user by ID
+            User user = userService.getUserById(id);
+            if (user != null) {
+                logger.info("User found with ID: {}", id);
+                return ResponseEntity.ok(user);
+            } else {
+                logger.warn("User not found with ID: {}", id);
+                return ResponseEntity.status(404).body("User not found.");
+            }
+
+        } catch (FirebaseAuthException e) {
+            logger.error("Error verifying ID token: {}", e.getMessage(), e);
+            return ResponseEntity.status(401).body("Invalid or expired token.");
+        } catch (Exception e) {
+            logger.error("Error fetching user: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body("An error occurred while fetching the user.");
         }
     }
 
