@@ -6,6 +6,6 @@ public class GameCreationNotification extends Notification {
     public GameCreationNotification(String recipient, String gameName, int weeksTillStartDate, double entryFee) { 
         super(recipient);
         setSubject("Game Created Successfully");
-        setMessage("Hey" + " " + recipient + ",\nYou have created a game!" + "\nGame Name: " + gameName + "\n\nWeeks Till Start Date: " + weeksTillStartDate + "\nEntry Fee: €" + entryFee);
+        setMessage("Hey" + " " + recipient + ",\nYou have created a game!" + "\n\nGame Name: " + gameName + "\nWeeks Till Start Date: " + weeksTillStartDate + "\nEntry Fee: €" + entryFee);
     }
 }

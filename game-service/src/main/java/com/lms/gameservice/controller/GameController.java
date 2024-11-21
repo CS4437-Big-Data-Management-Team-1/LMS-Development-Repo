@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 import com.lms.gameservice.gamerequest.GameRequestDTO;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
+import com.lms.gameservice.repository.GameRepository;
 import com.lms.gameservice.repository.PlayerRepository;
 import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
@@ -36,6 +37,7 @@ public class GameController {
     private final GameService gameService;
     private final PlayerService playerService;
     private final PlayerRepository playerRepository;
+    private final GameRepository gameRepository;
     private final RestTemplate restTemplate;
 
     //for results testing
@@ -47,10 +49,11 @@ public class GameController {
     private AuthService authService;
 
     @Autowired
-    public GameController(GameService gameService, PlayerService playerService, PlayerRepository playerRepository, RestTemplate restTemplate) {
+    public GameController(GameService gameService, PlayerService playerService, PlayerRepository playerRepository, GameRepository gameRepository, RestTemplate restTemplate) {
         this.gameService = gameService;
         this.playerService = playerService;
         this.playerRepository = playerRepository;
+        this.gameRepository = gameRepository;
         this.restTemplate = restTemplate;
     }
 
@@ -115,11 +118,21 @@ public class GameController {
             String[] splits = msg.split("Access granted for user: ");
             String uid = splits[1];
 
+            String userEmail = getUserEmailByUid(uid);
+
+            Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+
+            double entryFee = game.getEntryFee().doubleValue();
+
+            String gameName = game.getName();
+
             // Step 2: Attempt to join the game
 
             boolean joinedSuccessfully = gameService.joinGame(gameId, uid, authorisationHeader);
             if (joinedSuccessfully) {
-                System.out.println("user has joined game " +  gameId + " successfully.");
+                System.out.println("User has joined game " +  gameId + " successfully.");
+                sendGameJoinedNotification(userEmail, "game_joined", gameName, entryFee);
                 return ResponseEntity.ok("User joined game " + gameId);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
@@ -218,6 +231,21 @@ public class GameController {
         notificationData.put("type", type);
         notificationData.put("gameName", gameName);
         notificationData.put("weeksTillStartDate", String.valueOf(weeksTillStartDate));
+        notificationData.put("entryFee", String.valueOf(entryFee));
+        try {
+            restTemplate.postForEntity(notificationUrl, notificationData, String.class);
+            logger.info("Notification request sent for type: {}", type);
+        } catch (Exception e) {
+            logger.error("Failed to send notification request for type {}: {}", type, e.getMessage());
+        }
+    }
+
+    private void sendGameJoinedNotification(String recipient, String type, String gameName, double entryFee) {
+        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        Map<String, String> notificationData = new HashMap<>();
+        notificationData.put("recipient", recipient);
+        notificationData.put("type", type);
+        notificationData.put("gameName", gameName);
         notificationData.put("entryFee", String.valueOf(entryFee));
         try {
             restTemplate.postForEntity(notificationUrl, notificationData, String.class);

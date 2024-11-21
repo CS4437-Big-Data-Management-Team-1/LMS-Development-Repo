@@ -101,7 +101,7 @@ public class NotificationController {
             case "game_created":
                 return new GameCreationNotification(recipient, gameName, weeksTillStartDate, entryFee);
             case "game_joined":
-                return new GameJoinNotification(recipient);
+                return new GameJoinNotification(recipient, gameName, entryFee);
             default:
                 return null;
         }
