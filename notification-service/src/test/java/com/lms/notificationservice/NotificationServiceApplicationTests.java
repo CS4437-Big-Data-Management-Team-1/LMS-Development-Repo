@@ -48,6 +48,7 @@ class NotificationControllerTest {
         Map<String, String> request = new HashMap<>();
         request.put("recipient", "user@example.com");
         request.put("type", "account_creation");
+        request.put("idToken", "idToken");
 
         ResponseEntity<String> response = notificationController.sendNotification(request);
 
@@ -96,6 +97,9 @@ class NotificationControllerTest {
         Map<String, String> request = new HashMap<>();
         request.put("recipient", "user@example.com");
         request.put("type", "game_created");
+        request.put("gameName", "Game Name");
+        request.put("weeksTillStartDate", "2");
+        request.put("entryFee", "10.0");
 
         ResponseEntity<String> response = notificationController.sendNotification(request);
 

@@ -3,9 +3,9 @@ package com.lms.notificationservice.model;
 
 // Represents a notification for joining a game
 public class GameCreationNotification extends Notification {
-    public GameCreationNotification(String recipient) {
+    public GameCreationNotification(String recipient, String gameName, int weeksTillStartDate, double entryFee) { 
         super(recipient);
-        setMessage("Hey" + " " + recipient + ",\nYou have created a game!");
         setSubject("Game Created Successfully");
+        setMessage("Hey" + " " + recipient + ",\nYou have created a game!" + "\n\nGame Name: " + gameName + "\nWeeks Till Start Date: " + weeksTillStartDate + "\nEntry Fee: €" + entryFee);
     }
 }
