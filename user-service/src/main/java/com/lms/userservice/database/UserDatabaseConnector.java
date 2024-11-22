@@ -2,6 +2,7 @@ package com.lms.userservice.database;
 
 import com.lms.userservice.model.User;
 import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
+import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -30,9 +31,6 @@ public class UserDatabaseConnector{
      */
     public static boolean connectToDB(){
 
-
-
-
         log.info("Connecting to the database");
         try{
             String dbUsername = System.getProperty("DB_USERNAME");
@@ -51,25 +49,25 @@ public class UserDatabaseConnector{
  *
  * @return          returns the boolean status of the function
  */
-    public static boolean addUserToDB(User user){
+public static boolean addUserToDB(User user) {
+    String sql = "INSERT INTO users (user_id, username, email, created_at, last_login, balance, is_admin, password_hash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+    try (PreparedStatement statement = connection.prepareStatement(sql)) {
+        statement.setString(1, user.getId());
+        statement.setString(2, user.getUsername());
+        statement.setString(3, user.getEmail());
+        statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+        statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
+        statement.setBigDecimal(6, BigDecimal.ZERO); // Set balance to 0 by default
+        statement.setBoolean(7, false); // Set is_admin to false by default
+        statement.setString(8, "firebase_managed"); // Placeholder for password_hash
 
-        //Sample data for now, replace with actual data pulled from user input later
-        String sql = "INSERT INTO users (user_id, username,email,created_at,last_login) VALUES (?, ?, ?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
-            statement.setString(1, user.getId() );
-            statement.setString(2, user.getUsername() );
-            statement.setString(3, user.getEmail());
-            statement.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-            statement.setTimestamp(5, Timestamp.valueOf(LocalDateTime.now()));
-
-            int execute = statement.executeUpdate();
-            return true;
-        }catch (SQLException e){
-            log.severe("Error inserting user " + e.getMessage());
-            return false;
-        }
-
+        int execute = statement.executeUpdate();
+        return true;
+    } catch (SQLException e) {
+        log.severe("Error inserting user " + e.getMessage());
+        return false;
     }
+}
 
     public static User searchForUser(String id){
         String sql = "SELECT * FROM users WHERE user_id = ?";

@@ -132,17 +132,4 @@ public class UserService {
         // Save updated user
         return userRepository.save(user);
     }
-
-
-
-
-    public static void main(String[] args) {
-
-        //just sample test to check if userservice can add values to DB
-        UserDatabaseConnector database = new UserDatabaseConnector();
-        database.connectToDB();
-       // database.addUserToDB();
-       // database.disconnectFromDB();
-    }
-
 }
