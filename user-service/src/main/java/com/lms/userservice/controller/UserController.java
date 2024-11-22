@@ -9,13 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -115,7 +109,7 @@ public class UserController {
                 String idToken = (String) responseBody.get("idToken");
 
                 logger.debug("Received ID token: {}", idToken);
-                
+
                 // Send the account creation notification with the idToken
                 sendNotification(user.getEmail(), "account_creation", idToken);
 
@@ -152,78 +146,156 @@ public class UserController {
             body.put("email", loginDTO.getEmail());
             body.put("password", loginDTO.getPassword());
             body.put("returnSecureToken", "true");
-            logger.debug("Sending request to Firebase login endpoint.");
 
             ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
+                Map<String, Object> responseBody = response.getBody();
+                String idToken = (String) responseBody.get("idToken");
 
                 logger.info("Login successful for user: {}", loginDTO.getEmail());
-                Map<String, Object> responseBody = response.getBody();
-
-                String idToken = (String) responseBody.get("idToken");
-                String uid = (String) responseBody.get("localId");
-                User user = db.searchForUser(uid);
-
-                logger.debug("Received ID token: {}", idToken);
-                return ResponseEntity.ok("Login successful. Token: " + idToken);
+                return ResponseEntity.ok("Token: " + idToken);
             } else {
-                logger.warn("Login failed for user: {}", loginDTO.getEmail());
-                return ResponseEntity.status(401).body("Invalid email or password");
+                return ResponseEntity.status(401).body("Invalid credentials.");
             }
         } catch (Exception e) {
-            logger.error("Error during login for user: {}", loginDTO.getEmail(), e);
-            return ResponseEntity.status(401).body("Invalid email or password");
+            logger.error("Login failed: {}", e.getMessage(), e);
+            return ResponseEntity.status(401).body("Invalid credentials.");
         }
     }
 
     /**
      * Fetches all registered users from the database.
      *
-     * @return a list of all users in the response body
+     * This endpoint is restricted to admin users only. The caller must provide
+     * a valid Firebase ID token in the `Authorisation` header. The ID token is verified,
+     * and the user is checked for admin privileges before returning the list of all users.
+     *
+     * @param authorisationHeader The `Authorisation` header containing the Bearer token.
+     * @return A list of all users if the requester is an admin, or an appropriate error response:
+     *         - 400 if the `Authorisation` header is invalid.
+     *         - 401 if the token is invalid or expired.
+     *         - 403 if the requester is not an admin.
+     *         - 500 if an internal server error occurs.
      */
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        logger.info("Fetching all users.");
-        List<User> users = userService.getAllUsers();
-        logger.debug("Number of users fetched: {}", users.size());
-        return ResponseEntity.ok(users);
+    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorisation") String authorisationHeader) {
+        try {
+            validateToken(authorisationHeader, true);
+
+            List<User> users = userService.getAllUsers();
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            logger.error("Error fetching users: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
     }
 
     /**
-     * Fetches a user by their unique ID or 404 if not found.
+     * Fetches a specific user by their unique ID.
      *
-     * @param id the unique ID of the user
-     * @return the User entity or 404 Not Found if the user does not exist
+     * This endpoint is restricted to admin users only. The caller must provide
+     * a valid Firebase ID token in the `Authorisation` header. The ID token is verified,
+     * and the user is checked for admin privileges before returning the requested user's details.
+     *
+     * @param id The unique ID of the user to retrieve.
+     * @param authorisationHeader The `Authorisation` header containing the Bearer token.
+     * @return The requested user's details if found and the requester is an admin, or an appropriate error response:
+     *         - 400 if the `Authorisation` header is invalid.
+     *         - 401 if the token is invalid or expired.
+     *         - 403 if the requester is not an admin.
+     *         - 404 if the user with the specified ID is not found.
+     *         - 500 if an internal server error occurs.
      */
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable String id) {
-        logger.info("Fetching user with ID: {}", id);
-        User user = userService.getUserById(id);
-        if (user != null) {
-            logger.info("User found with ID: {}", id);
-            return ResponseEntity.ok(user);
-        } else {
-            logger.warn("User not found with ID: {}", id);
-            return ResponseEntity.notFound().build();
+    public ResponseEntity<?> getUserById(
+            @PathVariable String id,
+            @RequestHeader("Authorisation") String authorisationHeader) {
+        try {
+            validateToken(authorisationHeader, true);
+
+            User user = userService.getUserById(id);
+            if (user != null) {
+                return ResponseEntity.ok(user);
+            } else {
+                return ResponseEntity.status(404).body("User not found.");
+            }
+        } catch (Exception e) {
+            logger.error("Error fetching user: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
     /**
-     * Fetches the email of a user by their unique ID.
-     * @param id
-     * @return
+     * Deletes a user by their ID.
+     *
+     * Restricted to admins. The caller must provide a valid Firebase ID token in the `Authorisation` header.
+     *
+     * @param id        The unique ID of the user to delete.
+     * @param authorisationHeader The `Authorisation` header containing the Bearer token.
+     * @return A success message if the user is deleted, or an appropriate error response:
+     *         - 400 if the `Authorisation` header is invalid.
+     *         - 401 if the token is invalid or expired.
+     *         - 403 if the requester is not an admin.
+     *         - 404 if the user does not exist.
+     *         - 500 if an internal server error occurs.
      */
-    @GetMapping("/{id}/email")
-    public ResponseEntity<String> getUserEmailById(@PathVariable String id) {
-        User user = userService.getUserById(id);
-        if (user != null) {
-            return ResponseEntity.ok(user.getEmail());
-        } else {
-            return ResponseEntity.notFound().build();
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteUserById(
+            @PathVariable String id,
+            @RequestHeader("Authorisation") String authorisationHeader) {
+        try {
+            validateToken(authorisationHeader, true);
+
+            boolean deleted = userService.deleteUserById(id);
+            if (deleted) {
+                return ResponseEntity.ok("User deleted successfully.");
+            } else {
+                return ResponseEntity.status(404).body("User not found.");
+            }
+        } catch (Exception e) {
+            logger.error("Error deleting user: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 
+    /**
+     * Updates a user's details by their ID.
+     *
+     * Restricted to admins. Allows updating the user's `name` or `email`.
+     *
+     * @param id        The unique ID of the user to update.
+     * @param authorisationHeader The `Authorisation` header containing the Bearer token.
+     * @param updates    A map containing the fields to update (`name` and/or `email`).
+     * @return The updated user entity, or an appropriate error response:
+     *         - 400 if the `Authorisation` header or update data is invalid.
+     *         - 401 if the token is invalid or expired.
+     *         - 403 if the requester is not an admin.
+     *         - 404 if the user does not exist.
+     *         - 500 if an internal server error occurs.
+     */
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUserById(
+            @PathVariable String id,
+            @RequestHeader("Authorisation") String authorisationHeader,
+            @RequestBody Map<String, String> updates) {
+        try {
+            validateToken(authorisationHeader, true);
+
+            String newName = updates.get("name");
+            String newEmail = updates.get("email");
+
+            User updatedUser = userService.updateUserById(id, newName, newEmail);
+            if (updatedUser != null) {
+                return ResponseEntity.ok(updatedUser);
+            } else {
+                return ResponseEntity.status(404).body("User not found.");
+            }
+        } catch (Exception e) {
+            logger.error("Error updating user: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(e.getMessage());
+        }
+    }
 
     /**
      * PLACEHOLDER: Just for testing JWT token
@@ -247,6 +319,7 @@ public class UserController {
             return ResponseEntity.status(401).body("Unauthorised: Invalid or expired token");
         }
     }
+
     /**
      * Sends a notification to the given email with the specified type.
      *
@@ -267,4 +340,29 @@ public class UserController {
             logger.error("Failed to send notification request for type {}: {}", type, e.getMessage());
         }
     }
+
+    /**
+     * Validates a Firebase token and optionally checks if the user has admin privileges.
+     *
+     * @param authorisationHeader The "Authorisation" header containing the Bearer token.
+     * @param requireAdmin        Flag indicating if admin privileges are required.
+     * @return The Firebase user ID if validation is successful.
+     * @throws FirebaseAuthException if the token is invalid or user does not meet admin requirements.
+     */
+    protected String validateToken(String authorisationHeader, boolean requireAdmin) throws FirebaseAuthException {
+        if (authorisationHeader == null || !authorisationHeader.startsWith("Bearer ")) {
+            throw new IllegalArgumentException("Invalid Authorisation header.");
+        }
+
+        String idToken = authorisationHeader.replace("Bearer ", "").trim();
+        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+        String userId = decodedToken.getUid();
+
+        if (requireAdmin && !userService.isUserAdmin(userId)) {
+            throw new SecurityException("Access denied: User is not an admin.");
+        }
+
+        return userId;
+    }
+
 }
