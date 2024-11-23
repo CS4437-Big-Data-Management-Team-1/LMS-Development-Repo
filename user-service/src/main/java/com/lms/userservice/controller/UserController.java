@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -34,7 +35,6 @@ import com.lms.userservice.validator.UserValidator;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    UserDatabaseConnector db = new UserDatabaseConnector();
 
     // Log4j
     private static final Logger logger = LogManager.getLogger(UserController.class);
@@ -43,10 +43,11 @@ public class UserController {
     private final UserService userService;
     private final UserValidator userValidator;
     private final RestTemplate restTemplate;
+    private final UserDatabaseConnector db;
 
     // Used for login method
-    private final String apiKey = System.getProperty("FIREBASE_API_KEY");
-    private final String apiUrl = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
+    @Value("${FIREBASE_API_KEY}")
+    private String apiKey;
 
     /**
      * Constructs a UserController with injected dependencies for user service and validation.
@@ -55,12 +56,17 @@ public class UserController {
      * @param userValidator Validator to validate user input during registration
      */
     @Autowired
-    public UserController(UserService userService, UserValidator userValidator, RestTemplate restTemplate) {
-        db.connectToDB();
+    public UserController(UserDatabaseConnector db, UserService userService, UserValidator userValidator, RestTemplate restTemplate) {
+        this.db = db;
         this.userService = userService;
         this.userValidator = userValidator;
         this.restTemplate = restTemplate;
         logger.info("UserController initialised.");
+    }
+
+    // Construct the API URL dynamically
+    private String getApiUrl() {
+        return "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
     }
 
     /**
@@ -102,7 +108,7 @@ public class UserController {
 
             logger.debug("Sending request to Firebase login endpoint to retrieve idToken for registration.");
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(getApiUrl(), body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 Map<String, Object> responseBody = response.getBody();
@@ -147,7 +153,7 @@ public class UserController {
             body.put("password", loginDTO.getPassword());
             body.put("returnSecureToken", "true");
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(getApiUrl(), body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 Map<String, Object> responseBody = response.getBody();

@@ -3,25 +3,29 @@ package com.lms.userservice.integration;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
-import com.lms.userservice.database.UserDatabaseConnector;
 import com.lms.userservice.model.User;
 import com.lms.userservice.repository.UserRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.hamcrest.Matchers.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Integration test for User Service
+ * @author Olan Healy
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -33,103 +37,119 @@ public class UserServiceIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
-    @MockBean
-    private FirebaseAuth firebaseAuth;
+    private List<String> createdFirebaseUserIds;
 
     @BeforeEach
     void setUp() {
-        // Clear the database before each test
         userRepository.deleteAll();
-
-        // Set database connection properties for our mock
-        System.setProperty("DB_USERNAME", "sa");
-        System.setProperty("DB_PASSWORD", "password");
-        System.setProperty("DB_USERS_URL", "jdbc:h2:mem:testdb");
-
-        // connect to db
-        UserDatabaseConnector.connectToDB();
-
-        // Mock FirebaseAuth behavior
-        mockFirebaseAuth();
+        createdFirebaseUserIds = new ArrayList<>();
     }
 
+    @AfterEach
+    void tearDown() {
+        for (String userId : createdFirebaseUserIds) {
+            deleteUserFromFirebase(userId);
+        }
+    }
+
+    //==============
+    //REGISTRATION
+    //==============
     @Test
     void testRegisterUser_Success() throws Exception {
-        // Mock the response from FirebaseAuth.createUser
-        UserRecord mockUserRecord = Mockito.mock(UserRecord.class);
-        when(mockUserRecord.getUid()).thenReturn("test_uid");
-        when(mockUserRecord.getEmail()).thenReturn("test_user@example.com");
-        when(mockUserRecord.getDisplayName()).thenReturn("test_user");
-
-        when(firebaseAuth.createUser(any(UserRecord.CreateRequest.class)))
-                .thenReturn(mockUserRecord);
-
-        // JSON payload for the request
         String userJson = """
-            {
-                "username": "test_user",
-                "email": "test_user@example.com",
-                "password": "Valid123$"
-            }
+        {
+            "username": "test_user",
+            "email": "test_user@example.com",
+            "password": "ValidPassword123!"
+        }
         """;
 
-        // Perform POST request and verify results
         mockMvc.perform(post("/api/users/register")
                         .contentType("application/json")
                         .content(userJson))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("test_user@example.com"))
-                .andExpect(jsonPath("$.username").value("test_user"));
+                .andExpect(jsonPath("$.username").value("test_user"))
+                .andExpect(jsonPath("$.email").value("test_user@example.com"));
+
+        assertEquals(1, userRepository.count());
+
+
+        User createdUser = userRepository.findAll().get(0);
+        createdFirebaseUserIds.add(createdUser.getId());
     }
 
     @Test
-    void testRegisterUser_EmailAlreadyExists() throws Exception {
-        // Insert a user to db before post request
-        User user = createUser("test_id", "existing_user", "test_user@example.com");
-        userRepository.save(user);
-
+    void testInvalidEmail() throws Exception {
         String userJson = """
-            {
-                "username": "test_user",
-                "email": "test_user@example.com",
-                "password": "Valid123$"
-            }
+        {
+            "username": "invalid_email_user",
+            "email": "invalid_email",
+            "password": "StrongPass123!"
+        }
         """;
 
-        // Attempt to register the same email and expect a 400 Bad Request
         mockMvc.perform(post("/api/users/register")
                         .contentType("application/json")
                         .content(userJson))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("The user with the provided email already exists (EMAIL_EXISTS)."));
+                .andExpect(content().string(containsString("Invalid email format")));
     }
 
+    @Test
+    void testWeakPassword() throws Exception {
+        String userJson = """
+        {
+            "username": "weak_password_user",
+            "email": "weak_password_user@example.com",
+            "password": "123"
+        }
+        """;
 
-    //===================
-    //    HELPER METHODS
-    //===================
-
-    private User createUser(String id, String username, String email) {
-        User user = new User();
-        user.setId(id);
-        user.setUsername(username);
-        user.setEmail(email);
-        user.setPasswordHash("hashed_password");
-        user.setIsAdmin(false);
-        return user;
+        mockMvc.perform(post("/api/users/register")
+                        .contentType("application/json")
+                        .content(userJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Password must have at least 1 lowercase letter, 1 uppercase letter, 1 digit, 1 special character, and be at least 8 characters long")));
     }
 
-    private void mockFirebaseAuth() {
+    @Test
+    void testDuplicateEmail() throws Exception {
+        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                .setEmail("duplicate@example.com")
+                .setPassword("ValidPassword123!")
+                .setDisplayName("existing_user");
+
+        UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+        createdFirebaseUserIds.add(userRecord.getUid());
+
+
+        String userJson = """
+        {
+            "username": "new_user",
+            "email": "duplicate@example.com",
+            "password": "ValidPassword123!"
+        }
+        """;
+
+        mockMvc.perform(post("/api/users/register")
+                        .contentType("application/json")
+                        .content(userJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("The user with the provided email already exists (EMAIL_EXISTS).")));
+    }
+
+    //==============
+    //HELPER METHODS
+    //==============
+
+    private void deleteUserFromFirebase(String userId) {
+        if (userId == null || userId.isEmpty()) return;
         try {
-            // Mock the FirebaseAuth.createUser response
-            UserRecord mockUserRecord = Mockito.mock(UserRecord.class);
-            when(mockUserRecord.getUid()).thenReturn("mock_uid");
-            when(mockUserRecord.getEmail()).thenReturn("mock_user@example.com");
-
-            when(firebaseAuth.createUser(any(UserRecord.CreateRequest.class)))
-                    .thenReturn(mockUserRecord);
+            FirebaseAuth.getInstance().deleteUser(userId);
+            System.out.println("Deleted Firebase user with ID: " + userId);
         } catch (FirebaseAuthException e) {
-            throw new RuntimeException("Mock FirebaseAuth setup failed", e);
+            System.err.println("Failed to delete Firebase user: " + e.getMessage());
         }
     }
 }
