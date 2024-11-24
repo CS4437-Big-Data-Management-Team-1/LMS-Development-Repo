@@ -197,17 +197,33 @@ public class UserController {
      *         - 500 if an internal server error occurs.
      */
     @GetMapping
-    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorisation") String authorisationHeader) {
+    public ResponseEntity<?> getAllUsers(@RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
         try {
+            if (authorisationHeader == null || authorisationHeader.isEmpty()) {
+                throw new IllegalArgumentException("Invalid Authorisation header.");
+            }
+
             validateToken(authorisationHeader, true);
 
             List<User> users = userService.getAllUsers();
             return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Access denied")) {
+                logger.error("Authorisation error: {}", e.getMessage());
+                return ResponseEntity.status(403).body(e.getMessage());
+            } else {
+                logger.error("Authentication error: {}", e.getMessage());
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
         } catch (Exception e) {
-            logger.error("Error fetching users: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(e.getMessage());
+            logger.error("Error fetching users: {}", e.getMessage());
+            return ResponseEntity.status(500).body("An unexpected error occurred.");
         }
     }
+
 
     /**
      * Fetches a specific user by their unique ID.
@@ -367,20 +383,33 @@ public class UserController {
      * @return The Firebase user ID if validation is successful.
      * @throws FirebaseAuthException if the token is invalid or user does not meet admin requirements.
      */
-    protected String validateToken(String authorisationHeader, boolean requireAdmin) throws FirebaseAuthException {
+    protected String validateToken(String authorisationHeader, boolean requireAdmin) {
         if (authorisationHeader == null || !authorisationHeader.startsWith("Bearer ")) {
             throw new IllegalArgumentException("Invalid Authorisation header.");
         }
 
         String idToken = authorisationHeader.replace("Bearer ", "").trim();
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-        String userId = decodedToken.getUid();
 
-        if (requireAdmin && !userService.isUserAdmin(userId)) {
-            throw new SecurityException("Access denied: User is not an admin.");
+        try {
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            String userId = decodedToken.getUid();
+
+            if (requireAdmin && !userService.isUserAdmin(userId)) {
+                throw new SecurityException("Access denied: User is not an admin.");
+            }
+
+            return userId;
+        } catch (FirebaseAuthException e) {
+            logger.error("Failed to validate Firebase token: {}", e.getMessage(), e);
+            throw new SecurityException("Unauthorised: Invalid or expired token");
+        } catch (SecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error during token validation: {}", e.getMessage(), e);
+            throw new SecurityException("Unauthorised: Unable to validate token");
         }
-
-        return userId;
     }
+
+
 
 }

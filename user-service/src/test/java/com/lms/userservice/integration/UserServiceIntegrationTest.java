@@ -261,7 +261,6 @@ public class UserServiceIntegrationTest {
     @Test
     @Order(13)
     void testGetUsersAsAdmin() throws Exception {
-        // Create admin user and log in
         User adminUser = createAdminUser("admin_user@example.com", "AdminPassword123!", "Admin User");
 
         String loginJson = """
@@ -279,16 +278,94 @@ public class UserServiceIntegrationTest {
 
         String adminToken = loginResult.getResponse().getContentAsString().split(":")[1].trim();
 
-        // Create a test user
         createTestUser("test_user@example.com", "ValidPassword123!", "Test User");
 
-        // Call the GET /api/users endpoint
         mockMvc.perform(get("/api/users")
                         .header("Authorisation", "Bearer " + adminToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].email").value("admin_user@example.com"))
                 .andExpect(jsonPath("$[1].email").value("test_user@example.com"));
     }
+
+    @Test
+    @Order(14)
+    void testGetUsersWithoutAuthorisationHeader() throws Exception {
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid Authorisation header.")));
+    }
+
+    @Test
+    @Order(15)
+    void testGetUsersWithInvalidToken() throws Exception {
+        mockMvc.perform(get("/api/users")
+                        .header("Authorisation", "Bearer invalid_token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Unauthorised: Invalid or expired token")));
+    }
+    @Test
+    @Order(16)
+    void testGetUsersAsNonAdmin() throws Exception {
+        createTestUser("regular_user@example.com", "ValidPassword123!", "Regular User");
+
+        String loginJson = """
+    {
+        "email": "regular_user@example.com",
+        "password": "ValidPassword123!"
+    }
+    """;
+
+        MvcResult loginResult = mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String tokenResponse = loginResult.getResponse().getContentAsString();
+        String userToken = tokenResponse.split(":")[1].trim();
+
+        mockMvc.perform(get("/api/users")
+                        .header("Authorisation", "Bearer " + userToken))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(containsString("Access denied: User is not an admin.")));
+    }
+
+
+
+    @Test
+    @Order(18)
+    void testGetUsersWithMultipleUsers() throws Exception {
+        User adminUser = createAdminUser("multi_admin_user@example.com", "AdminPassword123!", "MultiAdmin");
+
+        String loginJson = """
+    {
+        "email": "multi_admin_user@example.com",
+        "password": "AdminPassword123!"
+    }
+    """;
+
+        MvcResult loginResult = mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String adminToken = loginResult.getResponse().getContentAsString().split(":")[1].trim();
+
+        createTestUser("test_user1@example.com", "ValidPassword123!", "Test User 1");
+        createTestUser("test_user2@example.com", "ValidPassword123!", "Test User 2");
+        createTestUser("test_user3@example.com", "ValidPassword123!", "Test User 3");
+
+        mockMvc.perform(get("/api/users")
+                        .header("Authorisation", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(4))
+                .andExpect(jsonPath("$[0].email").value("multi_admin_user@example.com"))
+                .andExpect(jsonPath("$[1].email").value("test_user1@example.com"))
+                .andExpect(jsonPath("$[2].email").value("test_user2@example.com"))
+                .andExpect(jsonPath("$[3].email").value("test_user3@example.com"));
+    }
+
 
     //==============
     // Helper Methods
