@@ -11,6 +11,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+
 
 import java.util.ArrayList;
 import java.util.List;
@@ -287,6 +290,67 @@ public class UserServiceIntegrationTest {
                         .contentType("application/json")
                         .content(malformedJson))
                 .andExpect(status().isBadRequest());
+    }
+
+    //==============
+    // GET ALL USERS
+    //==============
+    @Test
+    @Order(13)
+    void testGetUsersAsAdmin() throws Exception {
+        UserRecord.CreateRequest adminRequest = new UserRecord.CreateRequest()
+                .setEmail("admin_user@example.com")
+                .setPassword("AdminPassword123!")
+                .setDisplayName("Admin User");
+
+        UserRecord adminRecord = FirebaseAuth.getInstance().createUser(adminRequest);
+        createdFirebaseUserIds.add(adminRecord.getUid());
+
+        User adminUser = new User();
+        adminUser.setId(adminRecord.getUid());
+        adminUser.setEmail(adminRecord.getEmail());
+        adminUser.setUsername(adminRecord.getDisplayName());
+        adminUser.setIsAdmin(true);
+        adminUser.setPasswordHash("");
+        userRepository.save(adminUser);
+
+        String loginJson = """
+    {
+        "email": "admin_user@example.com",
+        "password": "AdminPassword123!"
+    }
+    """;
+
+        MvcResult loginResult = mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String tokenResponse = loginResult.getResponse().getContentAsString();
+        String adminToken = tokenResponse.split(":")[1].trim();
+
+        String userJson = """
+        {
+            "username": "test_user",
+            "email": "test_user@example.com",
+            "password": "ValidPassword123!"
+        }
+        """;
+
+        mockMvc.perform(post("/api/users/register")
+                        .contentType("application/json")
+                        .content(userJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("test_user"))
+                .andExpect(jsonPath("$.email").value("test_user@example.com"));
+
+
+        mockMvc.perform(get("/api/users")
+                        .header("Authorisation", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].email").value("admin_user@example.com"))
+                .andExpect(jsonPath("$[0].isAdmin").value(true));
     }
 
     //==============
