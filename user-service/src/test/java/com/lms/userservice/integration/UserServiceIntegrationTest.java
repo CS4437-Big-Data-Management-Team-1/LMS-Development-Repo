@@ -5,9 +5,7 @@ import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.UserRecord;
 import com.lms.userservice.model.User;
 import com.lms.userservice.repository.UserRepository;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -56,6 +54,7 @@ public class UserServiceIntegrationTest {
     //REGISTRATION
     //==============
     @Test
+    @Order(1)
     void testRegisterUser_Success() throws Exception {
         String userJson = """
         {
@@ -80,6 +79,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
+    @Order(2)
     void testInvalidEmail() throws Exception {
         String userJson = """
         {
@@ -97,6 +97,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
+    @Order(3)
     void testWeakPassword() throws Exception {
         String userJson = """
         {
@@ -114,6 +115,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
+    @Order(4)
     void testDuplicateEmail() throws Exception {
         UserRecord.CreateRequest request = new UserRecord.CreateRequest()
                 .setEmail("duplicate@example.com")
@@ -140,16 +142,168 @@ public class UserServiceIntegrationTest {
     }
 
     //==============
+    //LOGIN
+    //==============
+    @Test
+    @Order(5)
+    void testLoginUser_Success() throws Exception {
+        // Step 1: Create a user in Firebase
+        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                .setEmail("login_user@example.com")
+                .setPassword("ValidPassword123!")
+                .setDisplayName("login_user");
+
+        UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+        createdFirebaseUserIds.add(userRecord.getUid());
+
+
+        String loginJson = """
+        {
+            "email": "login_user@example.com",
+            "password": "ValidPassword123!"
+        }
+        """;
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Token:")));
+    }
+
+    @Test
+    @Order(6)
+    void testLoginWithInvalidEmailFormat() throws Exception {
+        String loginJson = """
+    {
+        "email": "invalid_email_format",
+        "password": "ValidPassword123!"
+    }
+    """;
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid email format")));
+    }
+
+    @Test
+    @Order(7)
+    void testLoginWithEmptyPassword() throws Exception {
+        String loginJson = """
+    {
+        "email": "user@example.com",
+        "password": ""
+    }
+    """;
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Password cannot be empty")));
+    }
+
+    @Test
+    @Order(8)
+    void testLoginWithEmptyEmail() throws Exception {
+        String loginJson = """
+    {
+        "email": "",
+        "password": "ValidPassword123!"
+    }
+    """;
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Email cannot be empty")));
+    }
+
+    @Test
+    @Order(9)
+    void testLoginWithNonExistentUser() throws Exception {
+        String loginJson = """
+    {
+        "email": "nonexistent@example.com",
+        "password": "ValidPassword123!"
+    }
+    """;
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Invalid credentials.")));
+    }
+
+    @Test
+    @Order(10)
+    void testLoginWithIncorrectPassword() throws Exception {
+
+        UserRecord.CreateRequest request = new UserRecord.CreateRequest()
+                .setEmail("incorrect_password@example.com")
+                .setPassword("ValidPassword123!")
+                .setDisplayName("incorrect_password_user");
+
+        UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+        createdFirebaseUserIds.add(userRecord.getUid());
+
+
+        String loginJson = """
+    {
+        "email": "incorrect_password@example.com",
+        "password": "WrongPassword123!"
+    }
+    """;
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Invalid credentials.")));
+    }
+
+    @Test
+    @Order(11)
+    void testLoginWithoutBody() throws Exception {
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @Order(12)
+    void testLoginWithMalformedJson() throws Exception {
+        String malformedJson = """
+    {
+        "email": "user@example.com"
+        "password": "ValidPassword123!"
+    """;
+
+        mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(malformedJson))
+                .andExpect(status().isBadRequest());
+    }
+
+    //==============
     //HELPER METHODS
     //==============
 
     private void deleteUserFromFirebase(String userId) {
-        if (userId == null || userId.isEmpty()) return;
+        if (userId == null || userId.isEmpty()) {
+            System.err.println("Skipping deletion for null or empty userId.");
+            return;
+        }
         try {
             FirebaseAuth.getInstance().deleteUser(userId);
-            System.out.println("Deleted Firebase user with ID: " + userId);
+            System.out.println("Successfully deleted Firebase user with ID: " + userId);
         } catch (FirebaseAuthException e) {
-            System.err.println("Failed to delete Firebase user: " + e.getMessage());
+            System.err.println("Failed to delete Firebase user with ID " + userId + ": " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

@@ -74,7 +74,7 @@ public class UserValidator {
      * @param email
      * @return  true if the mathces the complexity requirements, false otherwise.
      */
-    private boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) {
         Pattern pattern = Pattern.compile(PATTERN_EMAIL);
         return pattern.matcher(email).matches();
     }

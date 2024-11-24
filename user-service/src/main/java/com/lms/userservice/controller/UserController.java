@@ -147,6 +147,18 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDTO loginDTO) {
         logger.info("Attempting login for user: {}", loginDTO.getEmail());
+
+        if (loginDTO.getEmail() == null || loginDTO.getEmail().isEmpty()) {
+            return ResponseEntity.status(400).body("Email cannot be empty.");
+        }
+        if (!userValidator.isValidEmail(loginDTO.getEmail())) {
+            return ResponseEntity.status(400).body("Invalid email format.");
+        }
+
+        if (loginDTO.getPassword() == null || loginDTO.getPassword().isEmpty()) {
+            return ResponseEntity.status(400).body("Password cannot be empty.");
+        }
+
         try {
             Map<String, String> body = new HashMap<>();
             body.put("email", loginDTO.getEmail());
