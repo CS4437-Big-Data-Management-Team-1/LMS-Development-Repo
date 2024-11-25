@@ -18,12 +18,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: env file
-        run: echo FIREBASE_API_KEY=${{secrets.FIREBASE_API_KEY}} > .env
-        
-      - name: Move `.env` to Classpath
-        run: mv .env user-service/src/env
+                    
+     
         
       - name: Set up Java version
         uses: actions/setup-java@v4
@@ -33,6 +29,8 @@ jobs:
 
       - name: unit tests
         run: mvn -B test --file pom.xml
+        env: 
+          FIREBASE_API_KEY: ${{secrets.FIREBASE_API_KEY}}
 
       - name: Set-up Docker Buildx
         uses: docker/setup-buildx-action@v2
