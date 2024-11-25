@@ -510,6 +510,47 @@ public class UserServiceIntegrationTest {
                 .andExpect(content().string("Access denied: User is not an admin."));
     }
 
+    @Test
+    @Order(31)
+    void testValidateJwtWithValidToken() throws Exception {
+        String validToken = createTestUserAndGetToken("valid_user@example.com", "ValidPassword123!", "Valid User");
+
+        mockMvc.perform(post("/api/users/validate-jwt")
+                        .header("Authorisation", "Bearer " + validToken))
+                .andExpect(status().isOk())
+                .andExpect(content().string(containsString("Access granted for user:")));
+    }
+
+    @Test
+    @Order(32)
+    void testValidateJwtWithInvalidToken() throws Exception {
+        String invalidToken = "invalid_token";
+
+        mockMvc.perform(post("/api/users/validate-jwt")
+                        .header("Authorisation", "Bearer " + invalidToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Unauthorised: Invalid or expired token")));
+    }
+
+    @Test
+    @Order(33)
+    void testValidateJwtWithoutToken() throws Exception {
+        mockMvc.perform(post("/api/users/validate-jwt"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Unauthorised: Invalid or expired token")));
+    }
+
+    @Test
+    @Order(34)
+    void testValidateJwtWithMalformedToken() throws Exception {
+        String malformedToken = "BearerMalformedToken";
+
+        mockMvc.perform(post("/api/users/validate-jwt")
+                        .header("Authorisation", malformedToken))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Unauthorised: Invalid or expired token")));
+    }
+
 
     //==============
     // Helper Methods
