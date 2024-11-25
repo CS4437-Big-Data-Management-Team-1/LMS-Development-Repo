@@ -1,13 +1,9 @@
 name: SonarCloud Analysis
 
 on:
-  push:
-    branches:
-      - '**' # Triggers sonar on push to any branch
   pull_request:
     branches:
-      - '**' # Triggers on a pr made from branch
-  workflow_dispatch: # Allows  for manual triggering
+      - '**'
 
 jobs:
   sonarcloud:
@@ -15,10 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-
       - name: Checkout Code
         uses: actions/checkout@v4
-
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -26,7 +20,6 @@ jobs:
           java-version: '17'
           distribution: 'microsoft'
           cache: 'maven'
-
 
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
@@ -36,10 +29,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
-
       - name: Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
+
         run: |
           mvn clean verify sonar:sonar \
             -Dsonar.projectKey=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo \
@@ -50,4 +44,4 @@ jobs:
       - name: Post Job Summary
         if: always()
         run: |
-          echo "SonarCloud analysis completed. Results available online https://sonarcloud.io/project/overview?id=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo "
+          echo "SonarCloud analysis completed. Results available online https://sonarcloud.io/project/overview?id=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo"

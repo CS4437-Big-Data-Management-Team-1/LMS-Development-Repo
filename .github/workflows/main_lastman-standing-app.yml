@@ -25,6 +25,12 @@ jobs:
           java-version: '17'
           distribution: 'microsoft'
 
+      - name: env file
+        run: echo FIREBASE_API_KEY=${{secrets.FIREBASE_API_KEY}} > .env
+
+      - name: Move `.env` to Classpath
+        run: mv .env user-service/
+        
       - name: unit tests
         run: mvn -B test --file pom.xml
 
