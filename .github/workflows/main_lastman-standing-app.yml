@@ -19,8 +19,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: env file
-        run: echo FIREBASE_API_KEY=${{secrets.FIREBASE_API_KEY}} > .env
+      - name: Set environment variables
+        run: echo "FIREBASE_API_KEY=${{secrets.FIREBASE_API_KEY}}" >> $GITHUB_ENV
         
       - name: Set up Java version
         uses: actions/setup-java@v4
