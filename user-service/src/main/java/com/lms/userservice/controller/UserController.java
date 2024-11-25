@@ -344,6 +344,11 @@ public class UserController {
         try {
             validateToken(authorisationHeader, true);
 
+            if (updates == null || updates.isEmpty() ||
+                    (updates.get("name") == null && updates.get("email") == null)) {
+                return ResponseEntity.badRequest().body("Invalid update data provided.");
+            }
+
             String newName = updates.get("name");
             String newEmail = updates.get("email");
 
@@ -353,11 +358,17 @@ public class UserController {
             } else {
                 return ResponseEntity.status(404).body("User not found.");
             }
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Unauthorised")) {
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
+            return ResponseEntity.status(403).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error updating user: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
+
 
     /**
      * PLACEHOLDER: Just for testing JWT token

@@ -12,9 +12,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -431,6 +434,82 @@ public class UserServiceIntegrationTest {
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().string("Unauthorised: Invalid or expired token."));
     }
+
+    //==============
+    // UPDATE USER
+    //==============
+
+    @Test
+    @Order(27)
+    void testUpdateUserSuccessfully() throws Exception {
+        String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
+        User testUser = createTestUser("testuser@example.com", "TestPass123!", "Test User");
+
+        Map<String, String> updates = new HashMap<>();
+        updates.put("name", "Updated User");
+        updates.put("email", "updateduser@example.com");
+
+        mockMvc.perform(put("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer " + adminToken)
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(updates)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.username").value("Updated User"))
+                .andExpect(jsonPath("$.email").value("updateduser@example.com"));
+    }
+
+    @Test
+    @Order(28)
+    void testUpdateUserNotFound() throws Exception {
+        String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
+
+        Map<String, String> updates = new HashMap<>();
+        updates.put("name", "Updated User");
+        updates.put("email", "updateduser@example.com");
+
+        mockMvc.perform(put("/api/users/nonexistent_id")
+                        .header("Authorisation", "Bearer " + adminToken)
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(updates)))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User not found."));
+    }
+
+    @Test
+    @Order(29)
+    void testUpdateUserWithInvalidToken() throws Exception {
+        User testUser = createTestUser("testuser@example.com", "TestPass123!", "Test User");
+
+        Map<String, String> updates = new HashMap<>();
+        updates.put("name", "Updated User");
+        updates.put("email", "updateduser@example.com");
+
+        mockMvc.perform(put("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer invalid_token")
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(updates)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Unauthorised: Invalid or expired token")));
+    }
+
+    @Test
+    @Order(30)
+    void testUpdateUserAsNonAdmin() throws Exception {
+        String userToken = createTestUserAndGetToken("user@example.com", "UserPass123!", "Regular User");
+        User testUser = createTestUser("testuser@example.com", "TestPass123!", "Test User");
+
+        Map<String, String> updates = new HashMap<>();
+        updates.put("name", "Updated User");
+        updates.put("email", "updateduser@example.com");
+
+        mockMvc.perform(put("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer " + userToken)
+                        .contentType("application/json")
+                        .content(new ObjectMapper().writeValueAsString(updates)))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string("Access denied: User is not an admin."));
+    }
+
 
     //==============
     // Helper Methods
