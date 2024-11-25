@@ -20,6 +20,8 @@ import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -299,7 +301,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    @Order(18)
+    @Order(17)
     void testGetUsersWithMultipleUsers() throws Exception {
         String adminToken = createAdminAndGetToken("multi_admin_user@example.com", "AdminPassword123!", "MultiAdmin");
 
@@ -321,7 +323,7 @@ public class UserServiceIntegrationTest {
     // GET USER BY ID
     //==============
     @Test
-    @Order(19)
+    @Order(18)
     void testGetUserByIdAsAdmin() throws Exception {
         String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
         User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
@@ -339,7 +341,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    @Order(20)
+    @Order(19)
     void testGetUserByIdWithoutAuthorisationHeader() throws Exception {
         User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
 
@@ -349,7 +351,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    @Order(21)
+    @Order(20)
     void testGetUserByIdWithInvalidToken() throws Exception {
         User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
 
@@ -360,7 +362,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    @Order(22)
+    @Order(21)
     void testGetUserByIdAsNonAdmin() throws Exception {
         String userToken = createTestUserAndGetToken("regularuser@example.com", "UserPass123!", "Regular User");
         User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
@@ -372,7 +374,7 @@ public class UserServiceIntegrationTest {
     }
 
     @Test
-    @Order(23)
+    @Order(22)
     void testGetNonExistentUserById() throws Exception {
         String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
 
@@ -382,6 +384,53 @@ public class UserServiceIntegrationTest {
                 .andExpect(content().string(containsString("User not found.")));
     }
 
+    //==============
+    // DELETE USER BY ID
+    //==============
+
+    @Test
+    @Order(23)
+    void testDeleteExistingUserAsAdmin() throws Exception {
+        String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
+        User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
+
+        mockMvc.perform(delete("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(content().string("User deleted successfully."));
+    }
+
+    @Test
+    @Order(24)
+    void testDeleteNonexistentUser() throws Exception {
+        String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
+
+        mockMvc.perform(delete("/api/users/nonexistent_id")
+                        .header("Authorisation", "Bearer " + adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("User not found."));
+    }
+
+    @Test
+    @Order(25)
+    void testDeleteUserWithoutAuthorisationHeader() throws Exception {
+        User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
+
+        mockMvc.perform(delete("/api/users/" + testUser.getId()))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Invalid Authorisation header."));
+    }
+
+    @Test
+    @Order(26)
+    void testDeleteUserWithInvalidToken() throws Exception {
+        User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
+
+        mockMvc.perform(delete("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer invalid_token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string("Unauthorised: Invalid or expired token."));
+    }
 
     //==============
     // Helper Methods
@@ -451,7 +500,7 @@ public class UserServiceIntegrationTest {
                 .andReturn();
 
         String tokenResponse = loginResult.getResponse().getContentAsString();
-        return tokenResponse.split(":")[1].trim(); // Extract token from response
+        return tokenResponse.split(":")[1].trim();
     }
 
     private void deleteUserFromFirebase(String userId) {

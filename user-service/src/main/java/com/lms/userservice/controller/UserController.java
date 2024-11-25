@@ -292,15 +292,28 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUserById(
             @PathVariable String id,
-            @RequestHeader("Authorisation") String authorisationHeader) {
+            @RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
         try {
+            if (authorisationHeader == null || authorisationHeader.isEmpty()) {
+                throw new IllegalArgumentException("Invalid Authorisation header.");
+            }
             validateToken(authorisationHeader, true);
-
             boolean deleted = userService.deleteUserById(id);
             if (deleted) {
                 return ResponseEntity.ok("User deleted successfully.");
             } else {
                 return ResponseEntity.status(404).body("User not found.");
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Access denied")) {
+                logger.error("Authorisation error: {}", e.getMessage());
+                return ResponseEntity.status(403).body(e.getMessage());
+            } else {
+                logger.error("Authentication error: {}", e.getMessage());
+                return ResponseEntity.status(401).body(e.getMessage());
             }
         } catch (Exception e) {
             logger.error("Error deleting user: {}", e.getMessage(), e);
@@ -416,12 +429,12 @@ public class UserController {
             return userId;
         } catch (FirebaseAuthException e) {
             logger.error("Failed to validate Firebase token: {}", e.getMessage(), e);
-            throw new SecurityException("Unauthorised: Invalid or expired token");
+            throw new SecurityException("Unauthorised: Invalid or expired token.");
         } catch (SecurityException e) {
             throw e;
         } catch (Exception e) {
             logger.error("Unexpected error during token validation: {}", e.getMessage(), e);
-            throw new SecurityException("Unauthorised: Unable to validate token");
+            throw new SecurityException("Unauthorised: Unable to validate token.");
         }
     }
 
