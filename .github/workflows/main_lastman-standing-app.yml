@@ -22,8 +22,8 @@ jobs:
       - name: env file
         run: echo FIREBASE_API_KEY=${{secrets.FIREBASE_API_KEY}} > .env
         
-      - name: Copy .env to classpath
-        run: cp .env src/.env
+      - name: Move `.env` to Classpath
+        run: mv .env user-service/src/env
         
       - name: Set up Java version
         uses: actions/setup-java@v4
