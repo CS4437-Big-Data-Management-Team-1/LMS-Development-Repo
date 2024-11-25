@@ -1,9 +1,13 @@
 name: SonarCloud Analysis
 
 on:
+  push:
+    branches:
+      - '**' # Triggers sonar on push to any branch
   pull_request:
     branches:
-      - '**' # Triggers SonarCloud analysis only on pull requests
+      - '**' # Triggers on a pr made from branch
+  workflow_dispatch: # Allows  for manual triggering
 
 jobs:
   sonarcloud:
@@ -11,8 +15,10 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
       - name: Checkout Code
         uses: actions/checkout@v4
+
 
       - name: Set up Java
         uses: actions/setup-java@v4
@@ -21,6 +27,7 @@ jobs:
           distribution: 'microsoft'
           cache: 'maven'
 
+
       - name: Cache Maven Dependencies
         uses: actions/cache@v3
         with:
@@ -28,6 +35,7 @@ jobs:
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
           restore-keys: |
             ${{ runner.os }}-maven
+
 
       - name: Run SonarCloud Analysis
         env:
@@ -42,4 +50,4 @@ jobs:
       - name: Post Job Summary
         if: always()
         run: |
-          echo "SonarCloud analysis completed. Results available online https://sonarcloud.io/project/overview?id=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo"
+          echo "SonarCloud analysis completed. Results available online https://sonarcloud.io/project/overview?id=CS4437-Big-Data-Management-Team-1_LMS-Development-Repo "
