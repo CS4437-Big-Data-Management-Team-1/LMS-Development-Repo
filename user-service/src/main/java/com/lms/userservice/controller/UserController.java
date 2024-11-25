@@ -244,8 +244,12 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(
             @PathVariable String id,
-            @RequestHeader("Authorisation") String authorisationHeader) {
+            @RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
         try {
+            if (authorisationHeader == null || authorisationHeader.isEmpty()) {
+                throw new IllegalArgumentException("Invalid Authorisation header.");
+            }
+
             validateToken(authorisationHeader, true);
 
             User user = userService.getUserById(id);
@@ -254,9 +258,20 @@ public class UserController {
             } else {
                 return ResponseEntity.status(404).body("User not found.");
             }
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Access denied")) {
+                logger.error("Authorisation error: {}", e.getMessage());
+                return ResponseEntity.status(403).body(e.getMessage());
+            } else {
+                logger.error("Authentication error: {}", e.getMessage());
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
         } catch (Exception e) {
             logger.error("Error fetching user: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body("An unexpected error occurred.");
         }
     }
 
@@ -409,7 +424,5 @@ public class UserController {
             throw new SecurityException("Unauthorised: Unable to validate token");
         }
     }
-
-
 
 }

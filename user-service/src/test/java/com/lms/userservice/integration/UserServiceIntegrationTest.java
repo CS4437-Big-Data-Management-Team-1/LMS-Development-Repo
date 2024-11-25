@@ -261,23 +261,7 @@ public class UserServiceIntegrationTest {
     @Test
     @Order(13)
     void testGetUsersAsAdmin() throws Exception {
-        User adminUser = createAdminUser("admin_user@example.com", "AdminPassword123!", "Admin User");
-
-        String loginJson = """
-        {
-            "email": "admin_user@example.com",
-            "password": "AdminPassword123!"
-        }
-        """;
-
-        MvcResult loginResult = mockMvc.perform(post("/api/users/login")
-                        .contentType("application/json")
-                        .content(loginJson))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String adminToken = loginResult.getResponse().getContentAsString().split(":")[1].trim();
-
+        String adminToken = createAdminAndGetToken("admin_user@example.com", "AdminPassword123!", "Admin User");
         createTestUser("test_user@example.com", "ValidPassword123!", "Test User");
 
         mockMvc.perform(get("/api/users")
@@ -306,23 +290,7 @@ public class UserServiceIntegrationTest {
     @Test
     @Order(16)
     void testGetUsersAsNonAdmin() throws Exception {
-        createTestUser("regular_user@example.com", "ValidPassword123!", "Regular User");
-
-        String loginJson = """
-    {
-        "email": "regular_user@example.com",
-        "password": "ValidPassword123!"
-    }
-    """;
-
-        MvcResult loginResult = mockMvc.perform(post("/api/users/login")
-                        .contentType("application/json")
-                        .content(loginJson))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String tokenResponse = loginResult.getResponse().getContentAsString();
-        String userToken = tokenResponse.split(":")[1].trim();
+        String userToken = createTestUserAndGetToken("regular_user@example.com", "ValidPassword123!", "Regular User");
 
         mockMvc.perform(get("/api/users")
                         .header("Authorisation", "Bearer " + userToken))
@@ -330,27 +298,10 @@ public class UserServiceIntegrationTest {
                 .andExpect(content().string(containsString("Access denied: User is not an admin.")));
     }
 
-
-
     @Test
     @Order(18)
     void testGetUsersWithMultipleUsers() throws Exception {
-        User adminUser = createAdminUser("multi_admin_user@example.com", "AdminPassword123!", "MultiAdmin");
-
-        String loginJson = """
-    {
-        "email": "multi_admin_user@example.com",
-        "password": "AdminPassword123!"
-    }
-    """;
-
-        MvcResult loginResult = mockMvc.perform(post("/api/users/login")
-                        .contentType("application/json")
-                        .content(loginJson))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String adminToken = loginResult.getResponse().getContentAsString().split(":")[1].trim();
+        String adminToken = createAdminAndGetToken("multi_admin_user@example.com", "AdminPassword123!", "MultiAdmin");
 
         createTestUser("test_user1@example.com", "ValidPassword123!", "Test User 1");
         createTestUser("test_user2@example.com", "ValidPassword123!", "Test User 2");
@@ -364,6 +315,71 @@ public class UserServiceIntegrationTest {
                 .andExpect(jsonPath("$[1].email").value("test_user1@example.com"))
                 .andExpect(jsonPath("$[2].email").value("test_user2@example.com"))
                 .andExpect(jsonPath("$[3].email").value("test_user3@example.com"));
+    }
+
+    //==============
+    // GET USER BY ID
+    //==============
+    @Test
+    @Order(19)
+    void testGetUserByIdAsAdmin() throws Exception {
+        String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
+        User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
+
+        mockMvc.perform(get("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(content().json("""
+                {
+                    "id": "%s",
+                    "email": "testuser@example.com",
+                    "username": "Test User"
+                }
+            """.formatted(testUser.getId())));
+    }
+
+    @Test
+    @Order(20)
+    void testGetUserByIdWithoutAuthorisationHeader() throws Exception {
+        User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
+
+        mockMvc.perform(get("/api/users/" + testUser.getId()))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string(containsString("Invalid Authorisation header.")));
+    }
+
+    @Test
+    @Order(21)
+    void testGetUserByIdWithInvalidToken() throws Exception {
+        User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
+
+        mockMvc.perform(get("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer invalid_token"))
+                .andExpect(status().isUnauthorized())
+                .andExpect(content().string(containsString("Unauthorised: Invalid or expired token")));
+    }
+
+    @Test
+    @Order(22)
+    void testGetUserByIdAsNonAdmin() throws Exception {
+        String userToken = createTestUserAndGetToken("regularuser@example.com", "UserPass123!", "Regular User");
+        User testUser = createTestUser("testuser@example.com", "UserPass123!", "Test User");
+
+        mockMvc.perform(get("/api/users/" + testUser.getId())
+                        .header("Authorisation", "Bearer " + userToken))
+                .andExpect(status().isForbidden())
+                .andExpect(content().string(containsString("Access denied: User is not an admin.")));
+    }
+
+    @Test
+    @Order(23)
+    void testGetNonExistentUserById() throws Exception {
+        String adminToken = createAdminAndGetToken("admin@example.com", "AdminPass123!", "Admin User");
+
+        mockMvc.perform(get("/api/users/nonexistent_user_id")
+                        .header("Authorisation", "Bearer " + adminToken))
+                .andExpect(status().isNotFound())
+                .andExpect(content().string(containsString("User not found.")));
     }
 
 
@@ -409,6 +425,33 @@ public class UserServiceIntegrationTest {
         userRepository.save(testUser);
 
         return testUser;
+    }
+    private String createAdminAndGetToken(String email, String password, String displayName) throws Exception {
+        User admin = createAdminUser(email, password, displayName);
+        return loginAndGetToken(email, password);
+    }
+
+    private String createTestUserAndGetToken(String email, String password, String displayName) throws Exception {
+        User testUser = createTestUser(email, password, displayName);
+        return loginAndGetToken(email, password);
+    }
+
+    private String loginAndGetToken(String email, String password) throws Exception {
+        String loginJson = """
+        {
+            "email": "%s",
+            "password": "%s"
+        }
+    """.formatted(email, password);
+
+        MvcResult loginResult = mockMvc.perform(post("/api/users/login")
+                        .contentType("application/json")
+                        .content(loginJson))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String tokenResponse = loginResult.getResponse().getContentAsString();
+        return tokenResponse.split(":")[1].trim(); // Extract token from response
     }
 
     private void deleteUserFromFirebase(String userId) {
