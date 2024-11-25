@@ -18,12 +18,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-                    
-      - name: Create ENV
-        run: |
-          touch .env
-          echo FIREBASE_API_KEY = ${{ secrets.FIREBASE_API_KEY }} >> .env
-          echo LMS_ENV_USER = ${{ secrets.LMS_USER_ENV }} >> .env
+
+      - name: Dotenv Action
+        uses: falti/dotenv-action@v1.1.2
+        with:
+          path: secrets.FIREBASE_API_KEY
+          
+      #- name: Create ENV
+       # run: |
+        #  touch .env
+         # echo FIREBASE_API_KEY = ${{ secrets.FIREBASE_API_KEY }} >> .env
+          #echo LMS_ENV_USER = ${{ secrets.LMS_USER_ENV }} >> .env
         
       - name: Set up Java version
         uses: actions/setup-java@v4
