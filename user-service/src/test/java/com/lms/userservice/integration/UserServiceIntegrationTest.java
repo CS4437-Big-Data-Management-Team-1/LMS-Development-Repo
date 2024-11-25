@@ -26,6 +26,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import io.github.cdimascio.dotenv.Dotenv;
 
 /**
  * Integration test for User Service
@@ -43,6 +44,12 @@ public class UserServiceIntegrationTest {
     private UserRepository userRepository;
 
     private List<String> createdFirebaseUserIds;
+
+    @BeforeAll
+    static void validateEnvironment() {
+        Dotenv dotenv = Dotenv.load();
+        System.setProperty("FIREBASE_API_KEY", dotenv.get("FIREBASE_API_KEY"));
+    }
 
     @BeforeEach
     void setUp() {
