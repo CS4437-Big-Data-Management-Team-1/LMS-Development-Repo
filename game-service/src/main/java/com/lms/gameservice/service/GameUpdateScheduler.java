@@ -1,17 +1,18 @@
 package com.lms.gameservice.service;
 
-import com.lms.gameservice.matches.MatchesDTO;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
-import java.time.DayOfWeek;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+
 import com.lms.gameservice.database.GameDatabaseController;
+import com.lms.gameservice.matches.MatchesDTO;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Results;
 import com.lms.gameservice.repository.GameRepository;
@@ -45,6 +46,7 @@ public class GameUpdateScheduler {
 
         for (Game game : games) {
             gameService.nextRound(game.getId());
+            // Send update notification
         }
     }
 
