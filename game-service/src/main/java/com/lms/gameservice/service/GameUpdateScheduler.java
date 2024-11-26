@@ -165,7 +165,7 @@ public class GameUpdateScheduler {
 
     
 
-    private String getUserEmailByUid(String uid) {
+    public String getUserEmailByUid(String uid) {
         // Call the UserController's endpoint to get the email
         String url = "http://localhost:8080/api/users/" + uid + "/email";
 
