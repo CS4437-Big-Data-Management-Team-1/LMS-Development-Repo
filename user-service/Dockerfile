@@ -6,7 +6,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn clean package -DskipTests
 
-#COPY .env .env
+COPY .env .env
 
 FROM openjdk:17-jdk-alpine
 

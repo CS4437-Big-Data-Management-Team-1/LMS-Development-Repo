@@ -13,8 +13,8 @@ FROM openjdk:17-jdk-alpine
 
 WORKDIR /app
 
-COPY target/information-service-1.0-SNAPSHOT.jar ./information-service-1.0-SNAPSHOT.jar
-COPY --from=build /build/.env .env
+COPY target/information-service-0.0.1-SNAPSHOT.jar ./information-service-0.0.1-SNAPSHOT.jar
+
 
 EXPOSE 8083
 ENV DB_URL_GAMES=mysql://database-users.mysql.database.azure.com:3306/games

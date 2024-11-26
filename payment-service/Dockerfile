@@ -9,8 +9,6 @@ RUN mvn clean package -DskipTests
 COPY .env .env
 
 FROM openjdk:17-jdk-alpine
-ARG PROFILE=dev
-ARG APP_VERSION=0.0.1
 
 WORKDIR /app
 

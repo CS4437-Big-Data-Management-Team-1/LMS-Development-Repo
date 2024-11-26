@@ -4,9 +4,9 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
-      target: build
-    env_file:
-      - "./user-service/.env"
+
+    volumes:
+      - .env:/user-service/.env
     environment:
       DB_GAMES_URL: ${DB_USERS_URL}
       DB_USERNAME: ${DB_USERNAME}
@@ -22,7 +22,7 @@ services:
     build:
       context: ./payment-service
       dockerfile: Dockerfile
-      target: build
+
     environment:
       DB_USERS_URL: ${DB_USERS_URL}
       DB_USERNAME: ${DB_USERNAME}
@@ -38,7 +38,7 @@ services:
     build:
       context: ./notification-service
       dockerfile: Dockerfile
-      target: build
+
     environment:
       DB_GAMES_URL: ${DB_GAMES_URL}
       DB_USERNAME: ${DB_USERNAME}
@@ -54,7 +54,7 @@ services:
     build:
       context: ./information-service
       dockerfile: Dockerfile
-      target: build
+
     ports:
       - "8083:8080"
     environment:
@@ -70,7 +70,7 @@ services:
     build:
       context: ./game-service
       dockerfile: Dockerfile
-      target: build
+
     environment:
       DB_GAMES_URL: ${DB_GAMES_URL}
       DB_USERNAME: ${DB_USERNAME}
