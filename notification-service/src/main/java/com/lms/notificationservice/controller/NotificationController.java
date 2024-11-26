@@ -62,14 +62,15 @@ public class NotificationController {
         if (recipient == null || recipient.isEmpty()) {
             return ResponseEntity.badRequest().body("Recipient email is required.");
         }
-
-        // Validate missing recipient
-        if (recipient == null || recipient.isEmpty()) {
-            return ResponseEntity.badRequest().body("Recipient email is required.");
-        }
+        String currentRound = request.get("currentRound");
+        String roundStartDate = request.get("roundStartDate");
+        String roundEndDate = request.get("roundEndDate");
+        String totalPot = request.get("totalPot");
+        String playerStatus = request.get("playerStatus");
+        String playerTeamPick = request.get("playerTeamPick");
 
         // Create the appropriate notification object based on the type
-        Notification notification = createNotification(type, recipient, idToken, gameName, weeksTillStartDate, entryFee);
+        Notification notification = createNotification(type, recipient, idToken, gameName, weeksTillStartDate, entryFee, currentRound, roundStartDate, roundEndDate, totalPot, playerStatus, playerTeamPick);
 
         // Validate invalid notification type
         if (notification == null) {
@@ -92,12 +93,12 @@ public class NotificationController {
      * @param recipient the recipient's email address
      * @return the corresponding Notification object or null if the type is invalid
      */
-    private Notification createNotification(String type, String recipient, String idToken, String gameName, int weeksTillStartDate, double entryFee) {
+    private Notification createNotification(String type, String recipient, String idToken, String gameName, int weeksTillStartDate, double entryFee, String currentRound, String roundStartDate, String roundEndDate, String totalPot, String playerStatus, String playerTeamPick) {
         switch (type != null ? type.toLowerCase() : "") {
             case "account_creation":
                 return new AccountCreationNotification(recipient, idToken);
             case "game_update":
-                return new GameUpdateNotification(recipient);
+                return new GameUpdateNotification(recipient, gameName, currentRound, roundStartDate, roundEndDate, totalPot, playerStatus, playerTeamPick);
             case "game_created":
                 return new GameCreationNotification(recipient, gameName, weeksTillStartDate, entryFee);
             case "game_joined":

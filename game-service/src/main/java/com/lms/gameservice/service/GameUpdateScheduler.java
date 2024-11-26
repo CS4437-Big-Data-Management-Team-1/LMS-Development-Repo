@@ -63,14 +63,30 @@ public class GameUpdateScheduler {
             // Retrieve active players in the game
             List<Player> players = gameService.getActivePlayersInGame(game.getId());
 
-            // Send notifications to all players
+            // Send notifications to all players with individual game and player values
             for (Player player : players) {
                 String userID = player.getUserId();
                 String userEmail = getUserEmailByUid(userID);
-                sendGameUpdateNotification(userEmail, "game_update");
+
+                if (userEmail != null) {
+                    sendGameUpdateNotification(
+                        userEmail,
+                        "game_update",
+                        game.getName(),
+                        game.getCurrentRound(),
+                        game.getCurrentRoundStartDate().toString(),
+                        game.getCurrentRoundEndDate().toString(),
+                        game.getTotalPot().toString(),
+                        player.isActive() ? "Active" : "Eliminated",
+                        player.getTeamPick()
+                    );
+                } else {
+                    logger.warn("No email found for user ID: {}", userID);
+                }
             }
         }
     }
+
 
 
     /**
@@ -114,18 +130,40 @@ public class GameUpdateScheduler {
     resultsRepository.save(result);
     }
 
-    public void sendGameUpdateNotification(String recipient, String type) {
+    public void sendGameUpdateNotification(
+        String recipient,
+        String type,
+        String gameName,
+        int currentRound,
+        String roundStartDate,
+        String roundEndDate,
+        String totalPot,
+        String playerStatus,
+        String playerTeamPick
+    ) {
         String notificationUrl = "http://localhost:8085/api/notifications/send";
+
+        // Build the notification data as a map of individual fields
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
         notificationData.put("type", type);
+        notificationData.put("gameName", gameName);
+        notificationData.put("currentRound", String.valueOf(currentRound));
+        notificationData.put("roundStartDate", roundStartDate);
+        notificationData.put("roundEndDate", roundEndDate);
+        notificationData.put("totalPot", totalPot);
+        notificationData.put("playerStatus", playerStatus);
+        notificationData.put("playerTeamPick", playerTeamPick);
+
         try {
             restTemplate.postForEntity(notificationUrl, notificationData, String.class);
-            logger.info("Notification request sent for type: {}", type);
+            logger.info("Notification sent to {} for game {} (type: {})", recipient, gameName, type);
         } catch (Exception e) {
-            logger.error("Failed to send notification request for type {}: {}", type, e.getMessage());
+            logger.error("Failed to send notification to {} for game {}. Error: {}", recipient, gameName, e.getMessage());
         }
     }
+
+    
 
     private String getUserEmailByUid(String uid) {
         // Call the UserController's endpoint to get the email
