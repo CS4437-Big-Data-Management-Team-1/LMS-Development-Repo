@@ -1,42 +1,86 @@
 services:
   user-service:
+    container_name: user-service
     build:
-      context: .
-      target: user-service/Dockerfile
+      context: ./user-service
+      dockerfile: Dockerfile
+      target: build
+    env_file:
+      - "./user-service/.env"
+    environment:
+      DB_GAMES_URL: ${DB_USERS_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+          - "8080:8080"
+    networks:
+          - app-network
+#    command: ["java", "-jar", "user-service/target/user-service-0.0.1-SNAPSHOT.jar"]
 
   payment-service:
+    container_name: payment-service
     build:
-      context: .
-      target: payment-service/Dockerfile
+      context: ./payment-service
+      dockerfile: Dockerfile
+      target: build
+    environment:
+      DB_USERS_URL: ${DB_USERS_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+        - "8081:8080"
+    networks:
+        - app-network
+#    command: ["java", "-jar", "target/payment-service.jar"]
 
   notification-service:
+    container_name: notification-service
     build:
-      context: .
-      target: notification-service/Dockerfile
+      context: ./notification-service
+      dockerfile: Dockerfile
+      target: build
+    environment:
+      DB_GAMES_URL: ${DB_GAMES_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+        - "8082:8080"
+    networks:
+        - app-network
+#    command: ["java", "-jar", "target/notification-service.jar"]
 
   information-service:
+    container_name: information-service
     build:
-      context: .
-      target: information-service/Dockerfile
+      context: ./information-service
+      dockerfile: Dockerfile
+      target: build
+    ports:
+      - "8083:8080"
+    environment:
+      DB_GAMES_URL: ${DB_GAMES_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - app-network
+  #  command: ["java", "-jar", "target/information-service.jar"]
 
   game-service:
+    container_name: game-service
     build:
-      context: .
-      target: game-service/Dockerfile
-
-
-  mysqldb:
-    image: "mysql:8.0"
-    ports:
-      - "3306:3306"
-    networks:
-      - springapimysql-net
+      context: ./game-service
+      dockerfile: Dockerfile
+      target: build
     environment:
-      MYSQL_DATABASE: mysql://database-users.mysql.database.azure.com:3306/
-      MYSQL_USER: ${DB_USERNAME}
-      MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_PASSWORD:
-
+      DB_GAMES_URL: ${DB_GAMES_URL}
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "8084:8080"
+    networks:
+      - app-network
+  #  command: ["java", "-jar", "target/game-service.jar"]
 
 networks:
   app-network:
+    driver: bridge

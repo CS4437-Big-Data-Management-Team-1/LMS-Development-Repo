@@ -1,10 +1,8 @@
 FROM maven:3.8.5-openjdk-17-slim AS build
 
-WORKDIR /build
+WORKDIR /app
 
 COPY pom.xml ./
-RUN mvn dependency:go-offline
-
 COPY src ./src
 RUN mvn clean package -DskipTests
 
@@ -18,7 +16,7 @@ WORKDIR /app
 COPY target/information-service-1.0-SNAPSHOT.jar ./information-service-1.0-SNAPSHOT.jar
 COPY --from=build /build/.env .env
 
-EXPOSE #8082
+EXPOSE 8083
 ENV DB_URL_GAMES=mysql://database-users.mysql.database.azure.com:3306/games
 ENV DB_URL_TEAMS=mysql://database-users.mysql.database.azure.com:3306/teams
 
