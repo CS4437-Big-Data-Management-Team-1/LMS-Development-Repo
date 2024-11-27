@@ -24,23 +24,23 @@ jobs:
       - name: Create `.env` File
         run: echo FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} > .env
 
-      - name: Debug `.env` Creation
-        run: cat .env
-
       - name: Move `.env` to Classpath
         run: mv .env user-service/
 
-      - name: Debug After Move
+      - name: Debug `.env` File
         run: |
-          echo "Root Directory Contents After Move:"
+          echo "Root Directory:"
           ls -la
-          echo "user-service Directory Contents After Move:"
+          echo "user-service Directory:"
           ls -la user-service/
 
+      - name: Set FIREBASE_API_KEY as Environment Variable
+        run: echo "FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }}" >> $GITHUB_ENV
+
       - name: Run Tests and Generate Coverage Reports
+        working-directory: user-service
         run: |
-          mvn clean verify -Pintegration-tests \
-            -Ddotenv.file=./user-service/.env
+          mvn clean verify -Pintegration-tests
 
       - name: Run SonarCloud Analysis
         env:
