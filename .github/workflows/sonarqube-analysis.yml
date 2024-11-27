@@ -29,6 +29,12 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven
 
+      - name: Create `.env` File
+        run: echo FIREBASE_API_KEY=${{secrets.FIREBASE_API_KEY}} > .env
+
+      - name: Move `.env` to Classpath
+        run: mv .env user-service/
+
           # Step 1: Run Maven tests with both unit and integration test profiles
       - name: Run Tests and Generate Coverage Reports
         run: |
