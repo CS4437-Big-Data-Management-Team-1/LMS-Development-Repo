@@ -140,11 +140,11 @@
     </dependencyManagement>
 
     <profiles>
-        <!-- Profile for Unit Tests -->
+        <!-- Unit Test Profile -->
         <profile>
             <id>unit-tests</id>
             <activation>
-                <activeByDefault>true</activeByDefault> <!-- Runs by default -->
+                <activeByDefault>true</activeByDefault>
             </activation>
             <build>
                 <plugins>
@@ -153,12 +153,8 @@
                         <version>3.1.2</version>
                         <configuration>
                             <includes>
-                                <!-- Only run unit tests -->
-                                <include>**/controller/**/*Test.java</include>
-                                <include>**/login/**/*Test.java</include>
-                                <include>**/model/**/*Test.java</include>
-                                <include>**/registration/**/*Test.java</include>
-                                <include>**/validator/**/*Test.java</include>
+                                <include>**/*Test.java</include>
+                                <exclude>**/*IntegrationTest.java</exclude>
                             </includes>
                         </configuration>
                     </plugin>
@@ -166,7 +162,7 @@
             </build>
         </profile>
 
-        <!-- Profile for Integration Tests -->
+        <!-- Integration Test Profile -->
         <profile>
             <id>integration-tests</id>
             <build>
@@ -185,53 +181,77 @@
                                 </goals>
                             </execution>
                         </executions>
-                        <configuration>
-                            <includes>
-                                <!-- Only run integration tests -->
-                                <include>**/integration/**/*IntegrationTest.java</include>
-                            </includes>
-                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.jacoco</groupId>
+                        <artifactId>jacoco-maven-plugin</artifactId>
+                        <version>0.8.8</version>
+                        <executions>
+                            <execution>
+                                <id>prepare-agent-integration</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>prepare-agent</goal>
+                                </goals>
+                            </execution>
+                            <execution>
+                                <id>generate-aggregate-report</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>report-aggregate</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${project.build.directory}/jacoco-aggregate</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
         </profile>
     </profiles>
 
-
     <build>
         <plugins>
+            <!-- Spring Boot Maven Plugin -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-
-            <!-- SonarCloud Plugin -->
-            <plugin>
-                <groupId>org.sonarsource.scanner.maven</groupId>
-                <artifactId>sonar-maven-plugin</artifactId>
-                <version>4.0.0.4121</version>
-            </plugin>
-
-            <!-- Jacoco Plugin for Test Coverage -->
+            <!-- JaCoCo Plugin -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>0.8.8</version>
                 <executions>
                     <execution>
+                        <id>prepare-agent</id>
                         <goals>
                             <goal>prepare-agent</goal>
                         </goals>
                     </execution>
                     <execution>
                         <id>report</id>
-                        <phase>prepare-package</phase>
+                        <phase>verify</phase>
                         <goals>
                             <goal>report</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <append>true</append>
+                    <destFile>${project.build.directory}/jacoco.exec</destFile>
+                    <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                    <outputDirectory>${project.reporting.outputDirectory}/jacoco</outputDirectory>
+                </configuration>
+            </plugin>
+
+            <!-- SonarCloud Plugin -->
+            <plugin>
+                <groupId>org.sonarsource.scanner.maven</groupId>
+                <artifactId>sonar-maven-plugin</artifactId>
+                <version>4.0.0.4121</version>
             </plugin>
         </plugins>
     </build>
