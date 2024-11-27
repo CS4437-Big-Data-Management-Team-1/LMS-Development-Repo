@@ -21,20 +21,21 @@ jobs:
           distribution: 'microsoft'
           cache: 'maven'
 
-      - name: Cache Maven Dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.m2/repository
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-          restore-keys: |
-            ${{ runner.os }}-maven
+      - name: Create `.env` File
+        run: echo FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} > .env
 
-          # Step 1: Run Maven tests with both unit and integration test profiles
-      - name: Run Tests and Generate Coverage Reports
+      - name: Move `.env` to Classpath
+        run: mv .env user-service/
+
+      - name: Debug .env Location
         run: |
-          mvn clean verify -Pintegration-tests
+          echo "Listing user-service directory:"
+          ls user-service
 
-      # Step 2: Run SonarCloud Analysis using the pre-generated reports
+      - name: Run Tests and Generate Coverage Reports
+        working-directory: user-service
+        run: mvn clean verify -Pintegration-tests
+
       - name: Run SonarCloud Analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
