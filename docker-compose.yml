@@ -4,13 +4,8 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
-
-    volumes:
-      - .env:/user-service/.env
-    environment:
-      DB_GAMES_URL: ${DB_USERS_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+#    volumes:
+#      - .env:/user-service/.env
     ports:
           - "8080:8080"
     networks:
@@ -22,11 +17,8 @@ services:
     build:
       context: ./payment-service
       dockerfile: Dockerfile
-
-    environment:
-      DB_USERS_URL: ${DB_USERS_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+#    volumes:
+#      - .env:/payment-service/.env
     ports:
         - "8081:8080"
     networks:
@@ -38,11 +30,8 @@ services:
     build:
       context: ./notification-service
       dockerfile: Dockerfile
-
-    environment:
-      DB_GAMES_URL: ${DB_GAMES_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+#    volumes:
+#      - .env:/notification-service/.env
     ports:
         - "8082:8080"
     networks:
@@ -54,13 +43,11 @@ services:
     build:
       context: ./information-service
       dockerfile: Dockerfile
-
+#    volumes:
+#      - .env:/information-service/.env
     ports:
       - "8083:8080"
-    environment:
-      DB_GAMES_URL: ${DB_GAMES_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+
     networks:
       - app-network
   #  command: ["java", "-jar", "target/information-service.jar"]
@@ -70,11 +57,8 @@ services:
     build:
       context: ./game-service
       dockerfile: Dockerfile
-
-    environment:
-      DB_GAMES_URL: ${DB_GAMES_URL}
-      DB_USERNAME: ${DB_USERNAME}
-      DB_PASSWORD: ${DB_PASSWORD}
+#    volumes:
+#      - .env:/game-service/.env
     ports:
       - "8084:8080"
     networks:
