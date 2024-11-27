@@ -24,6 +24,17 @@ jobs:
       - name: Create `.env` File
         run: echo FIREBASE_API_KEY=${{ secrets.FIREBASE_API_KEY }} > .env
 
+      - name: Debug .env in Root
+        run: |
+          echo "Listing root directory:"
+          ls -la
+
+      - name: Debug .env in user-service
+        run: |
+          echo "Listing user-service directory:"
+          ls -la user-service
+
+
       - name: Move `.env` to Classpath
         run: mv .env user-service/
 
