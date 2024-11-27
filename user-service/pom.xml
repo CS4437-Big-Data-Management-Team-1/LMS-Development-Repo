@@ -153,9 +153,13 @@
                         <version>3.1.2</version>
                         <configuration>
                             <includes>
+                                <!-- Include only unit tests -->
                                 <include>**/*Test.java</include>
-                                <exclude>**/*IntegrationTest.java</exclude>
                             </includes>
+                            <excludes>
+                                <!-- Exclude integration tests -->
+                                <exclude>**/*IntegrationTest.java</exclude>
+                            </excludes>
                         </configuration>
                     </plugin>
                 </plugins>
