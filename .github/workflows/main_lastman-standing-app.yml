@@ -31,7 +31,7 @@ jobs:
       - name: Move `.env` to Classpath
         run: mv .env user-service/
 
-      - name: Run Unit Tests for Specific Module
+      - name: Run Unit Tests
         run: |
           if [[ "${{ github.ref }}" == *"user-service"* ]]; then
             mvn -B test --file user-service/pom.xml -Punit-tests
