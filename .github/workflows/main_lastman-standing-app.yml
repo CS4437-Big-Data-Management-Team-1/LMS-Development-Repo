@@ -42,6 +42,7 @@ jobs:
             echo "${{ secrets.NOTIFICATION_SERVICE_ENV }}" > notification.env
            elif [ "${{ matrix.service }}" = "payment" ]; then
             echo "${{ secrets.INFORMATION_SERVICE_ENV }}" > information.env
+          fi
       
 
       - name: Set-up Docker Buildx
