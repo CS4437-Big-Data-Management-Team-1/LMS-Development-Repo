@@ -189,7 +189,12 @@ public class GameController {
             }
 
             // Call service method to pick the team
-            playerService.pickTeam(player, teamStr);
+            if(player.getNextPick() == null) {
+                playerService.pickTeam(player, teamStr);
+            } else {
+                playerService.changeTeamPick(player, teamStr);
+            }
+            
 
             return ResponseEntity.ok("Team " + team + " picked successfully.");
         } catch (IllegalArgumentException e) {
