@@ -11,7 +11,7 @@ import io.github.cdimascio.dotenv.Dotenv;
 public class InformationServiceApplication {
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().filename("information.env").load();
         System.setProperty("DB_TEAMS_URL", dotenv.get("DB_TEAMS_URL"));
         System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
         System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));

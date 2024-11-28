@@ -19,7 +19,7 @@ public class NotificationServiceApplication {
      * Run the Spring Boot application
      */
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().filename("notification.env").load();
         
         System.setProperty("NOTIFICATION_SERVICE_APP_PASSWORD", dotenv.get("NOTIFICATION_SERVICE_APP_PASSWORD"));
         System.setProperty("DB_GAMES_URL", dotenv.get("DB_GAMES_URL"));
