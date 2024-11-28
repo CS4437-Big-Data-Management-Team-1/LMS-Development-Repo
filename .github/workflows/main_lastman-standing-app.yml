@@ -1,12 +1,8 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy JAR app to Azure Web App - lastman-standing-app
+
+name: Build and deploy to Docker Container
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main
@@ -15,6 +11,23 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [user, information, payment, game, notification]
+        user:
+          - name: CaoimhinHawk1
+            docker_username: ${{secrets.DOCKER_HUB_USERNAME}}
+            docker_access_token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN}}
+          - name: CaoimheCahill
+            docker_username: ${{secrets.DOCKER_HUB_USERNAME_CAOIMHE}}
+            docker_access_token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN_CAOIMHE}}
+          - name: LiamMoMurray
+            docker_username: ${{secrets.DOCKER_HUB_USERNAME_CAOIMHE}}
+            docker_access_token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN_CAOIMHE}}
+          - name: olanhealy
+            docker_username: ${{secrets.DOCKER_HUB_USERNAME_OLAN}}
+            docker_access_token: ${{secrets.DOCKER_HUB_ACCESS_TOKEN_OLAN}}
 
     steps:
       - uses: actions/checkout@v4
@@ -25,14 +38,19 @@ jobs:
           java-version: '17'
           distribution: 'microsoft'
 
-      - name: env file
-        run: echo FIREBASE_API_KEY=${{secrets.FIREBASE_API_KEY}} > .env
-
-      - name: Move `.env` to Classpath
-        run: mv .env user-service/
+      - name: Load Environment Variables
+        run: |
+          echo "${{secrets[env_matrix.service]}}" > [matrix.service].env
+        env:
+          user: USER_SERVICE_ENV
+          payment: PAYMENT_SERVICE_ENV
+          information: INFORMATION_SERVICE_ENV
+          game: GAME_SERVICE_ENV
+          notification: NOTIFICATION_SERVICE_ENV
         
       - name: unit tests
-        run: mvn -B test --file pom.xml
+        run: |
+          mvn -B test --file pom.xml
 
       - name: Set-up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -41,19 +59,20 @@ jobs:
         run: |
           mvn clean
           mvn -B package --file pom.xml
+
       - name: build docker image
         uses: docker/build-push-action@v4
         with:   
           context: . 
           file: Dockerfile
           push: false
-          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest  
+          tags: ${{matrix.service}}/rest-api:latest
 
       - name: login to docker hub
         uses: docker/login-action@v1
         with:  
-          username: ${{secrets.DOCKER_HUB_USERNAME }}
-          password: ${{secrets.DOCKER_HUB_ACCESS_TOKEN }}
+          username: ${{secrets[user_matrix.docker_username]}}
+          password: ${{secrets[user_matrix.docker_access_token]}}
 
       - name: push image to docker hub  
         uses: docker/build-push-action@v4
@@ -61,5 +80,5 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{secrets.DOCKER_HUB_USERNAME }}/rest-api:latest
+          tags: ${{matrix.service}}/rest-api:latest
 
