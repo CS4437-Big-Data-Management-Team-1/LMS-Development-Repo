@@ -31,13 +31,18 @@ jobs:
 
       - name: Load Environment Variables
         run: |
-            echo "${{secrets[env_matrix.service]}}" > [matrix.service].env
-        env:
-            user: USER_SERVICE_ENV
-            payment: PAYMENT_SERVICE_ENV
-            information: INFORMATION_SERVICE_ENV
-            game: GAME_SERVICE_ENV
-            notification: NOTIFICATION_SERVICE_ENV
+          # Map service to its corresponding secret and write to .env file
+          if [ "${{ matrix.service }}" = "user" ]; then
+            echo "${{ secrets.USER_SERVICE_ENV }}" > user.env
+          elif [ "${{ matrix.service }}" = "payment" ]; then
+            echo "${{ secrets.PAYMENT_SERVICE_ENV }}" > payment.env
+           elif [ "${{ matrix.service }}" = "payment" ]; then
+            echo "${{ secrets.GAME_SERVICE_ENV }}" > game.env
+           elif [ "${{ matrix.service }}" = "payment" ]; then
+            echo "${{ secrets.NOTIFICATION_SERVICE_ENV }}" > notification.env
+           elif [ "${{ matrix.service }}" = "payment" ]; then
+            echo "${{ secrets.INFORMATION_SERVICE_ENV }}" > information.env
+      
 
       - name: Set-up Docker Buildx
         uses: docker/setup-buildx-action@v2
