@@ -1,5 +1,10 @@
 package com.lms.gameservice.controller;
 
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,14 +27,20 @@ import org.springframework.web.client.RestTemplate;
 import com.lms.gameservice.gamerequest.GameRequestDTO;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
+import com.lms.gameservice.model.Results;
 import com.lms.gameservice.repository.GameRepository;
 import com.lms.gameservice.repository.PlayerRepository;
+import com.lms.gameservice.repository.ResultsRepository;
 import com.lms.gameservice.service.AuthService;
 import com.lms.gameservice.service.GameService;
+import com.lms.gameservice.service.InformationServiceClient;
 import com.lms.gameservice.service.PlayerService;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
+
+import com.lms.gameservice.matches.MatchesDTO;
+
 
 @RestController
 @RequestMapping("/api/games")
@@ -41,20 +52,22 @@ public class GameController {
     private final RestTemplate restTemplate;
 
     //for results testing
-    // private final InformationServiceClient info;
-    // private final ResultsRepository resultsRepository;
+    private final InformationServiceClient info;
+    private final ResultsRepository resultsRepository;
     private static final Logger logger = LogManager.getLogger(GameController.class);
 
     @Autowired
     private AuthService authService;
 
     @Autowired
-    public GameController(GameService gameService, PlayerService playerService, PlayerRepository playerRepository, GameRepository gameRepository, RestTemplate restTemplate) {
+    public GameController(GameService gameService, PlayerService playerService, PlayerRepository playerRepository, GameRepository gameRepository, RestTemplate restTemplate, InformationServiceClient info, ResultsRepository resultsRepository) {
         this.gameService = gameService;
         this.playerService = playerService;
         this.playerRepository = playerRepository;
         this.gameRepository = gameRepository;
         this.restTemplate = restTemplate;
+        this.info = info;
+        this.resultsRepository = resultsRepository;
     }
 
     /**
@@ -224,6 +237,70 @@ public class GameController {
         }
     }
 
+    @GetMapping("/{game_id}/availableTeams")
+    public ResponseEntity<?> getAvailableTeams(
+            @RequestHeader("Authorization") String authorisationHeader,
+            @PathVariable("game_id") int gameId) {
+
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String uid = splits[1]; 
+
+            Player player = playerService.getPlayerByGameIdAndUserId(gameId, uid);
+
+            if (player == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Player not found in the game.");
+            }
+
+            ArrayList<String> availableTeams = player.getTeamsAvailable();
+
+            if (availableTeams == null || availableTeams.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body("No available teams for this player.");
+            }
+
+            return ResponseEntity.ok(availableTeams);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error verifying the player: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{game_id}/usedTeams")
+    public ResponseEntity<?> getUsedTeams(
+            @RequestHeader("Authorization") String authorisationHeader,
+            @PathVariable("game_id") int gameId) {
+
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String uid = splits[1]; 
+
+            Player player = playerService.getPlayerByGameIdAndUserId(gameId, uid);
+
+            if (player == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("Player not found in the game.");
+            }
+
+            ArrayList<String> availableTeams = player.getTeamsUsed();
+
+            if (availableTeams == null || availableTeams.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body("No available teams for this player.");
+            }
+
+            return ResponseEntity.ok(availableTeams);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error verifying the player: " + e.getMessage());
+        }
+    }
+
     public void sendGameCreationNotification(String recipient, String type, String gameName, int weeksTillStartDate, double entryFee) {
         String notificationUrl = "http://localhost:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
@@ -281,31 +358,46 @@ public class GameController {
         return null; // Handle errors
   
     }
+    
     /**
      * Used to test the Results Table is working.
      * 
      */
-    // @PostMapping("/resultTest")
-    // public void uploadResultsTest() {
+    @PostMapping("/resultTest")
+    public void uploadResultsTest() {
         
-    // LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now();
     
-    // LocalDate lastMonday = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-    // LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+    LocalDate lastMonday = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+    LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
     
-    // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    // String startDate = lastMonday.format(formatter);
-    // String endDate = lastSunday.format(formatter);
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    String startDate = lastMonday.format(formatter);
+    String endDate = lastSunday.format(formatter);
     
-    // List<Matches> matches = info.fetchMatchesWithinDateRange(startDate, endDate);
+    List<MatchesDTO> matches = info.fetchMatchesWithinDateRange(startDate, endDate);
 
-    // Results result = new Results();
-    // ArrayList<String> winners = new ArrayList<>();
-    // for (Matches match : matches) {
-    //     winners.add(match.getResult());
-    // }
-    // result.setWinners(winners);
+    Results result = new Results();
+    ArrayList<String> winners = new ArrayList<>();
+    for (MatchesDTO match : matches) {
+        winners.add(match.getResult());
+    }
+    result.setWinners(winners);
 
-    // resultsRepository.save(result);
-    // }
+    resultsRepository.save(result);
+    }
+
+    /**
+     * Used to test the rounds working properly.
+     * 
+     */
+    @PostMapping("/updateTest")
+    public void updateActiveGames() {
+        List<Game> games = gameRepository.findByStatus("ACTIVE");
+
+        for (Game game : games) {
+            gameService.nextRound(game.getId());
+        }
+    }
+
 }

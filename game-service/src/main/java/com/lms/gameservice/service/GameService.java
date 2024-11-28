@@ -27,18 +27,20 @@ public class GameService {
     private final PlayerRepository playerRepository;
     private final ResultsRepository resultsRepository;
     private final PaymentServiceClient paymentService;
+    private final PlayerService playerService;
 
     private final GameDatabaseController db = new GameDatabaseController();
     private final InformationServiceClient info;
 
     @Autowired
-    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, ResultsRepository resultsRepository, PaymentServiceClient paymentService, InformationServiceClient info) {
+    public GameService(GameRepository gameRepository, PlayerRepository playerRepository, ResultsRepository resultsRepository, PaymentServiceClient paymentService, InformationServiceClient info, PlayerService playerService) {
         db.connectToDB();
         this.gameRepository = gameRepository;
         this.playerRepository = playerRepository;
         this.resultsRepository = resultsRepository;
         this.paymentService = paymentService;
         this.info = info;
+        this.playerService = playerService;
     }
 
     /**
@@ -180,17 +182,61 @@ public class GameService {
         Results results = resultsRepository.findLatestResult();
         System.out.println("Results: " + results.getWinners());
         ArrayList<String> winners = results.getWinners();
-        System.out.println("Winners: " + winners);
 
         List<Player> activePlayers = playerRepository.findByGameAndIsActive(game, true);
+        List<Player> playersOut = new ArrayList<>();
+        
         for (Player player : activePlayers) {
             if (!winners.contains(player.getTeamPick())) {
+                
+                playersOut.add(player);
+            }
+
+            player.setTeamPick(player.getNextPick());
+            if(player.getTeamPick() == null){
+                playerService.autoPickTeam(player);
+            }
+            player.setNextPick(null);
+            playerRepository.save(player);
+        }
+
+        if (activePlayers.size() - playersOut.size() == 1) {
+
+            //if player is the only one left, they are the winner
+            Player winner = activePlayers.stream()
+                    .filter(player -> !playersOut.contains(player))
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("Winner not found"));
+            declareWinner(game, winner);
+
+            return; //exit
+
+        } else if (activePlayers.size() == playersOut.size()) {
+
+            //all player emilinated / do nothing
+
+        } else {
+
+            for (Player player : playersOut) {
                 player.setActive(false);
                 playerRepository.save(player);
             }
         }
-        
+
     }
+
+    private void declareWinner(Game game, Player winner) {
+        
+        BigDecimal prize = game.getTotalPot();
+        //need to fix adding money to pot issue & then pay player
+        //paymentService.addToUserBalance(winner.getUserId(), prize);
+    
+        game.setStatus("COMPLETED");
+        gameRepository.save(game);
+    
+        System.out.println("the winner is: " + winner.getUserId() + " with prize oof " + prize);
+    }
+
 
     /**
      * Print the next week's match fixtures
