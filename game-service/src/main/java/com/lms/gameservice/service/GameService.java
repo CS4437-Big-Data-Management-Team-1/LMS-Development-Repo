@@ -151,7 +151,9 @@ public class GameService {
         game.setStatus("ACTIVE");
         game.setCurrentRoundStartDate(LocalDateTime.now());
         game.setCurrentRoundEndDate(LocalDateTime.now().plusDays(6));
-        // fillTeams(game);
+        for (Player player : playerRepository.findByGame(game)) {
+            setActiveAndNextTeam(player);
+        }
         gameRepository.save(game);
     }
 
@@ -192,15 +194,11 @@ public class GameService {
                 playersOut.add(player);
             }
 
-            player.setTeamPick(player.getNextPick());
-            if(player.getTeamPick() == null){
-                playerService.autoPickTeam(player);
-            }
-            player.setNextPick(null);
-            playerRepository.save(player);
+            setActiveAndNextTeam(player);
+            
         }
 
-        if (activePlayers.size() - playersOut.size() == 1) {
+        if (activePlayers.size() - playersOut.size() == 1) { //if only 1 player left
 
             //if player is the only one left, they are the winner
             Player winner = activePlayers.stream()
@@ -211,13 +209,13 @@ public class GameService {
 
             return; //exit
 
-        } else if (activePlayers.size() == playersOut.size()) {
+        } else if (activePlayers.size() == playersOut.size()) { //if 0 player left
 
             //all player emilinated / do nothing
 
-        } else {
+        } else { //if more than 1 player left
 
-            for (Player player : playersOut) {
+            for (Player player : playersOut) { 
                 player.setActive(false);
                 playerRepository.save(player);
             }
@@ -257,4 +255,18 @@ public class GameService {
         }
     }
 
+    /**
+     * Helper method to set the active and next team for a player
+     * @param player the player to update
+     */
+    public void setActiveAndNextTeam(Player player){
+        
+        player.setTeamPick(player.getNextPick());
+            if(player.getTeamPick() == null){
+                playerService.autoPickTeam(player);
+            }
+            player.setNextPick(null);
+            playerRepository.save(player);
+
+    }
 }

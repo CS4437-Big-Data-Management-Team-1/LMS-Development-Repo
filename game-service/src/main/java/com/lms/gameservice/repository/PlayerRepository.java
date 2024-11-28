@@ -15,4 +15,5 @@ public interface PlayerRepository extends JpaRepository<Player, Long> {
 
     public List<Player> findByGameAndIsActive(Game game, boolean isActive);
 
+    List<Player> findByGame(Game game);
 }

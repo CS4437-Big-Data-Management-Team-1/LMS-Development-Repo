@@ -375,7 +375,8 @@ public class GameController {
     
     LocalDate lastMonday = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
     LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
-    
+    lastSunday = lastSunday.plusDays(1);
+
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     String startDate = lastMonday.format(formatter);
     String endDate = lastSunday.format(formatter);
@@ -405,4 +406,16 @@ public class GameController {
         }
     }
 
+    /**
+     * Used to test the rounds working properly.
+     * 
+     */
+    @PostMapping("/{game_id}/gameStartTest")
+    public void startGame(@PathVariable("game_id") int gameId) {
+        
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+
+                gameService.startGame(game.getId());
+    }
 }
