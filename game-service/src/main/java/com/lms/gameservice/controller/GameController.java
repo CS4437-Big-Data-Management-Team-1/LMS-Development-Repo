@@ -244,7 +244,7 @@ public class GameController {
 
     @GetMapping("/{game_id}/availableTeams")
     public ResponseEntity<?> getAvailableTeams(
-            @RequestHeader("Authorization") String authorisationHeader,
+            @RequestHeader("Authorisation") String authorisationHeader,
             @PathVariable("game_id") int gameId) {
 
         try {
@@ -276,7 +276,7 @@ public class GameController {
 
     @GetMapping("/{game_id}/usedTeams")
     public ResponseEntity<?> getUsedTeams(
-            @RequestHeader("Authorization") String authorisationHeader,
+            @RequestHeader("Authorisation") String authorisationHeader,
             @PathVariable("game_id") int gameId) {
 
         try {
@@ -407,7 +407,7 @@ public class GameController {
     }
 
     /**
-     * Used to test the rounds working properly.
+     * Used to test the game start working properly.
      * 
      */
     @PostMapping("/{game_id}/gameStartTest")
