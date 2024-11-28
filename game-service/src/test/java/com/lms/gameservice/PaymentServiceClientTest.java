@@ -1,4 +1,4 @@
-package com.lms.gameservice.service;
+package com.lms.gameservice;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,6 +8,8 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
+
+import com.lms.gameservice.service.PaymentServiceClient;
 
 import java.math.BigDecimal;
 
