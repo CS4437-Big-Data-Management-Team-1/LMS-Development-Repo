@@ -52,7 +52,7 @@ public class UserValidator {
 
         // Use method below
         if (!isValidPassword(userDTO.getPassword())) {
-            throw new IllegalArgumentException("Password must have at least 1 lowercase letter, 1 uppercase letter, 1 digit, 1 special character, and be at least 8 characters longd");
+            throw new IllegalArgumentException("Password must have at least 1 lowercase letter, 1 uppercase letter, 1 digit, 1 special character, and be at least 8 characters long");
         }
     }
 
@@ -74,7 +74,7 @@ public class UserValidator {
      * @param email
      * @return  true if the mathces the complexity requirements, false otherwise.
      */
-    private boolean isValidEmail(String email) {
+    public boolean isValidEmail(String email) {
         Pattern pattern = Pattern.compile(PATTERN_EMAIL);
         return pattern.matcher(email).matches();
     }

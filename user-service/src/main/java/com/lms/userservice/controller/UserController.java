@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
@@ -34,7 +35,6 @@ import com.lms.userservice.validator.UserValidator;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    UserDatabaseConnector db = new UserDatabaseConnector();
 
     // Log4j
     private static final Logger logger = LogManager.getLogger(UserController.class);
@@ -43,10 +43,11 @@ public class UserController {
     private final UserService userService;
     private final UserValidator userValidator;
     private final RestTemplate restTemplate;
+    private final UserDatabaseConnector db;
 
     // Used for login method
-    private final String apiKey = System.getProperty("FIREBASE_API_KEY");
-    private final String apiUrl = "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
+    @Value("${FIREBASE_API_KEY}")
+    private String apiKey;
 
     /**
      * Constructs a UserController with injected dependencies for user service and validation.
@@ -55,12 +56,17 @@ public class UserController {
      * @param userValidator Validator to validate user input during registration
      */
     @Autowired
-    public UserController(UserService userService, UserValidator userValidator, RestTemplate restTemplate) {
-        db.connectToDB();
+    public UserController(UserDatabaseConnector db, UserService userService, UserValidator userValidator, RestTemplate restTemplate) {
+        this.db = db;
         this.userService = userService;
         this.userValidator = userValidator;
         this.restTemplate = restTemplate;
         logger.info("UserController initialised.");
+    }
+
+    // Construct the API URL dynamically
+    private String getApiUrl() {
+        return "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" + apiKey;
     }
 
     /**
@@ -102,7 +108,7 @@ public class UserController {
 
             logger.debug("Sending request to Firebase login endpoint to retrieve idToken for registration.");
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(getApiUrl(), body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 Map<String, Object> responseBody = response.getBody();
@@ -141,13 +147,25 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginDTO loginDTO) {
         logger.info("Attempting login for user: {}", loginDTO.getEmail());
+
+        if (loginDTO.getEmail() == null || loginDTO.getEmail().isEmpty()) {
+            return ResponseEntity.status(400).body("Email cannot be empty.");
+        }
+        if (!userValidator.isValidEmail(loginDTO.getEmail())) {
+            return ResponseEntity.status(400).body("Invalid email format.");
+        }
+
+        if (loginDTO.getPassword() == null || loginDTO.getPassword().isEmpty()) {
+            return ResponseEntity.status(400).body("Password cannot be empty.");
+        }
+
         try {
             Map<String, String> body = new HashMap<>();
             body.put("email", loginDTO.getEmail());
             body.put("password", loginDTO.getPassword());
             body.put("returnSecureToken", "true");
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(apiUrl, body, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(getApiUrl(), body, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful()) {
                 Map<String, Object> responseBody = response.getBody();
@@ -179,17 +197,33 @@ public class UserController {
      *         - 500 if an internal server error occurs.
      */
     @GetMapping
-    public ResponseEntity<?> getAllUsers(@RequestHeader("Authorisation") String authorisationHeader) {
+    public ResponseEntity<?> getAllUsers(@RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
         try {
+            if (authorisationHeader == null || authorisationHeader.isEmpty()) {
+                throw new IllegalArgumentException("Invalid Authorisation header.");
+            }
+
             validateToken(authorisationHeader, true);
 
             List<User> users = userService.getAllUsers();
             return ResponseEntity.ok(users);
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Access denied")) {
+                logger.error("Authorisation error: {}", e.getMessage());
+                return ResponseEntity.status(403).body(e.getMessage());
+            } else {
+                logger.error("Authentication error: {}", e.getMessage());
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
         } catch (Exception e) {
-            logger.error("Error fetching users: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(e.getMessage());
+            logger.error("Error fetching users: {}", e.getMessage());
+            return ResponseEntity.status(500).body("An unexpected error occurred.");
         }
     }
+
 
     /**
      * Fetches a specific user by their unique ID.
@@ -210,8 +244,12 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(
             @PathVariable String id,
-            @RequestHeader("Authorisation") String authorisationHeader) {
+            @RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
         try {
+            if (authorisationHeader == null || authorisationHeader.isEmpty()) {
+                throw new IllegalArgumentException("Invalid Authorisation header.");
+            }
+
             validateToken(authorisationHeader, true);
 
             User user = userService.getUserById(id);
@@ -220,9 +258,20 @@ public class UserController {
             } else {
                 return ResponseEntity.status(404).body("User not found.");
             }
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Access denied")) {
+                logger.error("Authorisation error: {}", e.getMessage());
+                return ResponseEntity.status(403).body(e.getMessage());
+            } else {
+                logger.error("Authentication error: {}", e.getMessage());
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
         } catch (Exception e) {
             logger.error("Error fetching user: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(e.getMessage());
+            return ResponseEntity.status(500).body("An unexpected error occurred.");
         }
     }
 
@@ -243,15 +292,28 @@ public class UserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUserById(
             @PathVariable String id,
-            @RequestHeader("Authorisation") String authorisationHeader) {
+            @RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
         try {
+            if (authorisationHeader == null || authorisationHeader.isEmpty()) {
+                throw new IllegalArgumentException("Invalid Authorisation header.");
+            }
             validateToken(authorisationHeader, true);
-
             boolean deleted = userService.deleteUserById(id);
             if (deleted) {
                 return ResponseEntity.ok("User deleted successfully.");
             } else {
                 return ResponseEntity.status(404).body("User not found.");
+            }
+        } catch (IllegalArgumentException e) {
+            logger.error("Invalid request: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Access denied")) {
+                logger.error("Authorisation error: {}", e.getMessage());
+                return ResponseEntity.status(403).body(e.getMessage());
+            } else {
+                logger.error("Authentication error: {}", e.getMessage());
+                return ResponseEntity.status(401).body(e.getMessage());
             }
         } catch (Exception e) {
             logger.error("Error deleting user: {}", e.getMessage(), e);
@@ -282,6 +344,11 @@ public class UserController {
         try {
             validateToken(authorisationHeader, true);
 
+            if (updates == null || updates.isEmpty() ||
+                    (updates.get("name") == null && updates.get("email") == null)) {
+                return ResponseEntity.badRequest().body("Invalid update data provided.");
+            }
+
             String newName = updates.get("name");
             String newEmail = updates.get("email");
 
@@ -291,11 +358,17 @@ public class UserController {
             } else {
                 return ResponseEntity.status(404).body("User not found.");
             }
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Unauthorised")) {
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
+            return ResponseEntity.status(403).body(e.getMessage());
         } catch (Exception e) {
             logger.error("Error updating user: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(e.getMessage());
         }
     }
+
 
     /**
      * PLACEHOLDER: Just for testing JWT token
@@ -303,9 +376,13 @@ public class UserController {
      * @return
      */
     @PostMapping("/validate-jwt")
-    public ResponseEntity<?> secureEndpoint(@RequestHeader("Authorisation") String authorisationHeader) {
+    public ResponseEntity<?> secureEndpoint(@RequestHeader(value = "Authorisation", required = false) String authorisationHeader) {
         logger.info("Accessing secure endpoint.");
         try {
+            if (authorisationHeader == null || authorisationHeader.isEmpty()) {
+                throw new IllegalArgumentException("Missing Authorisation header.");
+            }
+
             String idToken = authorisationHeader.replace("Bearer ", "");
             logger.debug("Verifying ID token: {}", idToken);
 
@@ -314,6 +391,9 @@ public class UserController {
             logger.info("Token verified. Access granted for UID: {}", uid);
 
             return ResponseEntity.ok("Access granted for user: " + uid);
+        } catch (IllegalArgumentException e) {
+            logger.error("Unauthorised access due to missing or empty header: {}", e.getMessage());
+            return ResponseEntity.status(401).body("Unauthorised: Invalid or expired token");
         } catch (Exception e) {
             logger.error("Unauthorised access attempt.", e);
             return ResponseEntity.status(401).body("Unauthorised: Invalid or expired token");
@@ -349,20 +429,31 @@ public class UserController {
      * @return The Firebase user ID if validation is successful.
      * @throws FirebaseAuthException if the token is invalid or user does not meet admin requirements.
      */
-    protected String validateToken(String authorisationHeader, boolean requireAdmin) throws FirebaseAuthException {
+    protected String validateToken(String authorisationHeader, boolean requireAdmin) {
         if (authorisationHeader == null || !authorisationHeader.startsWith("Bearer ")) {
             throw new IllegalArgumentException("Invalid Authorisation header.");
         }
 
         String idToken = authorisationHeader.replace("Bearer ", "").trim();
-        FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
-        String userId = decodedToken.getUid();
 
-        if (requireAdmin && !userService.isUserAdmin(userId)) {
-            throw new SecurityException("Access denied: User is not an admin.");
+        try {
+            FirebaseToken decodedToken = FirebaseAuth.getInstance().verifyIdToken(idToken);
+            String userId = decodedToken.getUid();
+
+            if (requireAdmin && !userService.isUserAdmin(userId)) {
+                throw new SecurityException("Access denied: User is not an admin.");
+            }
+
+            return userId;
+        } catch (FirebaseAuthException e) {
+            logger.error("Failed to validate Firebase token: {}", e.getMessage(), e);
+            throw new SecurityException("Unauthorised: Invalid or expired token.");
+        } catch (SecurityException e) {
+            throw e;
+        } catch (Exception e) {
+            logger.error("Unexpected error during token validation: {}", e.getMessage(), e);
+            throw new SecurityException("Unauthorised: Unable to validate token.");
         }
-
-        return userId;
     }
 
 }
