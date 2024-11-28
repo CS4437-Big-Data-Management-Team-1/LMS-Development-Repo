@@ -211,4 +211,16 @@ public class GameService {
         }
     }
 
+    /**
+     * Get active players in a specific game.
+     *
+     * @param gameId the ID of the game
+     * @return list of active players
+     */
+    public List<Player> getActivePlayersInGame(int gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+        return playerRepository.findByGameAndIsActive(game, true);
+    }
+
 }
