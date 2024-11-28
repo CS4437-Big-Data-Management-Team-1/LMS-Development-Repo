@@ -1,29 +1,70 @@
 services:
   user-service:
+    container_name: user-service
     build:
-      context: .
+      context: ./user-service
       dockerfile: Dockerfile
+#    volumes:
+#      - .env:/user-service/.env
     ports:
-      - "8080:8080"
-    depends_on:
-      - mysqldb
-    environment:
-      - jdbc:mysql://database-users.mysql.database.azure.com:3306/users?useSSL=true
+          - "8080:8080"
+    networks:
+          - app-network
+#    command: ["java", "-jar", "user-service/target/user-service-0.0.1-SNAPSHOT.jar"]
+
+  payment-service:
+    container_name: payment-service
+    build:
+      context: ./payment-service
+      dockerfile: Dockerfile
+#    volumes:
+#      - .env:/payment-service/.env
+    ports:
+        - "8081:8080"
+    networks:
+        - app-network
+#    command: ["java", "-jar", "target/payment-service.jar"]
+
+  notification-service:
+    container_name: notification-service
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+#    volumes:
+#      - .env:/notification-service/.env
+    ports:
+        - "8082:8080"
+    networks:
+        - app-network
+#    command: ["java", "-jar", "target/notification-service.jar"]
+
+  information-service:
+    container_name: information-service
+    build:
+      context: ./information-service
+      dockerfile: Dockerfile
+#    volumes:
+#      - .env:/information-service/.env
+    ports:
+      - "8083:8080"
+
     networks:
       - app-network
+  #  command: ["java", "-jar", "target/information-service.jar"]
 
-  mysqldb:
-    image: "mysql:8.0"
+  game-service:
+    container_name: game-service
+    build:
+      context: ./game-service
+      dockerfile: Dockerfile
+#    volumes:
+#      - .env:/game-service/.env
     ports:
-      - 3306:3306
+      - "8084:8080"
     networks:
-      - springapimysql-net
-    environment:
-      MYSQL_DATABASE:
-      MYSQL_USER:
-      MYSQL_PASSWORD:
-      MYSQL_ROOT_PASSWORD:
-
+      - app-network
+  #  command: ["java", "-jar", "target/game-service.jar"]
 
 networks:
   app-network:
+    driver: bridge
