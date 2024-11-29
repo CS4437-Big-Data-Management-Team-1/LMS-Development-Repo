@@ -1,35 +1,27 @@
 package com.lms.informationservice.integration;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
-import com.github.tomakehurst.wiremock.junit5.WireMockExtension;
-import com.lms.informationservice.matches.Matches;
+import com.lms.informationservice.repository.MatchesRepository;
+import com.lms.informationservice.repository.TeamRepository;
 import com.lms.informationservice.service.InformationService;
-import com.lms.informationservice.team.Team;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.extension.RegisterExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.List;
 
 import static org.hamcrest.Matchers.greaterThan;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
-@ExtendWith(SpringExtension.class)
 public class InformationServiceIntegrationTest {
 
     @Autowired
@@ -38,17 +30,24 @@ public class InformationServiceIntegrationTest {
     @Autowired
     private InformationService informationService;
 
-    @BeforeEach
-    void setupMocks() {
-        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/teams"))
-                .willReturn(WireMock.aResponse()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("{ \"teams\": [{ \"id\": 1, \"name\": \"Team A\", \"tla\": \"TA\" }] }")));
+    @Autowired
+    private TeamRepository teamRepository;
 
-        WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/matches"))
-                .willReturn(WireMock.aResponse()
-                        .withHeader("Content-Type", "application/json")
-                        .withBody("{ \"matches\": [{ \"id\": 101, \"homeTeam\": {\"id\": 1, \"name\": \"Team A\"}, \"awayTeam\": {\"id\": 2, \"name\": \"Team B\"}, \"utcDate\": \"2023-11-29T12:00:00Z\", \"score\": {\"winner\": \"HOME_TEAM\"} }] }")));
+    @Autowired
+    private MatchesRepository matchesRepository;
+
+    @BeforeAll
+    static void validateEnvironment() {
+        Dotenv dotenv = Dotenv.load();
+        System.setProperty("FOOTBALL_API_BASE_URL", dotenv.get("FOOTBALL_API_BASE_URL"));
+        System.setProperty("FOOTBALL_API_TOKEN", dotenv.get("FOOTBALL_API_TOKEN"));
+    }
+
+    @BeforeEach
+    void setUp() {
+        teamRepository.deleteAll();
+        matchesRepository.deleteAll();
+
     }
 
     @Test
