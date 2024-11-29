@@ -63,6 +63,14 @@
             <version>1.0.0</version>
         </dependency>
 
+                    <!-- Mockito Core -->
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>5.2.0</version>
+            <scope>test</scope>
+        </dependency>
+
 
         <!-- JPA dependency for @Entity and other persistence annotations -->
         <dependency>
