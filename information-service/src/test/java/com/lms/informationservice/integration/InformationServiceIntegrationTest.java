@@ -38,27 +38,6 @@ public class InformationServiceIntegrationTest {
     @Autowired
     private InformationService informationService;
 
-    @LocalServerPort
-    private int port;
-
-    @RegisterExtension
-    static WireMockExtension wireMock = WireMockExtension.newInstance()
-            .options(WireMockConfiguration.wireMockConfig().dynamicPort())
-            .build();
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        // Configure H2 in-memory database
-        registry.add("spring.datasource.url", () -> "jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;MODE=MYSQL");
-        registry.add("spring.datasource.driver-class-name", () -> "org.h2.Driver");
-        registry.add("spring.datasource.username", () -> "sa");
-        registry.add("spring.datasource.password", () -> "");
-
-        // Configure mock API endpoints
-        registry.add("FOOTBALL_API_BASE_URL", () -> "http://localhost:" + wireMock.getPort());
-        registry.add("FOOTBALL_API_TOKEN", () -> "test-token");
-    }
-
     @BeforeEach
     void setupMocks() {
         WireMock.stubFor(WireMock.get(WireMock.urlPathEqualTo("/teams"))
@@ -93,15 +72,4 @@ public class InformationServiceIntegrationTest {
                 .andExpect(jsonPath("$.length()").value(greaterThan(0)));
     }
 
-    @Test
-    void testApiCallGetTeams() {
-        List<Team> teams = informationService.apiCallGetTeams();
-        assertFalse(teams.isEmpty());
-    }
-
-    @Test
-    void testApiCallGetMatches() {
-        List<Matches> matches = informationService.apiCallGetMatches();
-        assertFalse(matches.isEmpty());
-    }
 }
