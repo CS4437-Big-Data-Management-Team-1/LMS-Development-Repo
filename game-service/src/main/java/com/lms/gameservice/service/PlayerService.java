@@ -84,6 +84,31 @@ public class PlayerService {
     }
 
     /**
+     * Automatically picks a team if a player forgot to.
+     * @param player The player object
+     * @param team The team to pick
+     */
+    public void autoPickTeam(Player player){
+
+        ArrayList<String> availableTeams = player.getTeamsAvailable();
+        String team = availableTeams.get(0);
+        
+        availableTeams.remove(team);
+        player.setTeamsAvailable(availableTeams);
+
+        if(player.getTeamsUsed() == null){
+            player.setTeamsUsed(new ArrayList<>());
+        }
+        ArrayList<String> usedTeams = player.getTeamsUsed();
+        usedTeams.add(team);
+        player.setTeamsUsed(usedTeams);
+        player.setTeamPick(team);
+        
+        playerRepository.save(player);
+    }
+
+
+    /**
      * Allows a player to view their available team picks.
      * @param player The player object
      */
