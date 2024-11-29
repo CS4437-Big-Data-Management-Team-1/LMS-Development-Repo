@@ -57,7 +57,7 @@ class InformationServiceTest {
     @Mock
     private ResponseSpec responseSpec;
 
-//     @InjectMocks
+    @InjectMocks
     private InformationService informationService;
 
     @BeforeEach
