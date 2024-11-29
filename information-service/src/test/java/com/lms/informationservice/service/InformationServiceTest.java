@@ -1,27 +1,35 @@
 package com.lms.informationservice.service;
 
-import com.lms.informationservice.matches.Matches;
-import com.lms.informationservice.repository.MatchesRepository;
-import com.lms.informationservice.repository.TeamRepository;
-import com.lms.informationservice.team.Team;
-import io.github.cdimascio.dotenv.Dotenv;
+import java.time.Instant;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
+
+import com.lms.informationservice.matches.Matches;
+import com.lms.informationservice.repository.MatchesRepository;
+import com.lms.informationservice.repository.TeamRepository;
+import com.lms.informationservice.team.Team;
+
 import reactor.core.publisher.Mono;
-
-import java.time.Instant;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-import static org.mockito.ArgumentMatchers.any;
 
 /**
  * Unit tests for the InformationService class
@@ -49,7 +57,7 @@ class InformationServiceTest {
     @Mock
     private ResponseSpec responseSpec;
 
-    @InjectMocks
+//     @InjectMocks
     private InformationService informationService;
 
     @BeforeEach
