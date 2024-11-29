@@ -271,6 +271,7 @@ public class GameService {
 
     }
 
+    /**
      * Get active players in a specific game.
      *
      * @param gameId the ID of the game
