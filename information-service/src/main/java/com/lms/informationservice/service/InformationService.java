@@ -1,21 +1,25 @@
 package com.lms.informationservice.service;
 
-import io.github.cdimascio.dotenv.Dotenv;
-import com.lms.informationservice.matches.Matches;
-import com.lms.informationservice.repository.MatchesRepository;
-import com.lms.informationservice.repository.TeamRepository;
-import com.lms.informationservice.team.Team;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import com.lms.informationservice.matches.Matches;
+import com.lms.informationservice.repository.MatchesRepository;
+import com.lms.informationservice.repository.TeamRepository;
+import com.lms.informationservice.team.Team;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 /**
  * Service class for managing external-api operations and calls.
@@ -48,7 +52,7 @@ public class InformationService {
     public InformationService(TeamRepository teamRepository, MatchesRepository matchesRepository) {
         this.teamRepository = teamRepository;
         this.matchesRepository = matchesRepository;
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().filename("information.env").load();
         this.webClient = WebClient.builder()
                 .baseUrl(dotenv.get("FOOTBALL_API_BASE_URL"))
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
