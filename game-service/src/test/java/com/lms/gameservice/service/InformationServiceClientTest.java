@@ -37,7 +37,7 @@ class InformationServiceClientTest {
 
     @BeforeEach
     void setUp() {
-        // Load the environment variables from the test .env file
+        // Load the environment variables from the test game.env file
         Dotenv dotenv = Dotenv.configure()
                 .directory("src/test/resources")
                 .filename(".env")

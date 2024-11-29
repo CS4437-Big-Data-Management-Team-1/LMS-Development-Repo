@@ -256,6 +256,7 @@ public class GameService {
     }
 
     /**
+ Game-Finish-Feaures
      * Helper method to set the active and next team for a player
      * @param player the player to update
      */
@@ -269,4 +270,17 @@ public class GameService {
             playerRepository.save(player);
 
     }
+
+     * Get active players in a specific game.
+     *
+     * @param gameId the ID of the game
+     * @return list of active players
+     */
+    public List<Player> getActivePlayersInGame(int gameId) {
+        Game game = gameRepository.findById(gameId)
+                .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+        return playerRepository.findByGameAndIsActive(game, true);
+    }
+
+
 }

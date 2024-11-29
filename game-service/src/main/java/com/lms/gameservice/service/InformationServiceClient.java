@@ -35,7 +35,7 @@ public class InformationServiceClient {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
         baseUrl = dotenv.get("INFORMATION_SERVICE_BASE_URL");
         if (baseUrl == null || baseUrl.isEmpty()) {
-            throw new RuntimeException("INFORMATION_SERVICE_BASE_URL not set in .env file");
+            throw new RuntimeException("INFORMATION_SERVICE_BASE_URL not set in game.env file");
         }
     }
 
