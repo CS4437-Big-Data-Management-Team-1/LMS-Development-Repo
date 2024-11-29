@@ -19,6 +19,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+/**
+ * Integration test for User Service
+ * @author Caoimhe Cahill
+ */
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -41,13 +45,6 @@ public class InformationServiceIntegrationTest {
         Dotenv dotenv = Dotenv.load();
         System.setProperty("FOOTBALL_API_BASE_URL", dotenv.get("FOOTBALL_API_BASE_URL"));
         System.setProperty("FOOTBALL_API_TOKEN", dotenv.get("FOOTBALL_API_TOKEN"));
-    }
-
-    @BeforeEach
-    void setUp() {
-        teamRepository.deleteAll();
-        matchesRepository.deleteAll();
-
     }
 
     @Test
