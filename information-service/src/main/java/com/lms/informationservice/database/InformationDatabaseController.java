@@ -3,11 +3,11 @@ package com.lms.informationservice.database;
 import com.lms.informationservice.team.Team;
 import java.util.List;
 import java.sql.*;
-import jakarta.persistence.*;
-import com.mysql.cj.jdbc.AbandonedConnectionCleanupThread;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import javax.sql.DataSource;
 import java.util.*;
 import java.util.logging.Logger;
 
@@ -17,10 +17,11 @@ import java.util.logging.Logger;
  *
  * @author Mark Harrison
  */
+@Component
 public class InformationDatabaseController{
 
     private static final Logger log;
-    private static Connection connection;
+    private final DataSource dataSource;
 
     static {
         System.setProperty("java.util.logging.SimpleFormatter.format", "[%4$-7s] %5$s %n");
@@ -35,14 +36,14 @@ public class InformationDatabaseController{
      * @return          The boolean value of if the connection succeeded
      *
      */
-    private final static String dbUsername = System.getProperty("DB_USERNAME");
-    private final static String dbPassword = System.getProperty("DB_PASSWORD");
-    private final static String dbUrl = System.getProperty("DB_TEAMS_URL");
+    @Autowired
+    public InformationDatabaseController(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
-    public static boolean connectToDB(){
+    public boolean connectToDB(){
         log.info("Connecting to the database");
-        try{
-            connection = DriverManager.getConnection(dbUrl, dbUsername ,dbPassword);
+        try(Connection connection = dataSource.getConnection()){
             log.info("Database connection test: " + connection.getCatalog());
             return true;
         } catch (SQLException e){
@@ -56,15 +57,11 @@ public class InformationDatabaseController{
      *
      * @return boolean representing if the operation was successful
      */
-    public static boolean addTeamsToDB(Team team){
-        if (connection == null) {
-            log.severe("Database connection is null.");
-            return false;
-        }
-
+    public boolean addTeamsToDB(Team team){
 
         String sql = "INSERT INTO teams (team_id,team_name,abbreviation) VALUES (?, ?, ?)";
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)){
             statement.setInt(1, team.getTeamID() );
             statement.setString(2, team.getTeamName());
             statement.setString(3, team.getTla());
@@ -81,17 +78,11 @@ public class InformationDatabaseController{
      * Fetches all teams in the database
      * @return boolean representing if the operation was successful
      */
-    public static List<Team> getTeamsFromDB(){
+    public List<Team> getTeamsFromDB(){
         List<Team> resultsList = new ArrayList<>();
-
-        if (connection == null) {
-            log.severe("Database connection is null.");
-            return resultsList;
-        }
-
-
         String sql = "SELECT * FROM teams";
-        try (PreparedStatement statement = connection.prepareStatement(sql)){
+        try (Connection connection = dataSource.getConnection();
+             PreparedStatement statement = connection.prepareStatement(sql)){
             ResultSet results = statement.executeQuery();
 
             while(results.next()){

@@ -1,5 +1,6 @@
 package com.lms.informationservice.controller;
 
+import com.lms.informationservice.database.InformationDatabaseController;
 import com.lms.informationservice.matches.Matches;
 import com.lms.informationservice.service.InformationService;
 import com.lms.informationservice.team.Team;
@@ -27,6 +28,9 @@ class InformationControllerTest {
 
     @Mock
     private InformationService informationService;
+
+    @Mock
+    private InformationDatabaseController db;
 
     @InjectMocks
     private InformationController informationController;
