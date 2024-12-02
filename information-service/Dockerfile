@@ -14,7 +14,7 @@ WORKDIR /app
 COPY target/information-service-0.0.1-SNAPSHOT.jar ./app.jar
 COPY information.env ./information.env
 
-EXPOSE 8083
+EXPOSE 8082
 #ENV DB_URL_GAMES=mysql://database-users.mysql.database.azure.com:3306/games
 #ENV DB_URL_TEAMS=mysql://database-users.mysql.database.azure.com:3306/teams
 

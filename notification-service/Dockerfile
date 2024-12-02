@@ -16,7 +16,7 @@ COPY target/notification-service-0.0.1-SNAPSHOT.jar ./app.jar
 COPY notification.env ./notification.env
 
 
-EXPOSE 8082
+EXPOSE 8085
 
 #ENV DB_URL=mysql://database-users.mysql.database.azure.com:3306/games
 

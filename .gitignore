@@ -52,3 +52,8 @@ game-service/.env
 
 ### Firebase setup json
 user-service/src/main/resources/firebase-setup.json
+game-service/game.env
+information-service/information.env
+notification-service/notification.env
+payment-service/payment.env
+user-service/user.env
