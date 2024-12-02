@@ -41,7 +41,7 @@ class MatchesDTOTests {
     @Test
     void testHomeTeamName() {
         MatchesDTO matchesDTO = new MatchesDTO();
-        String expectedHomeTeamName = "Warriors";
+        String expectedHomeTeamName = "Team A";
         matchesDTO.setHomeTeamName(expectedHomeTeamName);
         String actualHomeTeamName = matchesDTO.getHomeTeamName();
         assertEquals(expectedHomeTeamName, actualHomeTeamName);
@@ -50,7 +50,7 @@ class MatchesDTOTests {
     @Test
     void testAwayTeamName() {
         MatchesDTO matchesDTO = new MatchesDTO();
-        String expectedAwayTeamName = "Tigers";
+        String expectedAwayTeamName = "Team B";
         matchesDTO.setAwayTeamName(expectedAwayTeamName);
         String actualAwayTeamName = matchesDTO.getAwayTeamName();
         assertEquals(expectedAwayTeamName, actualAwayTeamName);
@@ -68,7 +68,7 @@ class MatchesDTOTests {
     @Test
     void testResult() {
         MatchesDTO matchesDTO = new MatchesDTO();
-        String expectedResult = "Home Win";
+        String expectedResult = "TA";
         matchesDTO.setResult(expectedResult);
         String actualResult = matchesDTO.getResult();
         assertEquals(expectedResult, actualResult);
