@@ -16,7 +16,9 @@ class TeamTest {
         int teamID = 100;
 
         team.setTeamID(teamID);
-        assertEquals(teamID, team.getTeamID());
+        // Explicitly call the getter
+        int retrievedTeamID = team.getTeamID();
+        assertEquals(teamID, retrievedTeamID);
     }
 
     @Test
@@ -25,7 +27,9 @@ class TeamTest {
         String teamName = "Liverpool FC";
 
         team.setTeamName(teamName);
-        assertEquals(teamName, team.getTeamName());
+        // Explicitly call the getter
+        String retrievedTeamName = team.getTeamName();
+        assertEquals(teamName, retrievedTeamName);
     }
 
     @Test
@@ -34,6 +38,20 @@ class TeamTest {
         String tla = "LIV";
 
         team.setTla(tla);
-        assertEquals(tla, team.getTla());
+        // Explicitly call the getter
+        String retrievedTla = team.getTla();
+        assertEquals(tla, retrievedTla);
     }
+
+    @Test
+    void testToString() {
+        Team team = new Team();
+        team.setTeamID(100);
+        team.setTeamName("Liverpool FC");
+        team.setTla("LIV");
+
+        String expected = "Team{teamID=100, teamName='Liverpool FC', tla='LIV'}";
+        assertEquals(expected, team.toString());
+    }
+
 }

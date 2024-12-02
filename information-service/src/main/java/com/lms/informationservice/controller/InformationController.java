@@ -24,10 +24,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/information")
 public class InformationController {
-    InformationDatabaseController db = new InformationDatabaseController();
+
 
     @Autowired
     private final InformationService informationService;
+
+    private final InformationDatabaseController db;
+
 
     /**
      * Constructor for InformationController.
@@ -35,8 +38,8 @@ public class InformationController {
      *
      * @param informationService Service for handling team and match data operations.
      */
-    public InformationController(InformationService informationService) {
-        db.connectToDB();
+    public InformationController(InformationDatabaseController db, InformationService informationService) {
+        this.db = db;
         this.informationService = informationService;
     }
 

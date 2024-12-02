@@ -154,4 +154,80 @@ class InformationServiceTest {
         verify(matchesRepository, times(1)).saveAll(anyList());
         verify(matchesRepository, times(1)).findAll();
     }
+
+    @Test
+    void testApiCallGetMatches_EmptyResponse() {
+        // Mocking an empty response
+        Map<String, Object> mockResponse = new HashMap<>();
+
+        // WebClient Mock
+        doReturn(requestHeadersUriSpec).when(webClient).get();
+        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri("/matches");
+        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
+        doReturn(Mono.just(mockResponse)).when(responseSpec)
+                .bodyToMono(any(ParameterizedTypeReference.class));
+
+        // Mock repository behavior
+        when(matchesRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Call the method
+        List<Matches> matches = informationService.apiCallGetMatches();
+
+        assertTrue(matches.isEmpty());
+        verify(matchesRepository, times(0)).saveAll(anyList());
+        verify(matchesRepository, times(1)).findAll();
+    }
+
+    @Test
+    void testApiCallGetMatches_NullResponse() {
+        // WebClient Mock
+        doReturn(requestHeadersUriSpec).when(webClient).get();
+        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri("/matches");
+        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
+        doReturn(Mono.empty()).when(responseSpec)
+                .bodyToMono(any(ParameterizedTypeReference.class));
+
+        // Mock repository behavior
+        when(matchesRepository.findAll()).thenReturn(Collections.emptyList());
+
+        // Call the method
+        List<Matches> matches = informationService.apiCallGetMatches();
+
+        assertTrue(matches.isEmpty());
+        verify(matchesRepository, times(0)).saveAll(anyList());
+        verify(matchesRepository, times(1)).findAll();
+    }
+
+
+
+    @Test
+    void testApiCallGetMatches_ExceptionDuringRepositorySave() {
+        // Mocking response data
+        Map<String, Object> mockResponse = new HashMap<>();
+        mockResponse.put("matches", List.of(
+                Map.of(
+                        "id", 1,
+                        "homeTeam", Map.of("id", 1, "name", "Home Team A"),
+                        "awayTeam", Map.of("id", 2, "name", "Away Team B"),
+                        "utcDate", "2023-11-07T20:00:00Z",
+                        "score", Map.of("winner", "HOME_TEAM")
+                )
+        ));
+
+        // WebClient Mock
+        doReturn(requestHeadersUriSpec).when(webClient).get();
+        doReturn(requestHeadersSpec).when(requestHeadersUriSpec).uri("/matches");
+        doReturn(responseSpec).when(requestHeadersSpec).retrieve();
+        doReturn(Mono.just(mockResponse)).when(responseSpec)
+                .bodyToMono(any(ParameterizedTypeReference.class));
+
+        // Simulate exception during repository save
+        doThrow(new RuntimeException("Database error")).when(matchesRepository).saveAll(anyList());
+
+        assertThrows(RuntimeException.class, () -> informationService.apiCallGetMatches());
+
+        verify(matchesRepository, times(1)).saveAll(anyList());
+        verify(matchesRepository, times(0)).findAll();
+    }
+
 }
