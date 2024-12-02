@@ -60,7 +60,7 @@ services:
 #    volumes:
 #      - .env:/game-service/.env
     ports:
-      - "8084:8080"
+      - "8083:8080"
     networks:
       - app-network
   #  command: ["java", "-jar", "target/game-service.jar"]
