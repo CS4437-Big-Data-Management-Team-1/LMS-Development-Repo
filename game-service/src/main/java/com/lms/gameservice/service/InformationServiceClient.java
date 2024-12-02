@@ -32,7 +32,7 @@ public class InformationServiceClient {
     public InformationServiceClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
 
-        Dotenv dotenv = Dotenv.configure().filename("game.env").load();
+        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
         baseUrl = dotenv.get("INFORMATION_SERVICE_BASE_URL");
         if (baseUrl == null || baseUrl.isEmpty()) {
             throw new RuntimeException("INFORMATION_SERVICE_BASE_URL not set in game.env file");
