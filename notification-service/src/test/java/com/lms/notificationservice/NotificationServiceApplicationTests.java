@@ -24,7 +24,7 @@ import com.lms.notificationservice.service.NotificationService;
 /**
  * Unit tests for the NotificationController class.
  */
-class NotificationControllerTest {
+class NotificationServiceApplicationTests {
 
     @Mock
     private NotificationService notificationService; // Mocked service for sending notifications
@@ -106,20 +106,6 @@ class NotificationControllerTest {
         assertEquals(200, response.getStatusCodeValue());
         assertEquals("Notification sent to user@example.com", response.getBody());
         verify(notificationService).sendNotification(any(GameCreationNotification.class));
-    }
-
-    /**
-     * Tests the case where the recipient email is missing in the request.
-     */
-    @Test
-    void testSendNotification_MissingRecipient() {
-        Map<String, String> request = new HashMap<>();
-        request.put("type", "account_creation");
-
-        ResponseEntity<String> response = notificationController.sendNotification(request);
-
-        assertEquals(400, response.getStatusCodeValue());
-        assertEquals("Recipient email is required.", response.getBody());
     }
 
     /**

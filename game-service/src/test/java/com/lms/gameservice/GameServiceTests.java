@@ -41,7 +41,7 @@ class GameServiceTests {
         when(restTemplate.postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(expectedResponse));
 
-        gameController.sendGameCreationNotification(MOCK_USER_EMAIL, "game_created", MOCK_GAME_NAME, 2, MOCK_ENTRY_FEE);
+        gameController.sendGameCreationNotification(MOCK_USER_EMAIL, "game_created", MOCK_GAME_NAME, "2", "5");
 
         verify(restTemplate, times(1)).postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class));
         verifyNoMoreInteractions(restTemplate);
@@ -53,7 +53,7 @@ class GameServiceTests {
         when(restTemplate.postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(expectedResponse));
 
-        gameController.sendGameJoinedNotification(MOCK_USER_EMAIL, "game_joined", MOCK_GAME_NAME, MOCK_ENTRY_FEE);
+        gameController.sendGameJoinedNotification(MOCK_USER_EMAIL, "game_joined", MOCK_GAME_NAME, "5");
 
         verify(restTemplate, times(1)).postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class));
         verifyNoMoreInteractions(restTemplate);
