@@ -45,10 +45,11 @@ public class UserServiceIntegrationTest {
 
     private List<String> createdFirebaseUserIds;
 
-    @BeforeAll
-    static void validateEnvironment() {
-        Dotenv dotenv = Dotenv.load();
-    }
+//    @BeforeAll
+//    static void validateEnvironment() {
+//        Dotenv dotenv = Dotenv.load();
+//
+//    }
 
     @BeforeEach
     void setUp() {
