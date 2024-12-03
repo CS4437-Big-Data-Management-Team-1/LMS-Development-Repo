@@ -10,6 +10,7 @@ FROM openjdk:17-jdk-alpine
 
 WORKDIR /app
 
+COPY src/main/resources/firebase-setup.json /app/src/main/resources/firebase-setup.json
 COPY target/user-service-0.0.1-SNAPSHOT.jar ./app.jar
 COPY user.env ./user.env
 
