@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.lms.gameservice.gamerequest.GameRequestDTO;
+import com.lms.gameservice.matches.MatchesDTO;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.model.Results;
@@ -32,8 +33,6 @@ import com.lms.gameservice.service.PlayerService;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-
-import com.lms.gameservice.matches.MatchesDTO;
 
 
 @RestController
@@ -85,7 +84,7 @@ public class GameController {
             Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(),
                     gameRequest.getWeeksTillStartDate(), uid);
 
-            noti.sendGameCreationNotification(userEmail, "game_created", gameRequest.getName(), gameRequest.getWeeksTillStartDate(), gameRequest.getEntryFee().doubleValue());
+            noti.sendGameCreationNotification(userEmail, "game_created", gameRequest.getName(), String.valueOf(gameRequest.getWeeksTillStartDate()), String.valueOf(gameRequest.getEntryFee().doubleValue()));
             System.out.print(userEmail);
             return ResponseEntity.ok(game);
 
@@ -137,7 +136,7 @@ public class GameController {
             boolean joinedSuccessfully = gameService.joinGame(gameId, uid, authorisationHeader);
             if (joinedSuccessfully) {
                 System.out.println("User has joined game " +  gameId + " successfully.");
-                noti.sendGameJoinedNotification(userEmail, "game_joined", gameName, entryFee);
+                noti.sendGameJoinedNotification(userEmail, "game_joined", gameName, String.valueOf(entryFee));
                 return ResponseEntity.ok("User joined game " + gameId);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
