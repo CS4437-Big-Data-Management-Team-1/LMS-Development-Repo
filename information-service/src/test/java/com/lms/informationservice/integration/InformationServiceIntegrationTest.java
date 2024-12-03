@@ -6,6 +6,7 @@ import com.lms.informationservice.service.InformationService;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.junit.jupiter.api.BeforeAll;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -44,6 +45,11 @@ public class InformationServiceIntegrationTest {
 //    static void validateEnvironment() {
 //        Dotenv dotenv = Dotenv.load();
 //    }
+
+    @BeforeEach
+    public void setup(){
+        informationService = new InformationService(teamRepository, matchesRepository);
+    }
 
     @Test
     void testFetchTeamsEndpoint() throws Exception {
