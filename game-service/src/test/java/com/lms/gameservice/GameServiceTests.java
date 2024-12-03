@@ -24,7 +24,7 @@ class GameServiceTests {
     @Mock
     private RestTemplate restTemplate;
 
-    private static final String MOCK_NOTIFICATION_URL = "http://localhost:8085/api/notifications/send";
+    private static final String MOCK_NOTIFICATION_URL = "http://notification-service:8085/api/notifications/send";
     private static final String MOCK_GAME_NAME = "Test Game";
     private static final double MOCK_ENTRY_FEE = 100.0;
     private static final String MOCK_USER_EMAIL = "user@example.com";

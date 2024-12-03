@@ -50,7 +50,7 @@ class GameUpdateSchedulerTests {
         String playerStatus = "Active";
         String playerTeamPick = "Team A";
 
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        String notificationUrl = "http://notification-service:8085/api/notifications/send";
         ResponseEntity<String> mockResponse = new ResponseEntity<>(HttpStatus.OK);
 
         // Mock RestTemplate behavior for notifications
@@ -89,7 +89,7 @@ class GameUpdateSchedulerTests {
         String playerStatus = "Active";
         String playerTeamPick = "Team A";
 
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        String notificationUrl = "http://notification-service:8085/api/notifications/send";
 
         // Mock RestTemplate to throw an exception
         when(restTemplate.postForEntity(eq(notificationUrl), any(), eq(String.class)))
@@ -107,7 +107,7 @@ class GameUpdateSchedulerTests {
     void testGetUserEmailByUid_Success() {
         String uid = "12345";
         String expectedEmail = "testuser@example.com";
-        String emailApiUrl = "http://localhost:8080/api/users/" + uid + "/email";
+        String emailApiUrl = "http://user-service:8080/api/users/" + uid + "/email";
 
         // Mock RestTemplate behavior for email lookup
         ResponseEntity<String> mockResponse = new ResponseEntity<>(expectedEmail, HttpStatus.OK);
@@ -124,7 +124,7 @@ class GameUpdateSchedulerTests {
     @Test
     void testGetUserEmailByUid_Failure() {
         String uid = "12345";
-        String emailApiUrl = "http://localhost:8080/api/users/" + uid + "/email";
+        String emailApiUrl = "http://user-service:8080/api/users/" + uid + "/email";
 
         // Mock RestTemplate to simulate an API failure
         when(restTemplate.exchange(eq(emailApiUrl), eq(HttpMethod.GET), isNull(), eq(String.class)))

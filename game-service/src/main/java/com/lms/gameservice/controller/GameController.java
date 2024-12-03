@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.lms.gameservice.gamerequest.GameRequestDTO;
+import com.lms.gameservice.matches.MatchesDTO;
 import com.lms.gameservice.model.Game;
 import com.lms.gameservice.model.Player;
 import com.lms.gameservice.model.Results;
@@ -38,8 +39,6 @@ import com.lms.gameservice.service.PlayerService;
 
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-
-import com.lms.gameservice.matches.MatchesDTO;
 
 
 @RestController
@@ -307,7 +306,7 @@ public class GameController {
     }
 
     public void sendGameCreationNotification(String recipient, String type, String gameName, int weeksTillStartDate, double entryFee) {
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        String notificationUrl = "http://notification-service:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
         notificationData.put("type", type);
@@ -323,7 +322,7 @@ public class GameController {
     }
 
     public void sendGameJoinedNotification(String recipient, String type, String gameName, double entryFee) {
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        String notificationUrl = "http://notification-service:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
         notificationData.put("type", type);
@@ -339,7 +338,7 @@ public class GameController {
 
     private String getUserEmailByUid(String uid) {
         // Call the UserController's endpoint to get the email
-        String url = "http://localhost:8080/api/users/" + uid + "/email";
+        String url = "http://user-service:8080/api/users/" + uid + "/email";
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
