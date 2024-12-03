@@ -59,7 +59,7 @@ public class NotificationServiceClient {
         }
     }
 
-    public void sendGameCreationNotification(String recipient, String type, String gameName, int weeksTillStartDate, double entryFee) {
+    public void sendGameCreationNotification(String recipient, String type, String gameName, String weeksTillStartDate, String entryFee) {
         String notificationUrl = "http://notification-service:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
@@ -75,7 +75,7 @@ public class NotificationServiceClient {
         }
     }
 
-    public void sendGameJoinedNotification(String recipient, String type, String gameName, double entryFee) {
+    public void sendGameJoinedNotification(String recipient, String type, String gameName, String entryFee) {
         String notificationUrl = "http://notification-service:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
