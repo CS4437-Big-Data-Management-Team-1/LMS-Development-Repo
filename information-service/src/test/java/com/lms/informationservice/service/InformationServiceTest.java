@@ -49,13 +49,15 @@ class InformationServiceTest {
     @Mock
     private ResponseSpec responseSpec;
 
-    @InjectMocks
+//    @InjectMocks
     private InformationService informationService;
 
     @BeforeEach
     public void setUp() {
         // Spy on the actual service to intercept WebClient calls
-        informationService = Mockito.spy(new InformationService(teamRepository, matchesRepository));
+
+        this.informationService = new InformationService(teamRepository, matchesRepository);
+        informationService = Mockito.spy(informationService);
         ReflectionTestUtils.setField(informationService, "webClient", webClient);
     }
 
