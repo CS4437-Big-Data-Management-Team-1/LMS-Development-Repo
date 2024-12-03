@@ -15,7 +15,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [ user, information, payment, game, notification ]
+        service: [ information, game, notification, payment, user ]
 
     steps:
       - uses: actions/checkout@v4
@@ -30,22 +30,22 @@ jobs:
         run: |
           # Map service to its corresponding secret and write to .env file
           if [ "${{ matrix.service }}" = "information" ]; then
-            touch .env
-            echo "${{ secrets.USER_SERVICE_ENV }}" > .env
+            cd information-service
+            echo "${{ secrets.INFORMATION_SERVICE_ENV }}" > .env
             cat .env
-          elif [ "${{ matrix.service }}" = "game" ]; then
-            touch .env
+           elif [ "${{ matrix.service }}" = "game" ]; then
+            cd game-service
             echo "${{ secrets.GAME_SERVICE_ENV }}" > .env
             cat .env 
            elif [ "${{ matrix.service }}" = "notification" ]; then
-            touch .env
+            cd notification-service
             echo "${{ secrets.NOTIFICATION_SERVICE_ENV }}" > .env
            elif [ "${{ matrix.service }}" = "payment" ]; then
-            touch .env
+            cd payment-service
             echo "${{ secrets.PAYMENT_SERVICE_ENV }}" > .env
             cat .env
            elif [ "${{ matrix.service }}" = "user" ]; then
-            touch .env
+             cd user-service
             echo "${{ secrets.USER_SERVICE_ENV }}" > .env
             cat .env
           fi
