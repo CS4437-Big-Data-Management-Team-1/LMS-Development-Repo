@@ -50,9 +50,9 @@ public class InformationService {
         this.matchesRepository = matchesRepository;
         Dotenv dotenv = Dotenv.load();
         this.webClient = WebClient.builder()
-                .baseUrl(dotenv.get("FOOTBALL_API_BASE_URL"))
+                .baseUrl("FOOTBALL_API_BASE_URL")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                .defaultHeader("X-Auth-Token", dotenv.get("FOOTBALL_API_TOKEN"))
+                .defaultHeader("X-Auth-Token", "FOOTBALL_API_TOKEN")
                 .codecs(configurer -> configurer.defaultCodecs().maxInMemorySize(512 * 1024))
                 .build();
     }
