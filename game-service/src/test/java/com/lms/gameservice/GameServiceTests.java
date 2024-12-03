@@ -15,16 +15,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.lms.gameservice.controller.GameController;
+import com.lms.gameservice.service.NotificationServiceClient;
 
 class GameServiceTests {
 
     @InjectMocks
-    private GameController gameController;
+    private NotificationServiceClient notificationServiceClient;
 
     @Mock
     private RestTemplate restTemplate;
 
-    private static final String MOCK_NOTIFICATION_URL = "http://localhost:8085/api/notifications/send";
+    private static final String MOCK_NOTIFICATION_URL = "http://notification-service:8085/api/notifications/send";
     private static final String MOCK_GAME_NAME = "Test Game";
     private static final double MOCK_ENTRY_FEE = 100.0;
     private static final String MOCK_USER_EMAIL = "user@example.com";
@@ -41,7 +42,7 @@ class GameServiceTests {
         when(restTemplate.postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(expectedResponse));
 
-        gameController.sendGameCreationNotification(MOCK_USER_EMAIL, "game_created", MOCK_GAME_NAME, 2, MOCK_ENTRY_FEE);
+        notificationServiceClient.sendGameCreationNotification(MOCK_USER_EMAIL, "game_created", MOCK_GAME_NAME, 2, MOCK_ENTRY_FEE);
 
         verify(restTemplate, times(1)).postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class));
         verifyNoMoreInteractions(restTemplate);
@@ -53,7 +54,7 @@ class GameServiceTests {
         when(restTemplate.postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class)))
                 .thenReturn(ResponseEntity.ok(expectedResponse));
 
-        gameController.sendGameJoinedNotification(MOCK_USER_EMAIL, "game_joined", MOCK_GAME_NAME, MOCK_ENTRY_FEE);
+        notificationServiceClient.sendGameJoinedNotification(MOCK_USER_EMAIL, "game_joined", MOCK_GAME_NAME, MOCK_ENTRY_FEE);
 
         verify(restTemplate, times(1)).postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class));
         verifyNoMoreInteractions(restTemplate);
