@@ -142,7 +142,7 @@ public class GameUpdateScheduler {
         String playerStatus,
         String playerTeamPick
     ) {
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        String notificationUrl = "http://notification-service:8085/api/notifications/send";
 
         // Build the notification data as a map of individual fields
         Map<String, String> notificationData = new HashMap<>();
@@ -168,7 +168,7 @@ public class GameUpdateScheduler {
 
     public String getUserEmailByUid(String uid) {
         // Call the UserController's endpoint to get the email
-        String url = "http://localhost:8080/api/users/" + uid + "/email";
+        String url = "http://user-service:8080/api/users/" + uid + "/email";
 
         try {
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);

@@ -1,11 +1,15 @@
 package com.lms.gameservice.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
-
-import java.math.BigDecimal;
 /**
  * Service class for processing payments.
  *
@@ -45,7 +49,7 @@ public class PaymentServiceClient {
 
         ResponseEntity<String> response = restTemplate.exchange(
 
-                "http://localhost:8081/api/payment/process",
+                "http://payment-service:8081/api/payment/process",
 
                 HttpMethod.POST,
                 entity,

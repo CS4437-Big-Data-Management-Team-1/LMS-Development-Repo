@@ -1,20 +1,27 @@
 package com.lms.gameservice;
 
+import java.math.BigDecimal;
+
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import static org.mockito.ArgumentMatchers.eq;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.lms.gameservice.service.PaymentServiceClient;
-
-import java.math.BigDecimal;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 class PaymentServiceClientTest {
 
@@ -35,7 +42,7 @@ class PaymentServiceClientTest {
         BigDecimal amount = new BigDecimal("10.00");
         int gameId = 123;
         String token = "valid_jwt_token";
-        String paymentServiceUrl = "http://localhost:8081/api/payment/process";
+        String paymentServiceUrl = "http://payment-service:8081/api/payment/process";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorisation", token);
@@ -73,7 +80,7 @@ class PaymentServiceClientTest {
         BigDecimal amount = new BigDecimal("10.00");
         int gameId = 123;
         String token = "valid_jwt_token";
-        String paymentServiceUrl = "http://localhost:8081/api/payment/process";
+        String paymentServiceUrl = "http://payment-service:8081/api/payment/process";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorisation", token);

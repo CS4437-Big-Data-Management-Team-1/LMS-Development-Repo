@@ -31,9 +31,7 @@ public class InformationServiceClient {
     @Autowired
     public InformationServiceClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
-
-        Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
-        baseUrl = dotenv.get("INFORMATION_SERVICE_BASE_URL");
+        baseUrl = "http://information-service:8082/api/information";
         if (baseUrl == null || baseUrl.isEmpty()) {
             throw new RuntimeException("INFORMATION_SERVICE_BASE_URL not set in game.env file");
         }

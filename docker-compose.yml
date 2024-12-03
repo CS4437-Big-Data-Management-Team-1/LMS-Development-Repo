@@ -4,26 +4,26 @@ services:
     build:
       context: ./user-service
       dockerfile: Dockerfile
-#    volumes:
-#      - .env:/user-service/.env
+    env_file:
+      - ./user-service/user.env
     ports:
-          - "8080:8080"
+      - "8080:8080"
     networks:
-          - app-network
-#    command: ["java", "-jar", "user-service/target/user-service-0.0.1-SNAPSHOT.jar"]
+      - app-network
+    command: ["java", "-jar", "target/user-service-0.0.1-SNAPSHOT.jar"]
 
   payment-service:
     container_name: payment-service
     build:
       context: ./payment-service
       dockerfile: Dockerfile
-#    volumes:
-#      - .env:/payment-service/.env
+    env_file:
+      - ./payment-service/payment.env
     ports:
-        - "8081:8080"
+      - "8081:8080"
     networks:
-        - app-network
-#    command: ["java", "-jar", "target/payment-service.jar"]
+      - app-network
+    command: ["java", "-jar", "target/payment-service.jar"]
 
   notification-service:
     container_name: notification-service
@@ -35,42 +35,41 @@ services:
       - SPRING_RABBITMQ_PORT=5672
       - SPRING_RABBITMQ_USERNAME=guest
       - SPRING_RABBITMQ_PASSWORD=guest
-#    volumes:
-#      - .env:/notification-service/.env
+    env_file:
+      - ./notification-service/notification.env
     ports:
-        - "8085:8080"
+      - "8085:8080"
     depends_on:
         - rabbitmq
     networks:
-        - app-network
-#    command: ["java", "-jar", "target/notification-service.jar"]
+      - app-network
+    command: ["java", "-jar", "target/notification-service.jar"]
 
   information-service:
     container_name: information-service
     build:
       context: ./information-service
       dockerfile: Dockerfile
-#    volumes:
-#      - .env:/information-service/.env
+    env_file:
+      - ./information-service/information.env
     ports:
       - "8082:8080"
-
     networks:
       - app-network
-  #  command: ["java", "-jar", "target/information-service.jar"]
+    command: ["java", "-jar", "target/information-service.jar"]
 
   game-service:
     container_name: game-service
     build:
       context: ./game-service
       dockerfile: Dockerfile
-#    volumes:
-#      - .env:/game-service/.env
+    env_file:
+      - ./game-service/game.env
     ports:
       - "8083:8080"
     networks:
       - app-network
-  #  command: ["java", "-jar", "target/game-service.jar"]
+    command: ["java", "-jar", "target/game-service.jar"]
 
   rabbitmq:
     container_name: rabbitmq

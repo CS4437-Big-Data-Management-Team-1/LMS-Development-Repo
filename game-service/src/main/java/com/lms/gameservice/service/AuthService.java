@@ -1,9 +1,12 @@
 package com.lms.gameservice.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
 
 @Service
 public class AuthService {
@@ -18,7 +21,7 @@ public class AuthService {
 
         ResponseEntity<String> response = restTemplate.exchange(
 
-                "http://localhost:8080/api/users/validate-jwt",
+                "http://user-service:8080/api/users/validate-jwt",
 
                 HttpMethod.POST,
                 entity,
