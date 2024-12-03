@@ -1,44 +1,76 @@
 package com.lms.gameservice;
 
-import java.util.Map;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+
+import java.util.Map;
+
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
-import com.lms.gameservice.service.GameUpdateScheduler;
 import com.lms.gameservice.service.NotificationServiceClient;
 
-class GameUpdateSchedulerTests {
+class NotificationServiceClientTests {
+
+    @InjectMocks
+    private NotificationServiceClient notificationServiceClient;
 
     @Mock
     private RestTemplate restTemplate;
 
-    @InjectMocks
-    private NotificationServiceClient notificationServiceClient;
+    private static final String MOCK_NOTIFICATION_URL = "http://notification-service:8085/api/notifications/send";
+    private static final String MOCK_GAME_NAME = "Test Game";
+    private static final double MOCK_ENTRY_FEE = 100.0;
+    private static final String MOCK_USER_EMAIL = "user@example.com";
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
-    // Test for when sending game update notifications
+    // Test cases for the sendGameCreationNotification() method
+    @Test
+    void testSendGameCreationNotification() {
+        String expectedResponse = "Notification sent";
+        when(restTemplate.postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok(expectedResponse));
+
+        notificationServiceClient.sendGameCreationNotification(MOCK_USER_EMAIL, "game_created", MOCK_GAME_NAME, 2, MOCK_ENTRY_FEE);
+
+        verify(restTemplate, times(1)).postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class));
+        verifyNoMoreInteractions(restTemplate);
+    }
+    // Test cases for the sendGameJoinedNotification() method
+    @Test
+    void testSendGameJoinedNotification() {
+        String expectedResponse = "Notification sent";
+        when(restTemplate.postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class)))
+                .thenReturn(ResponseEntity.ok(expectedResponse));
+
+        notificationServiceClient.sendGameJoinedNotification(MOCK_USER_EMAIL, "game_joined", MOCK_GAME_NAME, MOCK_ENTRY_FEE);
+
+        verify(restTemplate, times(1)).postForEntity(eq(MOCK_NOTIFICATION_URL), any(), eq(String.class));
+        verifyNoMoreInteractions(restTemplate);
+    }
+
     @Test
     void testSendGameUpdateNotification_Success() {
         String recipient = "testuser@example.com";
@@ -51,7 +83,7 @@ class GameUpdateSchedulerTests {
         String playerStatus = "Active";
         String playerTeamPick = "Team A";
 
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        String notificationUrl = "http://notification-service:8085/api/notifications/send";
         ResponseEntity<String> mockResponse = new ResponseEntity<>(HttpStatus.OK);
 
         // Mock RestTemplate behavior for notifications
@@ -90,7 +122,7 @@ class GameUpdateSchedulerTests {
         String playerStatus = "Active";
         String playerTeamPick = "Team A";
 
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
+        String notificationUrl = "http://notification-service:8085/api/notifications/send";
 
         // Mock RestTemplate to throw an exception
         when(restTemplate.postForEntity(eq(notificationUrl), any(), eq(String.class)))
@@ -108,7 +140,7 @@ class GameUpdateSchedulerTests {
     void testGetUserEmailByUid_Success() {
         String uid = "12345";
         String expectedEmail = "testuser@example.com";
-        String emailApiUrl = "http://localhost:8080/api/users/" + uid + "/email";
+        String emailApiUrl = "http://user-service:8080/api/users/" + uid + "/email";
 
         // Mock RestTemplate behavior for email lookup
         ResponseEntity<String> mockResponse = new ResponseEntity<>(expectedEmail, HttpStatus.OK);
@@ -125,7 +157,7 @@ class GameUpdateSchedulerTests {
     @Test
     void testGetUserEmailByUid_Failure() {
         String uid = "12345";
-        String emailApiUrl = "http://localhost:8080/api/users/" + uid + "/email";
+        String emailApiUrl = "http://user-service:8080/api/users/" + uid + "/email";
 
         // Mock RestTemplate to simulate an API failure
         when(restTemplate.exchange(eq(emailApiUrl), eq(HttpMethod.GET), isNull(), eq(String.class)))
