@@ -30,15 +30,24 @@ jobs:
         run: |
           # Map service to its corresponding secret and write to .env file
           if [ "${{ matrix.service }}" = "information" ]; then
+            touch .env
             echo "${{ secrets.USER_SERVICE_ENV }}" > .env
+            cat .env
           elif [ "${{ matrix.service }}" = "game" ]; then
+            touch .env
             echo "${{ secrets.GAME_SERVICE_ENV }}" > .env
+            cat .env 
            elif [ "${{ matrix.service }}" = "notification" ]; then
+            touch .env
             echo "${{ secrets.NOTIFICATION_SERVICE_ENV }}" > .env
            elif [ "${{ matrix.service }}" = "payment" ]; then
+            touch .env
             echo "${{ secrets.PAYMENT_SERVICE_ENV }}" > .env
+            cat .env
            elif [ "${{ matrix.service }}" = "user" ]; then
+            touch .env
             echo "${{ secrets.USER_SERVICE_ENV }}" > .env
+            cat .env
           fi
       
 
