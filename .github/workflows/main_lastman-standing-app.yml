@@ -1,4 +1,4 @@
-name: Build and run Unit tests on Services
+name: Build and run Unit and Integration tests on Services
 
 on:
   push:
