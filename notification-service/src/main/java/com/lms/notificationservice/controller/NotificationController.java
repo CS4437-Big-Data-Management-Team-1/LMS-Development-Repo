@@ -41,27 +41,8 @@ public class NotificationController {
         String type = request.get("type");
         String idToken = request.get("idToken");
         String gameName = request.get("gameName");
-        int weeksTillStartDate;
-        try {
-            weeksTillStartDate = request.get("weeksTillStartDate") != null 
-                ? Integer.parseInt(request.get("weeksTillStartDate")) 
-                : 0;
-        } catch (NumberFormatException e) {
-            weeksTillStartDate = 0; // Default if parsing fails
-        }
-    
-        double entryFee;
-        try {
-            entryFee = request.get("entryFee") != null 
-                ? Double.parseDouble(request.get("entryFee")) 
-                : 0.0;
-        } catch (NumberFormatException e) {
-            entryFee = 0.0; // Default if parsing fails
-        }
-
-        if (recipient == null || recipient.isEmpty()) {
-            return ResponseEntity.badRequest().body("Recipient email is required.");
-        }
+        String weeksTillStartDate = request.get("weeksTillStartDate");
+        String entryFee = request.get("entryFee");
         String currentRound = request.get("currentRound");
         String roundStartDate = request.get("roundStartDate");
         String roundEndDate = request.get("roundEndDate");
@@ -77,8 +58,8 @@ public class NotificationController {
             return ResponseEntity.badRequest().body("Invalid notification type.");
         }
 
+        // Try send the notification
         try {
-            // Send the notification
             notificationService.sendNotification(notification);
             return ResponseEntity.ok("Notification sent to " + recipient);
         } catch (Exception e) {
@@ -93,18 +74,13 @@ public class NotificationController {
      * @param recipient the recipient's email address
      * @return the corresponding Notification object or null if the type is invalid
      */
-    private Notification createNotification(String type, String recipient, String idToken, String gameName, int weeksTillStartDate, double entryFee, String currentRound, String roundStartDate, String roundEndDate, String totalPot, String playerStatus, String playerTeamPick) {
-        switch (type != null ? type.toLowerCase() : "") {
-            case "account_creation":
-                return new AccountCreationNotification(recipient, idToken);
-            case "game_update":
-                return new GameUpdateNotification(recipient, gameName, currentRound, roundStartDate, roundEndDate, totalPot, playerStatus, playerTeamPick);
-            case "game_created":
-                return new GameCreationNotification(recipient, gameName, weeksTillStartDate, entryFee);
-            case "game_joined":
-                return new GameJoinNotification(recipient, gameName, entryFee);
-            default:
-                return null;
-        }
+    private Notification createNotification(String type, String recipient, String idToken, String gameName, String weeksTillStartDate, String entryFee, String currentRound, String roundStartDate, String roundEndDate, String totalPot, String playerStatus, String playerTeamPick) {
+        return switch (type != null ? type.toLowerCase() : "") {
+            case "account_creation" -> new AccountCreationNotification(recipient, idToken);
+            case "game_update" -> new GameUpdateNotification(recipient, gameName, currentRound, roundStartDate, roundEndDate, totalPot, playerStatus, playerTeamPick);
+            case "game_created" -> new GameCreationNotification(recipient, gameName, weeksTillStartDate, entryFee);
+            case "game_joined" -> new GameJoinNotification(recipient, gameName, entryFee);
+            default -> null;
+        };
     }
 }

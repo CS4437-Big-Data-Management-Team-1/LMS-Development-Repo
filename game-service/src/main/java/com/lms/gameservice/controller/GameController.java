@@ -92,7 +92,7 @@ public class GameController {
             Game game = gameService.createGame(gameRequest.getName(), gameRequest.getEntryFee(),
                     gameRequest.getWeeksTillStartDate(), uid);
 
-            sendGameCreationNotification(userEmail, "game_created", gameRequest.getName(), gameRequest.getWeeksTillStartDate(), gameRequest.getEntryFee().doubleValue());
+            sendGameCreationNotification(userEmail, "game_created", gameRequest.getName(), String.valueOf(gameRequest.getWeeksTillStartDate()), String.valueOf(gameRequest.getEntryFee().doubleValue()));
             System.out.print(userEmail);
             return ResponseEntity.ok(game);
 
@@ -144,7 +144,7 @@ public class GameController {
             boolean joinedSuccessfully = gameService.joinGame(gameId, uid, authorisationHeader);
             if (joinedSuccessfully) {
                 System.out.println("User has joined game " +  gameId + " successfully.");
-                sendGameJoinedNotification(userEmail, "game_joined", gameName, entryFee);
+                sendGameJoinedNotification(userEmail, "game_joined", gameName, String.valueOf(entryFee));
                 return ResponseEntity.ok("User joined game " + gameId);
             } else {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Unable to join the game.");
@@ -305,14 +305,14 @@ public class GameController {
         }
     }
 
-    public void sendGameCreationNotification(String recipient, String type, String gameName, int weeksTillStartDate, double entryFee) {
+    public void sendGameCreationNotification(String recipient, String type, String gameName, String weeksTillStartDate, String entryFee) {
         String notificationUrl = "http://notification-service:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
         notificationData.put("type", type);
         notificationData.put("gameName", gameName);
-        notificationData.put("weeksTillStartDate", String.valueOf(weeksTillStartDate));
-        notificationData.put("entryFee", String.valueOf(entryFee));
+        notificationData.put("weeksTillStartDate", weeksTillStartDate);
+        notificationData.put("entryFee", entryFee);
         try {
             restTemplate.postForEntity(notificationUrl, notificationData, String.class);
             logger.info("Notification request sent for type: {}", type);
@@ -321,13 +321,13 @@ public class GameController {
         }
     }
 
-    public void sendGameJoinedNotification(String recipient, String type, String gameName, double entryFee) {
+    public void sendGameJoinedNotification(String recipient, String type, String gameName, String entryFee) {
         String notificationUrl = "http://notification-service:8085/api/notifications/send";
         Map<String, String> notificationData = new HashMap<>();
         notificationData.put("recipient", recipient);
         notificationData.put("type", type);
         notificationData.put("gameName", gameName);
-        notificationData.put("entryFee", String.valueOf(entryFee));
+        notificationData.put("entryFee", entryFee);
         try {
             restTemplate.postForEntity(notificationUrl, notificationData, String.class);
             logger.info("Notification request sent for type: {}", type);
