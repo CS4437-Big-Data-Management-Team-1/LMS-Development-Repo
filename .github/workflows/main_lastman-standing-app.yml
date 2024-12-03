@@ -29,16 +29,16 @@ jobs:
       - name: Load Environment Variables
         run: |
           # Map service to its corresponding secret and write to .env file
-          if [ "${{ matrix.service }}" = "user" ]; then
+          if [ "${{ matrix.service }}" = "information" ]; then
             echo "${{ secrets.USER_SERVICE_ENV }}" > .env
-          elif [ "${{ matrix.service }}" = "payment" ]; then
-            echo "${{ secrets.PAYMENT_SERVICE_ENV }}" > .env
-           elif [ "${{ matrix.service }}" = "payment" ]; then
+          elif [ "${{ matrix.service }}" = "game" ]; then
             echo "${{ secrets.GAME_SERVICE_ENV }}" > .env
-           elif [ "${{ matrix.service }}" = "payment" ]; then
+           elif [ "${{ matrix.service }}" = "notification" ]; then
             echo "${{ secrets.NOTIFICATION_SERVICE_ENV }}" > .env
            elif [ "${{ matrix.service }}" = "payment" ]; then
-            echo "${{ secrets.INFORMATION_SERVICE_ENV }}" > .env
+            echo "${{ secrets.PAYMENT_SERVICE_ENV }}" > .env
+           elif [ "${{ matrix.service }}" = "user" ]; then
+            echo "${{ secrets.USER_SERVICE_ENV }}" > .env
           fi
       
 
