@@ -5,19 +5,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestTemplate;
 
 import com.lms.gameservice.controller.GameController;
 import com.lms.gameservice.database.GameDatabaseController;
@@ -36,24 +30,23 @@ public class GameUpdateScheduler {
     private final ResultsRepository resultsRepository;
     private final InformationServiceClient info;
     private final GameDatabaseController db = new GameDatabaseController();
-    private final RestTemplate restTemplate;
     private static final Logger logger = LogManager.getLogger(GameController.class);
-
+    private final NotificationServiceClient noti;
 
     @Autowired
-    public GameUpdateScheduler(GameService gameService, GameRepository gameRepository, ResultsRepository resultsRepository, InformationServiceClient info, RestTemplate restTemplate) {
+    public GameUpdateScheduler(GameService gameService, GameRepository gameRepository, ResultsRepository resultsRepository, InformationServiceClient info, NotificationServiceClient noti) {
         db.connectToDB();
         this.gameService = gameService;
         this.gameRepository = gameRepository;
         this.resultsRepository = resultsRepository;
         this.info = info;
-        this.restTemplate = restTemplate;
+        this.noti = noti;
     }
 
     /**
-     * every Monday at 1am, update the active games
+     * every Monday at 3am, update the active games
      */
-    @Scheduled(cron = "0 0 1 * * MON")
+    @Scheduled(cron = "0 0 3 * * MON")
     public void updateActiveGames() {
         List<Game> games = gameRepository.findByStatus("ACTIVE");
 
@@ -66,10 +59,10 @@ public class GameUpdateScheduler {
             // Send notifications to all players with individual game and player values
             for (Player player : players) {
                 String userID = player.getUserId();
-                String userEmail = getUserEmailByUid(userID);
+                String userEmail = noti.getUserEmailByUid(userID);
 
                 if (userEmail != null) {
-                    sendGameUpdateNotification(
+                    noti.sendGameUpdateNotification(
                         userEmail,
                         "game_update",
                         game.getName(),
@@ -129,58 +122,6 @@ public class GameUpdateScheduler {
     result.setWinners(winners);
 
     resultsRepository.save(result);
-    }
-
-    public void sendGameUpdateNotification(
-        String recipient,
-        String type,
-        String gameName,
-        int currentRound,
-        String roundStartDate,
-        String roundEndDate,
-        String totalPot,
-        String playerStatus,
-        String playerTeamPick
-    ) {
-        String notificationUrl = "http://localhost:8085/api/notifications/send";
-
-        // Build the notification data as a map of individual fields
-        Map<String, String> notificationData = new HashMap<>();
-        notificationData.put("recipient", recipient);
-        notificationData.put("type", type);
-        notificationData.put("gameName", gameName);
-        notificationData.put("currentRound", String.valueOf(currentRound));
-        notificationData.put("roundStartDate", roundStartDate);
-        notificationData.put("roundEndDate", roundEndDate);
-        notificationData.put("totalPot", totalPot);
-        notificationData.put("playerStatus", playerStatus);
-        notificationData.put("playerTeamPick", playerTeamPick);
-
-        try {
-            restTemplate.postForEntity(notificationUrl, notificationData, String.class);
-            logger.info("Notification sent to {} for game {} (type: {})", recipient, gameName, type);
-        } catch (Exception e) {
-            logger.error("Failed to send notification to {} for game {}. Error: {}", recipient, gameName, e.getMessage());
-        }
-    }
-
-    
-
-    public String getUserEmailByUid(String uid) {
-        // Call the UserController's endpoint to get the email
-        String url = "http://localhost:8080/api/users/" + uid + "/email";
-
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, null, String.class);
-            if (response.getStatusCode() == HttpStatus.OK) {
-                return response.getBody(); // Return the email
-            } else {
-                return null; // Handle the case when the user is not found
-            }
-        } catch (Exception e) {
-            // Handle errors
-            return null;
-        }
     }
     
 }

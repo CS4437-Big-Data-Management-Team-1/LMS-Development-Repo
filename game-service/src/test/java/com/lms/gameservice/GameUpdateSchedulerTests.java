@@ -23,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import com.lms.gameservice.service.GameUpdateScheduler;
+import com.lms.gameservice.service.NotificationServiceClient;
 
 class GameUpdateSchedulerTests {
 
@@ -30,7 +31,7 @@ class GameUpdateSchedulerTests {
     private RestTemplate restTemplate;
 
     @InjectMocks
-    private GameUpdateScheduler gameUpdateScheduler;
+    private NotificationServiceClient notificationServiceClient;
 
     @BeforeEach
     void setUp() {
@@ -57,7 +58,7 @@ class GameUpdateSchedulerTests {
         when(restTemplate.postForEntity(eq(notificationUrl), any(), eq(String.class)))
                 .thenReturn(mockResponse);
 
-        gameUpdateScheduler.sendGameUpdateNotification(
+                notificationServiceClient.sendGameUpdateNotification(
                 recipient, type, gameName, currentRound, roundStartDate, roundEndDate, totalPot, playerStatus,
                 playerTeamPick);
 
@@ -95,7 +96,7 @@ class GameUpdateSchedulerTests {
         when(restTemplate.postForEntity(eq(notificationUrl), any(), eq(String.class)))
                 .thenThrow(new RuntimeException("Simulated API failure"));
 
-        assertDoesNotThrow(() -> gameUpdateScheduler.sendGameUpdateNotification(
+        assertDoesNotThrow(() -> notificationServiceClient.sendGameUpdateNotification(
                 recipient, type, gameName, currentRound, roundStartDate, roundEndDate, totalPot, playerStatus,
                 playerTeamPick));
 
@@ -114,7 +115,7 @@ class GameUpdateSchedulerTests {
         when(restTemplate.exchange(eq(emailApiUrl), eq(HttpMethod.GET), isNull(), eq(String.class)))
                 .thenReturn(mockResponse);
 
-        String actualEmail = gameUpdateScheduler.getUserEmailByUid(uid);
+        String actualEmail = notificationServiceClient.getUserEmailByUid(uid);
 
         assertEquals(expectedEmail, actualEmail);
         verify(restTemplate, times(1)).exchange(eq(emailApiUrl), eq(HttpMethod.GET), isNull(), eq(String.class));
@@ -130,7 +131,7 @@ class GameUpdateSchedulerTests {
         when(restTemplate.exchange(eq(emailApiUrl), eq(HttpMethod.GET), isNull(), eq(String.class)))
                 .thenThrow(new RuntimeException("Simulated API failure"));
 
-        String actualEmail = gameUpdateScheduler.getUserEmailByUid(uid);
+        String actualEmail = notificationServiceClient.getUserEmailByUid(uid);
 
         assertNull(actualEmail);
         verify(restTemplate, times(1)).exchange(eq(emailApiUrl), eq(HttpMethod.GET), isNull(), eq(String.class));
