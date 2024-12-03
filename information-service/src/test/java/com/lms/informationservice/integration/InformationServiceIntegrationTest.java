@@ -40,10 +40,10 @@ public class InformationServiceIntegrationTest {
     @Autowired
     private MatchesRepository matchesRepository;
 
-    @BeforeAll
-    static void validateEnvironment() {
-        Dotenv dotenv = Dotenv.load();
-    }
+//    @BeforeAll
+//    static void validateEnvironment() {
+//        Dotenv dotenv = Dotenv.load();
+//    }
 
     @Test
     void testFetchTeamsEndpoint() throws Exception {
