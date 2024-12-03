@@ -52,7 +52,6 @@ public class InformationService {
     public InformationService(TeamRepository teamRepository, MatchesRepository matchesRepository) {
         this.teamRepository = teamRepository;
         this.matchesRepository = matchesRepository;
-        Dotenv dotenv = Dotenv.configure().filename("information.env").load();
         this.webClient = WebClient.builder()
                 .baseUrl("FOOTBALL_API_BASE_URL")
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
