@@ -47,7 +47,7 @@ public class UserServiceIntegrationTest {
 
     @BeforeAll
     static void validateEnvironment() {
-        Dotenv dotenv = Dotenv.load();
+        Dotenv dotenv = Dotenv.configure().filename("user.env").load();
         System.setProperty("FIREBASE_API_KEY", dotenv.get("FIREBASE_API_KEY"));
     }
 

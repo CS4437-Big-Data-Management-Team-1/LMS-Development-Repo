@@ -56,4 +56,4 @@ jobs:
 
       - name: Run Integration Tests
         run: |
-          mvn clean verify -Pintegration-tests --file user-service/pom.xml
+          mvn verify -Pintegration-tests --file user-service/pom.xml
