@@ -43,8 +43,6 @@ public class InformationServiceIntegrationTest {
     @BeforeAll
     static void validateEnvironment() {
         Dotenv dotenv = Dotenv.load();
-        System.setProperty("FOOTBALL_API_BASE_URL", dotenv.get("FOOTBALL_API_BASE_URL"));
-        System.setProperty("FOOTBALL_API_TOKEN", dotenv.get("FOOTBALL_API_TOKEN"));
     }
 
     @Test
