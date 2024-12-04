@@ -1,4 +1,19 @@
 services:
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      retries: 10
+      start_period: 20s
+      timeout: 5s
+
   user-service:
     container_name: user-service
     build:
@@ -23,27 +38,27 @@ services:
       - "8081:8080"
     networks:
       - app-network
-    command: ["java", "-jar", "target/payment-service.jar"]
+    command: ["java", "-jar", "target/payment-service-0.0.1-SNAPSHOT.jar"]
 
   notification-service:
     container_name: notification-service
     build:
       context: ./notification-service
       dockerfile: Dockerfile
-    environment:
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_RABBITMQ_USERNAME=guest
-      - SPRING_RABBITMQ_PASSWORD=guest
     env_file:
       - ./notification-service/notification.env
     ports:
       - "8085:8080"
     depends_on:
-        - rabbitmq
+      rabbitmq:
+        condition: service_healthy
+    environment:
+    - SPRING_RABBITMQ_HOST=rabbitmq
+    - SPRING_RABBITMQ_PORT=5672
+    - SPRING_RABBITMQ_USERNAME=guest
+    - SPRING_RABBITMQ_PASSWORD=guest 
     networks:
       - app-network
-    command: ["java", "-jar", "target/notification-service.jar"]
 
   information-service:
     container_name: information-service
@@ -56,7 +71,7 @@ services:
       - "8082:8080"
     networks:
       - app-network
-    command: ["java", "-jar", "target/information-service.jar"]
+    command: ["java", "-jar", "target/information-service-0.0.1-SNAPSHOT.jar"]
 
   game-service:
     container_name: game-service
@@ -69,16 +84,7 @@ services:
       - "8083:8080"
     networks:
       - app-network
-    command: ["java", "-jar", "target/game-service.jar"]
-
-  rabbitmq:
-    container_name: rabbitmq
-    image: rabbitmq:3-management
-    ports:
-      - "15672:15672"
-      - "5672:5672"
-    networks:
-      - app-network
+    command: ["java", "-jar", "target/game-service-0.0.1-SNAPSHOT.jar"]
 
 networks:
   app-network:
