@@ -35,7 +35,7 @@ services:
     env_file:
       - ./payment-service/payment.env
     ports:
-      - "8081:8080"
+      - "8081:8081"
     networks:
       - app-network
     command: ["java", "-jar", "target/payment-service-0.0.1-SNAPSHOT.jar"]
@@ -48,7 +48,7 @@ services:
     env_file:
       - ./notification-service/notification.env
     ports:
-      - "8085:8080"
+      - "8085:8085"
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -68,7 +68,7 @@ services:
     env_file:
       - ./information-service/information.env
     ports:
-      - "8082:8080"
+      - "8082:8082"
     networks:
       - app-network
     command: ["java", "-jar", "target/information-service-0.0.1-SNAPSHOT.jar"]
@@ -81,7 +81,7 @@ services:
     env_file:
       - ./game-service/game.env
     ports:
-      - "8083:8080"
+      - "8083:8083"
     networks:
       - app-network
     command: ["java", "-jar", "target/game-service-0.0.1-SNAPSHOT.jar"]
