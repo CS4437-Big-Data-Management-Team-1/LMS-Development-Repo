@@ -23,7 +23,7 @@ public class PaymentServiceApplication {
      */
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.configure().filename("payment.env").load();
+        Dotenv dotenv = Dotenv.load();
         System.setProperty("STRIPE_SECRET_KEY", dotenv.get("STRIPE_SECRET_KEY"));
         System.setProperty("DB_USERNAME", dotenv.get("DB_USERNAME"));
         System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
