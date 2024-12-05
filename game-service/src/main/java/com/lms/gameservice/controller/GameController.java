@@ -300,55 +300,117 @@ public class GameController {
     /**
      * Used to test the Results Table is working.
      * 
+     * @return
+     * 
      */
     @PostMapping("/resultTest")
-    public void uploadResultsTest() {
-        
-    LocalDate today = LocalDate.now();
-    
-    LocalDate lastMonday = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-    LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
-    lastSunday = lastSunday.plusDays(1);
+    public ResponseEntity<?> uploadResultsTest(@RequestHeader("Authorisation") String authorisationHeader) {
 
-    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-    String startDate = lastMonday.format(formatter);
-    String endDate = lastSunday.format(formatter);
-    
-    List<MatchesDTO> matches = info.fetchMatchesWithinDateRange(startDate, endDate);
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String userId = splits[1];
 
-    Results result = new Results();
-    ArrayList<String> winners = new ArrayList<>();
-    for (MatchesDTO match : matches) {
-        winners.add(match.getResult());
-    }
-    result.setWinners(winners);
+            if (!authService.getUserAdminStatus(authorisationHeader, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: Admins only.");
+            }
+            LocalDate today = LocalDate.now();
 
-    resultsRepository.save(result);
+            LocalDate lastMonday = today.minusWeeks(1).with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate lastSunday = today.with(TemporalAdjusters.previous(DayOfWeek.SUNDAY));
+            lastSunday = lastSunday.plusDays(1);
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            String startDate = lastMonday.format(formatter);
+            String endDate = lastSunday.format(formatter);
+
+            List<MatchesDTO> matches = info.fetchMatchesWithinDateRange(startDate, endDate);
+
+            Results result = new Results();
+            ArrayList<String> winners = new ArrayList<>();
+            for (MatchesDTO match : matches) {
+                winners.add(match.getResult());
+            }
+            result.setWinners(winners);
+
+            resultsRepository.save(result);
+            return ResponseEntity.ok("Results uploaded successfully.");
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error Uploading Results: " + e.getMessage());
+        }
     }
 
     /**
      * Used to test the rounds working properly.
      * 
+     * @return
+     * 
      */
     @PostMapping("/updateTest")
-    public void updateActiveGames() {
-        List<Game> games = gameRepository.findByStatus("ACTIVE");
+    public ResponseEntity<?> updateActiveGames(@RequestHeader("Authorisation") String authorisationHeader) {
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String userId = splits[1];
 
-        for (Game game : games) {
-            gameService.nextRound(game.getId());
+            if (!authService.getUserAdminStatus(authorisationHeader, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: Admins only.");
+
+            }
+
+            List<Game> games = gameRepository.findByStatus("ACTIVE");
+
+            for (Game game : games) {
+                gameService.nextRound(game.getId());
+            }
+
+            return ResponseEntity.ok("Games updated successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error Updating Active games' rounds: " + e.getMessage());
         }
     }
 
     /**
      * Used to test the game start working properly.
      * 
+     * @return
+     * 
      */
     @PostMapping("/{game_id}/gameStartTest")
-    public void startGame(@PathVariable("game_id") int gameId) {
-        
-        Game game = gameRepository.findById(gameId)
-                .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+    public ResponseEntity<String> startGame(@RequestHeader("Authorisation") String authorisationHeader,
+            @PathVariable("game_id") int gameId) {
 
-                gameService.startGame(game.getId());
+        try {
+            String msg = authService.validateToken(authorisationHeader);
+            String[] splits = msg.split("Access granted for user: ");
+            String userId = splits[1];
+
+            if (!authService.getUserAdminStatus(authorisationHeader, userId)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Access denied: Admins only.");
+            }
+            Game game = gameRepository.findById(gameId)
+                    .orElseThrow(() -> new IllegalArgumentException("Game not found"));
+
+            gameService.startGame(game.getId());
+
+            return ResponseEntity.ok("Game started successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body("Error Starting Game: " + e.getMessage());
+        }
     }
+
+
+    public String extractUidFromMessage(String message) {
+        String prefix = "Access granted for user: ";
+        if (message != null && message.startsWith(prefix)) {
+            return message.substring(prefix.length()); 
+        }
+        return null; 
+  
+    }
+
 }
