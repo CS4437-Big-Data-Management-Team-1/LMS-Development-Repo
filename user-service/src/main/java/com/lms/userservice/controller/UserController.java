@@ -127,7 +127,7 @@ public class UserController {
                 // Send the account creation notification with the idToken
                 sendNotification(user.getEmail(), "account_creation", idToken);
 
-                return ResponseEntity.ok(savedUser);
+                return ResponseEntity.ok("User successfully registered. Access the login endpoint.");
             } else {
                 logger.warn("Login for ID token failed for user: {}", userDTO.getEmail());
                 return ResponseEntity.status(500).body("Failed to retrieve ID token for user registration.");
