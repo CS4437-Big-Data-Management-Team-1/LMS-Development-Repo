@@ -284,24 +284,6 @@ public class UserController {
     }
 
     /**
-     * Fetches the email of a user by their unique ID.
-     * @param id
-     * @return
-     */
-    @GetMapping("/{id}/email")
-    public ResponseEntity<String> getUserEmailById(@PathVariable String id) {
-        logger.info("Fetching email for user with ID: {}", id);
-        User user = userService.getUserById(id);
-        if (user != null) {
-            logger.info("User found with ID: {}", id);
-            return ResponseEntity.ok(user.getEmail());
-        } else {
-            logger.warn("User not found with ID: {}", id);
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    /**
      * Deletes a user by their ID.
      *
      * Restricted to admins. The caller must provide a valid Firebase ID token in the `Authorisation` header.
@@ -479,6 +461,34 @@ public class UserController {
         } catch (Exception e) {
             logger.error("Unexpected error during token validation: {}", e.getMessage(), e);
             throw new SecurityException("Unauthorised: Unable to validate token.");
+        }
+    }
+
+    @PutMapping("/{id}/addToBalance")
+    private ResponseEntity<?> updateUserBalance(
+            @PathVariable String id,
+            @RequestBody double amount) {
+        try {
+
+            if (Double.isNaN(amount)) {
+                return ResponseEntity.badRequest().body("Invalid money amount provided.");
+            }
+            
+            User updatedUser = userService.updateUserBalance(id, amount);
+
+            if (updatedUser != null) {
+                return ResponseEntity.ok(updatedUser);
+            } else {
+                return ResponseEntity.status(404).body("User not found.");
+            }
+        } catch (SecurityException e) {
+            if (e.getMessage().contains("Unauthorised")) {
+                return ResponseEntity.status(401).body(e.getMessage());
+            }
+            return ResponseEntity.status(403).body(e.getMessage());
+        } catch (Exception e) {
+            logger.error("Error updating user: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(e.getMessage());
         }
     }
 

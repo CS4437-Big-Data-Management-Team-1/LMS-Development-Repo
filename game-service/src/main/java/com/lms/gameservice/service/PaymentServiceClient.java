@@ -62,4 +62,17 @@ public class PaymentServiceClient {
             return false;
         }
     }
+
+
+    public void updateUserBalance(String userId, double amount) {
+        String url = "http://user-service:8080/api/users/" + userId + "/addToBalance"; 
+
+        HttpEntity<Double> entity = new HttpEntity<>(amount);
+
+        ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.PUT, entity, String.class);
+
+        if (!response.getStatusCode().is2xxSuccessful()) {
+            throw new RuntimeException("Error updating user balance");
+        }
+    }
 }
