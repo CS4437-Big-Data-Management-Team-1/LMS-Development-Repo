@@ -117,6 +117,7 @@ public class GameService {
         // Update the total pot in the game
 
         game.setTotalPot(game.getTotalPot().add(game.getEntryFee()));
+        gameRepository.save(game);
         db.updateGame(game);
 
         //register user to game in user_game_table

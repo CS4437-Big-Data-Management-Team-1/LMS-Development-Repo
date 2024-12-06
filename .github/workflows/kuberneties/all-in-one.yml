@@ -1,0 +1,428 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user-service
+  labels:
+    app: user-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: user-service
+  template:
+    metadata:
+      labels:
+        app: user-service
+    spec:
+      containers:
+      - name: user-service
+        image: square463/lms-development-repo-user-service:latest
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - secretRef:
+            name: user-service-secrets
+        
+        - configMapRef:
+            name: user-service-config
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user-service
+spec:
+  selector:
+    app: user-service
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: 8080
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: user-service-config
+data:
+  FIREBASE_API_KEY: "AIzaSyDKqVHRNluSqJZOPCKdD8k038-1auA0So0"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: user-service-secrets
+type: Opaque
+data:
+  DB_USERNAME: "QmlnRGF0YUFkbWlu"
+  DB_PASSWORD: "Q1M0MzM3R3JvdXAx"
+  DB_USERS_URL: "amRiYzpteXNxbDovL2RhdGFiYXNlLXVzZXJzLm15c3FsLmRhdGFiYXNlLmF6dXJlLmNvbTozMzA2L3VzZXJzP3VzZVNTTD10cnVl"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: payment-service
+  labels:
+    app: payment-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: payment-service
+  template:
+    metadata:
+      labels:
+        app: payment-service
+    spec:
+      containers:
+      - name: payment-service
+        image: square463/lms-development-repo-payment-service:latest
+        ports:
+        - containerPort: 8081
+        envFrom:
+        - secretRef:
+            name: payment-service-secrets
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: payment-service
+spec:
+  selector:
+    app: payment-service
+  ports:
+  - protocol: TCP
+    port: 8081
+    targetPort: 8081
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: payment-service-secrets
+type: Opaque
+data:
+  DB_USERNAME: "QmlnRGF0YUFkbWlu"
+  DB_PASSWORD: "Q1M0MzM3R3JvdXAx"
+  DB_USERS_URL: "amRiYzpteXNxbDovL2RhdGFiYXNlLXVzZXJzLm15c3FsLmRhdGFiYXNlLmF6dXJlLmNvbTozMzA2L3VzZXJzP3VzZVNTTD10cnVl"
+  STRIPE_SECRET_KEY: "c2tfdGVzdF81MVFENTN0S1hOMUtYa1pqYTZNaUVYUFBGTGp3ZTNMcHdubHpLcGFKVlo0ZTk4R0dkak9Kazcza25RQlFaV0x0eEJSTjc0UmtwQkhEakZNTGZGdUhqUUI4OTAwd2FMZE0zeXA="
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+  labels:
+    app: notification-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+      - name: notification-service
+        image: square463/lms-development-repo-notification-service:latest
+        ports:
+        - containerPort: 8085
+        envFrom:
+        - secretRef:
+            name: notification-service-secrets
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+  - protocol: TCP
+    port: 8085
+    targetPort: 8085
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: notification-service-secrets
+type: Opaque
+data:
+  DB_USERNAME: "QmlnRGF0YUFkbWlu"
+  DB_PASSWORD: "Q1M0MzM3R3JvdXAx"
+  DB_GAMES_URL: "amRiYzpteXNxbDovL2RhdGFiYXNlLXVzZXJzLm15c3FsLmRhdGFiYXNlLmF6dXJlLmNvbTozMzA2L2dhbWVzP3VzZVNTTD10cnVl"
+  NOTIFICATION_SERVICE_APP_PASSWORD: "amFiZWl0dm1pa3Fmc3Bkcw=="
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: information-service
+  labels:
+    app: information-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: information-service
+  template:
+    metadata:
+      labels:
+        app: information-service
+    spec:
+      containers:
+      - name: information-service
+        image: square463/lms-development-repo-information-service:latest
+        ports:
+        - containerPort: 8082
+        envFrom:
+        - secretRef:
+            name: information-service-secrets
+        
+        - configMapRef:
+            name: information-service-config
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: information-service
+spec:
+  selector:
+    app: information-service
+  ports:
+  - protocol: TCP
+    port: 8082
+    targetPort: 8082
+  type: ClusterIP
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: information-service-config
+data:
+  FOOTBALL_API_BASE_URL: "https://api.football-data.org/v4/competitions/PL"
+  FOOTBALL_API_TOKEN: "8e72a89f030d4e7782991ae42fdb8192"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: information-service-secrets
+type: Opaque
+data:
+  DB_USERNAME: "QmlnRGF0YUFkbWlu"
+  DB_PASSWORD: "Q1M0MzM3R3JvdXAx"
+  DB_TEAMS_URL: "amRiYzpteXNxbDovL2RhdGFiYXNlLXVzZXJzLm15c3FsLmRhdGFiYXNlLmF6dXJlLmNvbTozMzA2L3RlYW1zP3VzZVNTTD10cnVl"
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: game-service
+  labels:
+    app: game-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: game-service
+  template:
+    metadata:
+      labels:
+        app: game-service
+    spec:
+      containers:
+      - name: game-service
+        image: square463/lms-development-repo-game-service:latest
+        ports:
+        - containerPort: 8083
+        envFrom:
+        - secretRef:
+            name: game-service-secrets
+        
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: game-service
+spec:
+  selector:
+    app: game-service
+  ports:
+  - protocol: TCP
+    port: 8083
+    targetPort: 8083
+  type: LoadBalancer
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: game-service-secrets
+type: Opaque
+data:
+  DB_USERNAME: "QmlnRGF0YUFkbWlu"
+  DB_PASSWORD: "Q1M0MzM3R3JvdXAx"
+  DB_GAMES_URL: "amRiYzpteXNxbDovL2RhdGFiYXNlLXVzZXJzLm15c3FsLmRhdGFiYXNlLmF6dXJlLmNvbTozMzA2L2dhbWVzP3VzZVNTTD10cnVl"
+  INFORMATION_SERVICE_BASE_URL: "aHR0cDovL2xvY2FsaG9zdDo4MDgyL2FwaS9pbmZvcm1hdGlvbg=="
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rabbitmq
+  labels:
+    app: rabbitmq
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rabbitmq
+  template:
+    metadata:
+      labels:
+        app: rabbitmq
+    spec:
+      containers:
+      - name: rabbitmq
+        image: rabbitmq:3-management
+        ports:
+        - containerPort: 5672
+        
+            
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rabbitmq
+spec:
+  selector:
+    app: rabbitmq
+  ports:
+  - protocol: TCP
+    port: 5672
+    targetPort: 5672
+  type: ClusterIP
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: user-service-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: user-service
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 20
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: game-service-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: game-service
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 20
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: notification-service-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: notification-service
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 20
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: payment-service-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: payment-service
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 20
+
+---
+
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: information-service-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: information-service
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 20
+
