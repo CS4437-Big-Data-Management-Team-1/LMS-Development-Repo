@@ -54,7 +54,7 @@ public class UserController {
     private final UserDatabaseConnector db;
 
     // Used for login method
-    @Value("${FIREBASE_API_KEY}")
+    @Value("${server.firebase}")
     private String apiKey;
 
     /**
