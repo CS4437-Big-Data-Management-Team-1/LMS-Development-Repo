@@ -324,6 +324,16 @@ public class UserController {
                 throw new IllegalArgumentException("Invalid Authorisation header.");
             }
             validateToken(authorisationHeader, true);
+
+            try {
+                FirebaseAuth.getInstance().deleteUser(id);
+                logger.info("User successfully deleted from Firebase: {}", id);
+            } catch (FirebaseAuthException e) {
+                logger.error("Failed to delete user from Firebase: {}", e.getMessage());
+                // Returning 500 here since Firebase deletion failed
+                return ResponseEntity.status(500).body("Failed to delete user from Firebase.");
+            }
+
             boolean deleted = userService.deleteUserById(id);
             if (deleted) {
                 return ResponseEntity.ok("User deleted successfully.");
