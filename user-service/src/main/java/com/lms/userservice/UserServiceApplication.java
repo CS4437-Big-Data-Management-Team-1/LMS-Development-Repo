@@ -5,12 +5,17 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
+
 
 @SpringBootApplication
 @EnableDiscoveryClient
 public class UserServiceApplication {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         String useDotenv = System.getenv("USE_DOTENV"); // Check the flag
 
@@ -32,6 +37,11 @@ public class UserServiceApplication {
         setSystemProperty("DB_PASSWORD");
         setSystemProperty("DB_USERS_URL");
         setSystemProperty("FIREBASE_API_KEY");
+
+        String firebaseSetupBase64 = System.getenv("FIREBASE_SETUP");
+        byte[] decodedBytes = Base64.getDecoder().decode(firebaseSetupBase64);
+        String filePath = "user-service/src/main/resources/firebase-setup.json";
+        Files.write(Paths.get(filePath), decodedBytes);
 
         SpringApplication.run(UserServiceApplication.class, args);
     }
