@@ -284,6 +284,24 @@ public class UserController {
     }
 
     /**
+     * Fetches the email of a user by their unique ID.
+     * @param id
+     * @return
+     */
+    @GetMapping("/{id}/email")
+    public ResponseEntity<String> getUserEmailById(@PathVariable String id) {
+        logger.info("Fetching email for user with ID: {}", id);
+        User user = userService.getUserById(id);
+        if (user != null) {
+            logger.info("User found with ID: {}", id);
+            return ResponseEntity.ok(user.getEmail());
+        } else {
+            logger.warn("User not found with ID: {}", id);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    /**
      * Deletes a user by their ID.
      *
      * Restricted to admins. The caller must provide a valid Firebase ID token in the `Authorisation` header.

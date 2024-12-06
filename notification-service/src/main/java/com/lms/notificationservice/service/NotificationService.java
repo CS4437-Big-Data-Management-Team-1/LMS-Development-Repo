@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lms.notificationservice.config.RabbitMQConfig;
+import com.lms.notificationservice.database.NotificationDatabaseController;
 import com.lms.notificationservice.model.Notification;
 import com.rabbitmq.client.Channel;
 
@@ -28,6 +29,10 @@ public class NotificationService {
             logger.error("Invalid notification or recipient email.");
             throw new IllegalArgumentException("Invalid notification or recipient email.");
         }
+
+        // Create a new instance of the NotificationDatabaseController
+        NotificationDatabaseController db = new NotificationDatabaseController();
+
         // Try to send the email
         try {
             // Create a map to hold the email data
@@ -50,6 +55,8 @@ public class NotificationService {
             // Catch any other unexpected errors
             logger.error("Unexpected error when sending email to {}: {}", notification.getRecipient(), e.getMessage());
         }
+        db.connectToDB();
+        db.addEmailToDB(notification);
     }
 
     // Send the notification message to RabbitMQ
