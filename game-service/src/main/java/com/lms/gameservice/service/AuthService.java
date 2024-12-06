@@ -58,4 +58,5 @@ public class AuthService {
             throw new RuntimeException("Error parsing user admin status: " + e.getMessage(), e);
         }
     }
+
 }

@@ -227,9 +227,7 @@ public class GameService {
     private void declareWinner(Game game, Player winner) {
         
         BigDecimal prize = game.getTotalPot();
-        //need to fix adding money to pot issue & then pay player
-        //paymentService.addToUserBalance(winner.getUserId(), prize);
-    
+        paymentService.updateUserBalance(winner.getUserId(), prize.doubleValue());
         game.setStatus("COMPLETED");
         gameRepository.save(game);
     

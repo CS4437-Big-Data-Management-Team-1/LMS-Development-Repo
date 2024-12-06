@@ -132,4 +132,16 @@ public class UserService {
         // Save updated user
         return userRepository.save(user);
     }
+
+    public User updateUserBalance(String id, double amount) {
+
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        user.setBalance(user.getBalance() + amount);
+
+        return userRepository.save(user);
+    }
 }
