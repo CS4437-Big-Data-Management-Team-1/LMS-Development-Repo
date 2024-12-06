@@ -96,13 +96,13 @@ public class UserController {
                     .setPassword(userDTO.getPassword())
                     .setDisplayName(userDTO.getUsername());
 
-            UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
-            logger.info("Firebase user created with UID: {}", userRecord.getUid());
+//            UserRecord userRecord = FirebaseAuth.getInstance().createUser(request);
+//            logger.info("Firebase user created with UID: {}", userRecord.getUid());
 
             User user = new User();
-            user.setId(userRecord.getUid());
-            user.setEmail(userRecord.getEmail());
-            user.setUsername(userRecord.getDisplayName());
+            user.setId("set");
+            user.setEmail("manwork");
+            user.setUsername("test");
             user.setPasswordHash(""); // TODO can probs get rid of this as firebase deal with password
             logger.debug("User entity prepared for saving.");
 

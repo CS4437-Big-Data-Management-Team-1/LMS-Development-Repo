@@ -38,10 +38,10 @@ public class UserServiceApplication {
         setSystemProperty("DB_USERS_URL");
         setSystemProperty("FIREBASE_API_KEY");
 
-        String firebaseSetupBase64 = System.getenv("FIREBASE_SETUP");
-        byte[] decodedBytes = Base64.getDecoder().decode(firebaseSetupBase64);
-        String filePath = "user-service/src/main/resources/firebase-setup.json";
-        Files.write(Paths.get(filePath), decodedBytes);
+//        String firebaseSetupBase64 = System.getenv("FIREBASE_SETUP");
+//        byte[] decodedBytes = Base64.getDecoder().decode(firebaseSetupBase64);
+//        String filePath = "user-service/src/main/resources/firebase-setup.json";
+//        Files.write(Paths.get(filePath), decodedBytes);
 
         SpringApplication.run(UserServiceApplication.class, args);
     }
